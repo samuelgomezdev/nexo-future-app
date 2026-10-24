@@ -76,4 +76,24 @@ void main() {
       expect(repositorio.pesquisar(), hasLength(4));
     });
   });
+
+  group('Consultas auxiliares do repositório de vagas', () {
+    final repositorio = VagaRepository([
+      vaga('v1', 'Soldador', area: 'Metalurgia'),
+      vaga('v2', 'Mecânico Diesel', area: 'Logística'),
+      vaga('v3', 'Inspetor de Qualidade', area: 'Metalurgia'),
+    ]);
+
+    test('busca a vaga pelo id', () {
+      expect(repositorio.buscarPorId('v2')?.titulo, 'Mecânico Diesel');
+    });
+
+    test('id inexistente devolve nulo', () {
+      expect(repositorio.buscarPorId('nao-existe'), isNull);
+    });
+
+    test('lista as áreas sem repetir, em ordem alfabética', () {
+      expect(repositorio.areas, ['Logística', 'Metalurgia']);
+    });
+  });
 }
