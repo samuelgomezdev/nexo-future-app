@@ -8,6 +8,17 @@ class VagaRepository {
 
   final List<Vaga> _vagas;
 
+  Vaga? buscarPorId(String id) {
+    for (final vaga in _vagas) {
+      if (vaga.id == id) return vaga;
+    }
+    return null;
+  }
+
+  /// Áreas das vagas, sem repetir e em ordem alfabética.
+  List<String> get areas =>
+      (_vagas.map((v) => v.area).toSet().toList()..sort());
+
   /// Filtra por texto no título (sem diferenciar maiúsculas e acentos) e por
   /// área. A primeira página é a 1.
   List<Vaga> pesquisar({String texto = '', String? area, int pagina = 1}) {
