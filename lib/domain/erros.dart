@@ -14,3 +14,11 @@ class CandidaturaDuplicada implements Exception {
   @override
   String toString() => 'Você já se candidatou a esta vaga.';
 }
+
+/// Lançada quando a vaga não está aguardando ingresso (RF0007).
+class VagaNaoDisponivel implements Exception {
+  const VagaNaoDisponivel();
+
+  @override
+  String toString() => 'Esta vaga não está recebendo candidaturas no momento.';
+}
