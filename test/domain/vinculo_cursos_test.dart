@@ -6,10 +6,10 @@ import 'package:nexo_future_app/domain/regras/vinculo_cursos.dart';
 void main() {
   group('RN0006: no máximo 5 cursos preferenciais por vaga', () {
     Curso curso(int numero) => Curso(
-          id: 'curso-$numero',
-          nome: 'Curso $numero',
-          oficina: 'Oficina Escola Mãos do Porto',
-        );
+      id: 'curso-$numero',
+      nome: 'Curso $numero',
+      oficina: 'Oficina Escola Mãos do Porto',
+    );
 
     List<Curso> vincularVarios(int quantidade) {
       var cursos = <Curso>[];

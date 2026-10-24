@@ -3,14 +3,14 @@ import 'package:nexo_future_app/data/vaga_repository.dart';
 import 'package:nexo_future_app/domain/models/vaga.dart';
 
 Vaga vaga(String id, String titulo, {String area = 'Naval'}) => Vaga(
-      id: id,
-      titulo: titulo,
-      empresa: 'Estaleiro Foz Azul',
-      area: area,
-      cidade: 'Itajaí',
-      qualificacao: 'Ensino fundamental completo',
-      situacao: SituacaoVaga.aguardandoIngresso,
-    );
+  id: id,
+  titulo: titulo,
+  empresa: 'Estaleiro Foz Azul',
+  area: area,
+  cidade: 'Itajaí',
+  qualificacao: 'Ensino fundamental completo',
+  situacao: SituacaoVaga.aguardandoIngresso,
+);
 
 void main() {
   group('RNF0002: pesquisa em páginas de 15 vagas', () {
