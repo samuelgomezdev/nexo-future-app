@@ -18,6 +18,7 @@ class Vaga {
     required this.cidade,
     required this.qualificacao,
     required this.situacao,
+    this.cursos = const [],
   });
 
   final String id;
@@ -27,6 +28,9 @@ class Vaga {
   final String cidade;
   final String qualificacao;
   final SituacaoVaga situacao;
+
+  /// Cursos preferenciais aprovados pelo recrutador (RN0006: no máximo 5).
+  final List<Curso> cursos;
 }
 
 class Curso {

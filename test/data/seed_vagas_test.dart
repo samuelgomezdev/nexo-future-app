@@ -17,14 +17,18 @@ void main() {
 
     test('nenhuma vaga passa de 5 cursos vinculados (RN0006)', () {
       for (final vaga in seedVagas) {
-        expect(vaga.cursos.length, lessThanOrEqualTo(limiteCursosPorVaga),
-            reason: vaga.id);
+        expect(
+          vaga.cursos.length,
+          lessThanOrEqualTo(limiteCursosPorVaga),
+          reason: vaga.id,
+        );
       }
     });
 
     test('vaga aguardando ingresso tem pelo menos um curso aprovado', () {
-      final aguardando = seedVagas
-          .where((v) => v.situacao == SituacaoVaga.aguardandoIngresso);
+      final aguardando = seedVagas.where(
+        (v) => v.situacao == SituacaoVaga.aguardandoIngresso,
+      );
 
       for (final vaga in aguardando) {
         expect(vaga.cursos, isNotEmpty, reason: vaga.id);
@@ -32,8 +36,7 @@ void main() {
     });
 
     test('vaga aberta ainda não tem curso aprovado', () {
-      final abertas =
-          seedVagas.where((v) => v.situacao == SituacaoVaga.aberta);
+      final abertas = seedVagas.where((v) => v.situacao == SituacaoVaga.aberta);
 
       expect(abertas, isNotEmpty);
       for (final vaga in abertas) {
