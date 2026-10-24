@@ -28,3 +28,11 @@ class Vaga {
   final String qualificacao;
   final SituacaoVaga situacao;
 }
+
+class Curso {
+  const Curso({required this.id, required this.nome, required this.oficina});
+
+  final String id;
+  final String nome;
+  final String oficina;
+}

@@ -22,3 +22,19 @@ class VagaNaoDisponivel implements Exception {
   @override
   String toString() => 'Esta vaga não está recebendo candidaturas no momento.';
 }
+
+/// Lançada quando a vaga já tem o máximo de cursos vinculados (RN0006).
+class LimiteCursosAtingido implements Exception {
+  const LimiteCursosAtingido();
+
+  @override
+  String toString() => 'Esta vaga já tem 5 cursos vinculados.';
+}
+
+/// Lançada quando o curso já está vinculado à vaga.
+class CursoJaVinculado implements Exception {
+  const CursoJaVinculado();
+
+  @override
+  String toString() => 'Este curso já está vinculado à vaga.';
+}
