@@ -1,4 +1,4 @@
-# CLAUDE.md – nexo-future-app
+# Guia do projeto – nexo-future-app
 
 App mobile em Flutter do projeto **Nexo Future** (Hands-On Work VIII, ADS Univali). O app conecta jovens a cursos profissionalizantes ligados a vagas reais de empresas da região da AMFRI (Itajaí/SC). O plano completo está em `docs/PLANO_APP_MVP.md`.
 
