@@ -31,6 +31,19 @@ class LimiteCursosAtingido implements Exception {
   String toString() => 'Esta vaga já tem 5 cursos vinculados.';
 }
 
+/// Lançada quando o login está bloqueado por senhas erradas (RNF0007).
+class LoginBloqueado implements Exception {
+  const LoginBloqueado(this.tempoRestante);
+
+  final Duration tempoRestante;
+
+  @override
+  String toString() {
+    final minutos = (tempoRestante.inSeconds / 60).ceil();
+    return 'Acesso bloqueado por segurança. Tente de novo em $minutos min.';
+  }
+}
+
 /// Lançada quando o curso já está vinculado à vaga.
 class CursoJaVinculado implements Exception {
   const CursoJaVinculado();
