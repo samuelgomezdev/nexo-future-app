@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "982190709303",
+    "project_id": "nexo-future",
+    "storage_bucket": "nexo-future.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:982190709303:android:769a11c2780c2603383db2",
+        "android_client_info": {
+          "package_name": "br.univali.nexofuture.nexo_future_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaBDdRvgQ2zhjquAMHStbPwNSLbu9wT7g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
