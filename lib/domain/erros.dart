@@ -44,6 +44,35 @@ class LoginBloqueado implements Exception {
   }
 }
 
+/// Lançada pelo serviço de autenticação quando o e-mail ou a senha não conferem.
+class CredenciaisInvalidas implements Exception {
+  const CredenciaisInvalidas();
+
+  @override
+  String toString() => 'E-mail ou senha incorretos.';
+}
+
+/// Lançada no login com senha errada, antes de chegar ao bloqueio.
+class SenhaIncorreta implements Exception {
+  const SenhaIncorreta(this.tentativasRestantes);
+
+  final int tentativasRestantes;
+
+  @override
+  String toString() => tentativasRestantes == 1
+      ? 'E-mail ou senha incorretos. Resta 1 tentativa.'
+      : 'E-mail ou senha incorretos. Restam $tentativasRestantes tentativas.';
+}
+
+/// Lançada quando a conta ainda não confirmou o e-mail.
+class EmailNaoVerificado implements Exception {
+  const EmailNaoVerificado();
+
+  @override
+  String toString() =>
+      'Confirme seu e-mail pelo link que enviamos antes de entrar.';
+}
+
 /// Lançada quando o curso já está vinculado à vaga.
 class CursoJaVinculado implements Exception {
   const CursoJaVinculado();
