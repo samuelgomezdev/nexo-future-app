@@ -110,7 +110,21 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const _AvisoTentativas(),
+            if (viewModel.erroGeral case final erro?) ...[
+              _Aviso(
+                texto: erro,
+                icone: Icons.error_outline,
+                fundo: CoresNexo.erroFundo,
+                cor: CoresNexo.erro,
+              ),
+              const SizedBox(height: 12),
+            ],
+            const _Aviso(
+              texto: 'Depois de 5 senhas erradas, o acesso fica bloqueado por 15 minutos.',
+              icone: Icons.info_outline,
+              fundo: CoresNexo.primaria50,
+              cor: CoresNexo.primaria500,
+            ),
             const SizedBox(height: 24),
             FilledButton(
               onPressed: viewModel.carregando ? null : _entrar,
@@ -128,31 +142,34 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-/// Explica a regra antes de o jovem esbarrar nela (RNF0007).
-class _AvisoTentativas extends StatelessWidget {
-  const _AvisoTentativas();
+/// Aviso do protótipo: ícone e texto sobre um fundo suave.
+class _Aviso extends StatelessWidget {
+  const _Aviso({
+    required this.texto,
+    required this.icone,
+    required this.fundo,
+    required this.cor,
+  });
+
+  final String texto;
+  final IconData icone;
+  final Color fundo;
+  final Color cor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: CoresNexo.primaria50,
+        color: fundo,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.info_outline,
-            size: 20,
-            color: CoresNexo.primaria500,
-          ),
+          Icon(icone, size: 20, color: cor),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              'Depois de 5 senhas erradas, o acesso fica bloqueado por 15 minutos.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            child: Text(texto, style: Theme.of(context).textTheme.bodyMedium),
           ),
         ],
       ),

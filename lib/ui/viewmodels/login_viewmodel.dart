@@ -14,6 +14,9 @@ class LoginViewModel extends ChangeNotifier {
   bool carregando = false;
   String? erroEmail;
   String? erroSenha;
+
+  /// Falha que não é de e-mail nem de senha (internet, servidor).
+  String? erroGeral;
   Usuario? usuario;
   bool precisaConfirmarEmail = false;
   Duration? tempoBloqueio;
@@ -23,6 +26,7 @@ class LoginViewModel extends ChangeNotifier {
   Future<bool> entrar(String email, String senha) async {
     erroEmail = null;
     erroSenha = null;
+    erroGeral = null;
     precisaConfirmarEmail = false;
     tempoBloqueio = null;
 
@@ -49,6 +53,8 @@ class LoginViewModel extends ChangeNotifier {
       tempoBloqueio = e.tempoRestante;
     } on EmailNaoVerificado {
       precisaConfirmarEmail = true;
+    } on Exception {
+      erroGeral = 'Não foi possível entrar agora. Confira sua internet e tente de novo.';
     } finally {
       carregando = false;
       notifyListeners();
