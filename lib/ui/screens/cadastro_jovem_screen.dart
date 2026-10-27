@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../domain/models/jovem.dart';
 import '../../domain/regras/cadastro_jovem.dart';
+import '../mascara_data.dart';
 import '../tema.dart';
 import '../viewmodels/cadastro_jovem_viewmodel.dart';
 import 'login_screen.dart';
@@ -123,7 +124,8 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
           const SizedBox(height: 14),
           TextField(
             controller: _nascimento,
-            keyboardType: TextInputType.datetime,
+            keyboardType: TextInputType.number,
+            inputFormatters: [MascaraData()],
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
               labelText: 'Data de nascimento',
