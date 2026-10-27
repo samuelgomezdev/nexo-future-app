@@ -185,12 +185,17 @@ ThemeData temaNexo() {
       side: const BorderSide(color: CoresNexo.neutro200),
       selectedColor: CoresNexo.primaria500,
       backgroundColor: Colors.white,
-      labelStyle: const TextStyle(
+      // Branco só no chip selecionado (fundo azul); nos outros, texto escuro.
+      labelStyle: TextStyle(
         fontFamily: 'Inter',
         fontSize: 13,
         fontWeight: FontWeight.w500,
+        color: WidgetStateColor.resolveWith(
+          (estados) => estados.contains(WidgetState.selected)
+              ? Colors.white
+              : CoresNexo.neutro700,
+        ),
       ),
-      secondaryLabelStyle: const TextStyle(color: Colors.white),
       checkmarkColor: Colors.white,
     ),
   );
