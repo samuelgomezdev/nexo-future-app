@@ -38,4 +38,29 @@ class FirebaseAutenticacao implements ServicoAutenticacao {
       rethrow;
     }
   }
+
+  @override
+  Future<Usuario> criarConta(String email, String senha) async {
+    try {
+      final resultado = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
+      final usuario = resultado.user!;
+      return Usuario(
+        id: usuario.uid,
+        email: usuario.email ?? email,
+        emailVerificado: usuario.emailVerified,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') throw const EmailJaCadastrado();
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> enviarConfirmacaoEmail() async {
+    await _auth.setLanguageCode('pt');
+    await _auth.currentUser?.sendEmailVerification();
+  }
 }

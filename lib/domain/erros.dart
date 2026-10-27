@@ -73,6 +73,14 @@ class EmailNaoVerificado implements Exception {
       'Confirme seu e-mail pelo link que enviamos antes de entrar.';
 }
 
+/// Lançada no cadastro quando já existe conta com o e-mail.
+class EmailJaCadastrado implements Exception {
+  const EmailJaCadastrado();
+
+  @override
+  String toString() => 'Já existe uma conta com este e-mail. Tente entrar.';
+}
+
 /// Lançada quando o curso já está vinculado à vaga.
 class CursoJaVinculado implements Exception {
   const CursoJaVinculado();

@@ -17,6 +17,12 @@ class Usuario {
 abstract class ServicoAutenticacao {
   /// Lança [CredenciaisInvalidas] quando o e-mail ou a senha não conferem.
   Future<Usuario> entrar(String email, String senha);
+
+  /// Lança [EmailJaCadastrado] quando já existe conta com o e-mail.
+  Future<Usuario> criarConta(String email, String senha);
+
+  /// Envia o link de confirmação para o e-mail da conta recém-criada (RF0016).
+  Future<void> enviarConfirmacaoEmail();
 }
 
 /// Login com o bloqueio da RNF0007, contado separadamente para cada e-mail.
