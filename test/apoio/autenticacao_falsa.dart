@@ -10,9 +10,14 @@ class AutenticacaoFalsa implements ServicoAutenticacao {
   };
   int chamadas = 0;
 
+  /// Simula uma falha que não é de senha (sem internet, servidor fora etc.).
+  Exception? falhaInesperada;
+
   @override
   Future<Usuario> entrar(String email, String senha) async {
     chamadas++;
+    final falha = falhaInesperada;
+    if (falha != null) throw falha;
     final conta = contas[email];
     if (conta == null || conta.senha != senha) {
       throw const CredenciaisInvalidas();

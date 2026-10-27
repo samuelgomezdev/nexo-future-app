@@ -61,6 +61,22 @@ void main() {
       expect(find.text('15:00'), findsOneWidget);
     });
 
+    testWidgets('se o servidor falhar, mostra o aviso na tela', (tester) async {
+      final servico = AutenticacaoFalsa()
+        ..falhaInesperada = Exception('servidor fora');
+      await tester.pumpWidget(NexoFutureApp(autenticacao: servico));
+      await tester.pumpAndSettle();
+
+      await entrar(tester, 'ana@email.com', 'senha-certa');
+
+      expect(
+        find.text(
+          'Não foi possível entrar agora. Confira sua internet e tente de novo.',
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('com o e-mail não confirmado, pede a confirmação', (
       tester,
     ) async {

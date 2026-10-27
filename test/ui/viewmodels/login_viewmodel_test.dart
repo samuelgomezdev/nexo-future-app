@@ -78,6 +78,26 @@ void main() {
       expect(viewModel.precisaConfirmarEmail, isTrue);
     });
 
+    test('falha que não é de senha mostra aviso e não conta como tentativa', () async {
+      servico.falhaInesperada = Exception('sem conexão');
+
+      final entrou = await viewModel.entrar('ana@email.com', 'senha-certa');
+
+      expect(entrou, isFalse);
+      expect(
+        viewModel.erroGeral,
+        'Não foi possível entrar agora. Confira sua internet e tente de novo.',
+      );
+      expect(viewModel.carregando, isFalse);
+
+      servico.falhaInesperada = null;
+      await viewModel.entrar('ana@email.com', 'senha-errada');
+      expect(
+        viewModel.erroSenha,
+        'E-mail ou senha incorretos. Restam 4 tentativas.',
+      );
+    });
+
     test('uma nova tentativa limpa os erros anteriores', () async {
       await viewModel.entrar('ana@email.com', 'senha-errada');
 
