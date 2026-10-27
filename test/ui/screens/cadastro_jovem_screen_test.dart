@@ -108,6 +108,24 @@ void main() {
       },
     );
 
+    testWidgets('a data de nascimento ganha as barras ao digitar só números', (
+      tester,
+    ) async {
+      await abrirCadastro(tester);
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Data de nascimento'),
+        '10052011',
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('10/05/2011'), findsOneWidget);
+      expect(
+        find.text('Meu responsável autorizou este cadastro'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('a Política de Privacidade abre pelo link do aceite', (
       tester,
     ) async {
