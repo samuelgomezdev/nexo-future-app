@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/models/vaga.dart';
+import '../tema.dart';
 
+/// Situação da vaga com ícone e texto, para não depender só da cor.
 class SituacaoChip extends StatelessWidget {
   const SituacaoChip(this.situacao, {super.key});
 
@@ -9,33 +11,43 @@ class SituacaoChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cores = Theme.of(context).colorScheme;
-    final (texto, fundo, frente) = switch (situacao) {
+    final (texto, icone, fundo, frente) = switch (situacao) {
       SituacaoVaga.aguardandoIngresso => (
         'Aceitando candidaturas',
-        cores.primaryContainer,
-        cores.onPrimaryContainer,
+        Icons.check,
+        CoresNexo.sucessoFundo,
+        CoresNexo.sucesso,
       ),
       SituacaoVaga.aberta => (
         'Aguardando cursos',
-        cores.surfaceContainerHighest,
-        cores.onSurfaceVariant,
+        Icons.schedule,
+        CoresNexo.alertaFundo,
+        CoresNexo.alerta,
       ),
       SituacaoVaga.lotada => (
         'Lotada',
-        cores.errorContainer,
-        cores.onErrorContainer,
+        Icons.close,
+        CoresNexo.neutro200,
+        CoresNexo.neutro700,
       ),
     };
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.fromLTRB(8, 4, 10, 4),
       decoration: BoxDecoration(
         color: fundo,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(
-        texto,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: frente),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icone, size: 14, color: frente),
+          const SizedBox(width: 4),
+          Text(
+            texto,
+            style: Theme.of(context).textTheme.labelSmall
+                ?.copyWith(color: frente),
+          ),
+        ],
       ),
     );
   }

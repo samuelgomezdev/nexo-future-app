@@ -5,6 +5,7 @@ import '../data/candidatura_repository.dart';
 import '../data/seed_vagas.dart';
 import '../data/vaga_repository.dart';
 import 'screens/lista_vagas_screen.dart';
+import 'tema.dart';
 import 'viewmodels/candidaturas_viewmodel.dart';
 import 'viewmodels/vagas_viewmodel.dart';
 
@@ -31,9 +32,7 @@ class NexoFutureApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Nexo Future',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0B6E99)),
-        ),
+        theme: temaNexo(),
         home: const ListaVagasScreen(),
       ),
     );
