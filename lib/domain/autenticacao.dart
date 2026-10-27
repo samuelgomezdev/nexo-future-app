@@ -41,7 +41,8 @@ class EntrarNaConta {
       usuario = await _servico.entrar(emailNormalizado, senha);
     } on CredenciaisInvalidas {
       controle.registrarFalha();
-      controle.garantirLiberado();
+      // Acabou de bloquear: o tempo é o bloqueio inteiro.
+      if (controle.bloqueado) throw const LoginBloqueado(tempoBloqueioLogin);
       throw SenhaIncorreta(controle.tentativasRestantes);
     }
     controle.registrarSucesso();
