@@ -10,6 +10,10 @@ class AutenticacaoFalsa implements ServicoAutenticacao {
   };
   int chamadas = 0;
 
+  /// E-mails que receberam o link de confirmação.
+  final confirmacoesEnviadas = <String>[];
+  String? _ultimaContaCriada;
+
   /// Simula uma falha que não é de senha (sem internet, servidor fora etc.).
   Exception? falhaInesperada;
 
@@ -27,5 +31,21 @@ class AutenticacaoFalsa implements ServicoAutenticacao {
       email: email,
       emailVerificado: conta.emailVerificado,
     );
+  }
+
+  @override
+  Future<Usuario> criarConta(String email, String senha) async {
+    final falha = falhaInesperada;
+    if (falha != null) throw falha;
+    if (contas.containsKey(email)) throw const EmailJaCadastrado();
+    contas[email] = (senha: senha, emailVerificado: false);
+    _ultimaContaCriada = email;
+    return Usuario(id: 'uid-$email', email: email, emailVerificado: false);
+  }
+
+  @override
+  Future<void> enviarConfirmacaoEmail() async {
+    final email = _ultimaContaCriada;
+    if (email != null) confirmacoesEnviadas.add(email);
   }
 }
