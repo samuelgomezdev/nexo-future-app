@@ -35,6 +35,7 @@ void main() {
     }) => DadosCadastroEmpresa(
       nome: 'Estaleiro Foz Azul',
       cnpj: cnpj,
+      setor: 'Naval',
       recrutador: 'Marcos Pereira',
       email: email,
       senha: 'senha1234',

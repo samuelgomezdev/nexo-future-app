@@ -122,6 +122,7 @@ function empresaDe(pessoa, extras = {}) {
   return {
     nome: 'Estaleiro Foz Azul',
     cnpj: '11222333000181',
+    setor: 'Naval',
     recrutador: 'Marcos Pereira',
     email: pessoa.email,
     cidade: 'Itajaí',
@@ -180,6 +181,12 @@ describe('Perfis de empresas', () => {
         empresaDe(marcos, { email: 'outro@example.com' }),
       ),
     );
+  });
+
+  test('o perfil da empresa precisa do setor', async () => {
+    const semSetor = empresaDe(marcos);
+    delete semSetor.setor;
+    await assertFails(setDoc(doc(bancoDe(marcos), 'empresas', marcos.uid), semSetor));
   });
 
   test('o perfil precisa do aceite da política', async () => {

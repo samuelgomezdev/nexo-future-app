@@ -15,6 +15,7 @@ void main() {
   DadosCadastroEmpresa dados({
     String nome = 'Estaleiro Foz Azul',
     String cnpj = cnpjFicticio,
+    String setor = 'Naval',
     String recrutador = 'Marcos Pereira',
     String email = 'rh@fozazul.com',
     String senha = 'senha1234',
@@ -23,6 +24,7 @@ void main() {
   }) => DadosCadastroEmpresa(
     nome: nome,
     cnpj: cnpj,
+    setor: setor,
     recrutador: recrutador,
     email: email,
     senha: senha,
@@ -56,10 +58,29 @@ void main() {
       expect(validarCadastroEmpresa(dados()), isEmpty);
     });
 
-    test('nome da empresa vazio é apontado', () {
+    test('razão social vazia é apontada', () {
       expect(
         validarCadastroEmpresa(dados(nome: ' '))[CampoCadastro.nome],
-        'Informe o nome da empresa.',
+        'Informe a razão social.',
+      );
+    });
+
+    test('o setor precisa ser uma das áreas das vagas', () {
+      expect(setoresEmpresa, [
+        'Alimentos',
+        'Construção Civil',
+        'Logística',
+        'Metalurgia',
+        'Naval',
+        'Turismo e Hotelaria',
+      ]);
+      expect(
+        validarCadastroEmpresa(dados(setor: ''))[CampoCadastro.setor],
+        'Escolha o setor da empresa.',
+      );
+      expect(
+        validarCadastroEmpresa(dados(setor: 'Mineração'))[CampoCadastro.setor],
+        'Escolha o setor da empresa.',
       );
     });
 
@@ -110,6 +131,7 @@ void main() {
         dados(
           nome: '',
           cnpj: '',
+          setor: '',
           recrutador: '',
           email: '',
           senha: '',
@@ -118,7 +140,7 @@ void main() {
         ),
       );
 
-      expect(erros.keys, hasLength(7));
+      expect(erros.keys, hasLength(8));
     });
   });
 
@@ -144,6 +166,7 @@ void main() {
       expect(perfis.empresas[perfil.id], same(perfil));
       expect(perfil.nome, 'Estaleiro Foz Azul');
       expect(perfil.cnpj, '11222333000181');
+      expect(perfil.setor, 'Naval');
       expect(perfil.recrutador, 'Marcos Pereira');
       expect(perfil.email, 'rh@fozazul.com');
       expect(perfil.cidade, 'Itajaí');
