@@ -52,6 +52,9 @@ Já no código, testado no celular com o Firebase:
 | F6 | Bloqueio por senha errada | Depois de 5 senhas erradas, o login fica bloqueado por 15 minutos, com contagem regressiva. |
 | F7 | Cadastro do jovem | Nome, e-mail, senha, cidade da AMFRI e data de nascimento; envio do e-mail de confirmação e perfil salvo no Cloud Firestore. |
 | F8 | Política de Privacidade | Texto em linguagem simples e aceite obrigatório no cadastro, com a data do aceite registrada. |
+| F9 | Escolha do perfil | No "Cadastre-se", a pessoa escolhe entre jovem, empresa e oficina; cada perfil tem o seu cadastro. |
+| F10 | Cadastro da empresa | Em 2 etapas: razão social, CNPJ (com máscara e conferência dos dígitos), setor e e-mail do recrutador; depois nome do recrutador, cidade, senha e Política de Privacidade. |
+| F11 | Cadastro da oficina | Em 2 etapas: dados da oficina e, na segunda, o alvará de ensino (número e validade). Dá para enviar o alvará depois, mas sem ele a oficina não publica cursos (RN0003). |
 
 O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade do projeto (azul `#004089` e fonte Inter).
 
@@ -61,7 +64,7 @@ O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade 
 - **Menores de idade:** de 12 a 17 anos, o cadastro exige a confirmação de que um responsável autorizou; menores de 12 anos não se cadastram.
 - **Consentimento:** o aceite da Política de Privacidade é obrigatório e fica registrado com data e hora.
 - **Senha:** fica só no Firebase Authentication; o perfil salvo no Firestore não guarda a senha.
-- **Regras do Cloud Firestore:** cada pessoa lê e grava só o próprio perfil (de jovem, empresa ou oficina), o perfil não aceita campos fora do cadastro (como CPF ou senha) e as demais coleções ficam fechadas. As regras têm 25 testes automáticos que rodam no emulador do Firebase, também no GitHub Actions ([`testes_regras`](testes_regras)).
+- **Regras do Cloud Firestore:** cada pessoa lê e grava só o próprio perfil (de jovem, empresa ou oficina), o perfil não aceita campos fora do cadastro (como CPF ou senha) e as demais coleções ficam fechadas. As regras têm 26 testes automáticos que rodam no emulador do Firebase, também no GitHub Actions ([`testes_regras`](testes_regras)).
 - **Dados no Brasil:** o banco fica em São Paulo (`southamerica-east1`).
 - **Testes e evidências:** usam apenas contas e dados fictícios.
 
@@ -92,19 +95,19 @@ As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e
 
 ### Testes e cobertura
 
-São **159 testes automatizados**, todos passando:
+São **189 testes automatizados**, todos passando:
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
-| Unitários de regras de negócio | `test/domain` | 82 |
+| Unitários de regras de negócio | `test/domain` | 83 |
 | Unitários da camada de dados | `test/data` | 24 |
-| ViewModels | `test/ui/viewmodels` | 29 |
-| Widgets (telas e máscara de data) | `test/ui` | 23 |
+| ViewModels | `test/ui/viewmodels` | 39 |
+| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 42 |
 | Integração no dispositivo | `integration_test` | 1 |
 
 Nos testes, o Firebase é substituído por versões falsas em memória (`test/apoio`), para que rodem rápido e sem internet.
 
-Cobertura medida com `flutter test --coverage`: **95,7%** do código, com 95,0% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,3% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
+Cobertura medida com `flutter test --coverage`: **95,5%** do código, com 94,3% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,3% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
 
 A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório.
 
@@ -160,7 +163,6 @@ integration_test/   teste de integração no dispositivo
 
 ## Próximos passos (Etapa 2)
 
-- Telas de cadastro da empresa e da oficina, com a escolha do tipo de perfil (a validação, os perfis no Firestore, a regra do alvará e as regras de segurança já estão no código e testados).
 - Cadastro de vagas e de cursos e vínculo curso–vaga com aprovação do recrutador.
 - Nova versão do APK (v0.2.0) com login e cadastros.
 - Validação em dispositivos reais e com usuários da comunidade.
