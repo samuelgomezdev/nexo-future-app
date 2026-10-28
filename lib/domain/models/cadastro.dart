@@ -1,5 +1,6 @@
 import 'empresa.dart';
 import 'jovem.dart';
+import 'oficina.dart';
 
 /// Campos dos cadastros, para apontar o erro no lugar certo.
 enum CampoCadastro {
@@ -12,6 +13,8 @@ enum CampoCadastro {
   politica,
   cnpj,
   recrutador,
+  gestor,
+  alvara,
 }
 
 /// Lançada quando o cadastro tem campos a corrigir.
@@ -29,4 +32,6 @@ abstract class RepositorioPerfis {
   Future<void> salvarJovem(PerfilJovem perfil);
 
   Future<void> salvarEmpresa(PerfilEmpresa perfil);
+
+  Future<void> salvarOficina(PerfilOficina perfil);
 }
