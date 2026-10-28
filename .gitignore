@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Testes das regras do Firestore
+testes_regras/node_modules/
+*-debug.log
