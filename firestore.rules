@@ -1,10 +1,39 @@
 rules_version = '2';
 
-// Modo de teste, como o console cria: aberto para todos por 30 dias.
+// Regras de segurança do Nexo Future (LGPD): cada pessoa acessa só os próprios dados.
+// Testes: testes_regras/regras.test.mjs (rodam no emulador do Firebase).
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2026, 11, 26);
+
+    function eDono(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // O perfil tem só os campos do cadastro: nada de CPF, senha ou outros dados.
+    function perfilJovemValido() {
+      let dados = request.resource.data;
+      return dados.keys().hasOnly([
+          'nome', 'email', 'cidade', 'dataNascimento',
+          'autorizacaoResponsavel', 'aceitePoliticaEm', 'criadoEm'])
+        && dados.keys().hasAll([
+          'nome', 'email', 'cidade', 'dataNascimento',
+          'autorizacaoResponsavel', 'aceitePoliticaEm'])
+        && dados.nome is string && dados.nome.size() > 0 && dados.nome.size() <= 120
+        && dados.email == request.auth.token.email
+        && dados.cidade is string
+        && dados.dataNascimento is timestamp
+        && dados.autorizacaoResponsavel is bool
+        && dados.aceitePoliticaEm is timestamp;
+    }
+
+    match /jovens/{uid} {
+      allow read, delete: if eDono(uid);
+      allow create, update: if eDono(uid) && perfilJovemValido();
+    }
+
+    // Qualquer outra coleção fica fechada até ter regra própria.
+    match /{documento=**} {
+      allow read, write: if false;
     }
   }
 }
