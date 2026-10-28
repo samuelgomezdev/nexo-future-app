@@ -25,7 +25,7 @@ O APK é gerado automaticamente pelo GitHub Actions a cada nova versão marcada 
 
 Como o app ainda não está na Google Play, o Android pode mostrar um aviso de segurança. Basta confirmar a instalação.
 
-Nesta versão não há login: o app abre direto com um perfil de jovem de demonstração e usa vagas e cursos fictícios de empresas e oficinas da região. O login e os cadastros, com o Firebase, estão previstos para a Etapa 2.
+A v0.1.0 não tem login: o app abre direto com um perfil de jovem de demonstração e usa vagas e cursos fictícios de empresas e oficinas da região. O login e o cadastro do jovem com o Firebase já estão no código (veja abaixo) e entram no APK da Etapa 2 (v0.2.0); a v0.1.0 continua disponível como a versão da Etapa 1.
 
 ## Funcionalidades da versão v0.1.0
 
@@ -42,6 +42,31 @@ Ao tentar a 6ª candidatura, o app mostra um aviso com atalho para "Minhas candi
 |---|---|---|---|
 | ![Lista de vagas](docs/evidencias/passo6-tela-lista-vagas.jpeg) | ![Detalhe da vaga](docs/evidencias/passo6-tela-detalhe-vaga-candidatura-enviada.jpeg) | ![Aviso de limite](docs/evidencias/passo6-tela-limite-candidaturas.jpeg) | ![Minhas candidaturas](docs/evidencias/passo6-tela-minhas-candidaturas.jpeg) |
 
+## Em desenvolvimento na Etapa 2
+
+Já no código, testado no celular com o Firebase:
+
+| | Funcionalidade | O que dá para fazer |
+|---|---|---|
+| F5 | Entrar | Login com e-mail e senha (Firebase Authentication), com os erros apontados no próprio campo. |
+| F6 | Bloqueio por senha errada | Depois de 5 senhas erradas, o login fica bloqueado por 15 minutos, com contagem regressiva. |
+| F7 | Cadastro do jovem | Nome, e-mail, senha, cidade da AMFRI e data de nascimento; envio do e-mail de confirmação e perfil salvo no Cloud Firestore. |
+| F8 | Política de Privacidade | Texto em linguagem simples e aceite obrigatório no cadastro, com a data do aceite registrada. |
+
+O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade do projeto (azul `#004089` e fonte Inter).
+
+### Proteção de dados (LGPD)
+
+- **Só o necessário:** o cadastro não pede CPF, RG, endereço nem foto.
+- **Menores de idade:** de 12 a 17 anos, o cadastro exige a confirmação de que um responsável autorizou; menores de 12 anos não se cadastram.
+- **Consentimento:** o aceite da Política de Privacidade é obrigatório e fica registrado com data e hora.
+- **Senha:** fica só no Firebase Authentication; o perfil salvo no Firestore não guarda a senha.
+- **Testes e evidências:** usam apenas contas e dados fictícios.
+
+| Bloqueio após 5 senhas erradas (celular) | Login no celular (vídeo) |
+|---|---|
+| ![5 tentativas e bloqueio](docs/evidencias/sprint2-rnf0007-celular-5-tentativas.png) | [sprint2-login-celular.mp4](docs/evidencias/sprint2-login-celular.mp4) |
+
 ## Desenvolvimento orientado a testes (TDD)
 
 Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha (vermelho), depois vem o código mínimo que o faz passar (verde). No histórico de commits, cada regra aparece em dois registros seguidos: `test: ... (vermelho)` e `feat: ... (verde)`.
@@ -54,22 +79,27 @@ Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha
 | RNF0002 | A pesquisa devolve as vagas em páginas de 15, com filtro por texto e por área. |
 | UC0007 (E1) | Na 6ª candidatura, a tela mostra o aviso de limite com atalho para "Minhas candidaturas". |
 | RNF0009 | A candidatura é concluída em até 3 toques (teste de integração executado no celular). |
+| RNF0007 | Depois de 5 senhas erradas, o login fica bloqueado por 15 minutos; a contagem é separada por e-mail. |
+| RF0003 | O cadastro do jovem valida os campos, a cidade da AMFRI, a idade (responsável de 12 a 17 anos) e o aceite da Política de Privacidade. |
+| RF0016 | Ao criar a conta, o app envia o e-mail de confirmação e só deixa entrar depois que o e-mail é confirmado. |
 
 As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e da cobertura) estão em [`docs/evidencias`](docs/evidencias).
 
 ### Testes e cobertura
 
-São **58 testes automatizados**, todos passando:
+São **125 testes automatizados**, todos passando:
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
-| Unitários de regras de negócio | `test/domain` | 13 |
+| Unitários de regras de negócio | `test/domain` | 48 |
 | Unitários da camada de dados | `test/data` | 24 |
-| ViewModels | `test/ui/viewmodels` | 13 |
-| Widgets (telas) | `test/ui/screens` | 7 |
+| ViewModels | `test/ui/viewmodels` | 29 |
+| Widgets (telas e máscara de data) | `test/ui` | 23 |
 | Integração no dispositivo | `integration_test` | 1 |
 
-Cobertura medida com `flutter test --coverage`: **94,8%** do código, com 81,5% nas regras de negócio (`lib/domain`), 100% na camada de dados e 94,1% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
+Nos testes, o Firebase é substituído por versões falsas em memória (`test/apoio`), para que rodem rápido e sem internet.
+
+Cobertura medida com `flutter test --coverage`: **95,1%** do código, com 90,6% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,3% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
 
 A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório.
 
@@ -102,10 +132,10 @@ O app segue uma arquitetura em camadas, no estilo MVVM, com `provider` e `Change
 
 ```
 lib/
-  domain/   modelos (vaga, candidatura) e regras de negócio
-  data/     repositórios e dados fictícios das vagas
-  ui/       telas (screens) e viewmodels
-test/       testes unitários, de viewmodels e de widgets
+  domain/   modelos (vaga, candidatura, jovem), regras de negócio e login
+  data/     repositórios, dados fictícios das vagas e adaptadores do Firebase
+  ui/       telas (screens), viewmodels e tema visual
+test/       testes unitários, de viewmodels e de widgets (apoio/: Firebase falso)
 integration_test/   teste de integração no dispositivo
 ```
 
@@ -114,13 +144,17 @@ integration_test/   teste de integração no dispositivo
 - Flutter e Dart
 - `flutter_test` e `integration_test` para os testes
 - `provider` para o gerenciamento de estado
+- Firebase Authentication (login e confirmação de e-mail) e Cloud Firestore (perfis)
+- Figma para o protótipo de alta fidelidade
 - Git, GitHub e GitHub Actions para versionamento, integração contínua e geração do APK
 - Trello para o Scrum: [quadro do projeto](https://trello.com/b/442R72Le/how-viii)
 
 ## Próximos passos (Etapa 2)
 
-- Login e cadastros de empresas, oficinas e alunos com Firebase Authentication e Cloud Firestore.
+- Regras de segurança do Cloud Firestore (cada pessoa acessa só os próprios dados).
+- Cadastros de empresas e oficinas, com a regra do alvará (oficina sem alvará não publica curso).
 - Cadastro de vagas e de cursos e vínculo curso–vaga com aprovação do recrutador.
+- Nova versão do APK (v0.2.0) com login e cadastros.
 - Validação em dispositivos reais e com usuários da comunidade.
 
 Na Etapa 1, o app foi gerado e testado apenas no Android; a versão iOS depende de um computador com macOS.
