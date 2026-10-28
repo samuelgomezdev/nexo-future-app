@@ -118,6 +118,77 @@ describe('Perfis de jovens', () => {
   });
 });
 
+function empresaDe(pessoa, extras = {}) {
+  return {
+    nome: 'Estaleiro Foz Azul',
+    cnpj: '11222333000181',
+    recrutador: 'Marcos Pereira',
+    email: pessoa.email,
+    cidade: 'Itajaí',
+    aceitePoliticaEm: Timestamp.now(),
+    criadoEm: serverTimestamp(),
+    ...extras,
+  };
+}
+
+describe('Perfis de empresas', () => {
+  const marcos = { uid: 'uid-marcos', email: 'rh@fozazul.example.com' };
+
+  test('o recrutador cria o perfil da própria empresa', async () => {
+    await assertSucceeds(
+      setDoc(doc(bancoDe(marcos), 'empresas', marcos.uid), empresaDe(marcos)),
+    );
+  });
+
+  test('o recrutador lê o perfil da própria empresa, e outra pessoa não', async () => {
+    await assertSucceeds(
+      setDoc(doc(bancoDe(marcos), 'empresas', marcos.uid), empresaDe(marcos)),
+    );
+    await assertSucceeds(getDoc(doc(bancoDe(marcos), 'empresas', marcos.uid)));
+    await assertFails(getDoc(doc(bancoDe(bruno), 'empresas', marcos.uid)));
+  });
+
+  test('ninguém cria empresa no lugar de outra pessoa', async () => {
+    await assertFails(
+      setDoc(doc(bancoDe(bruno), 'empresas', marcos.uid), empresaDe(bruno)),
+    );
+  });
+
+  test('o CNPJ tem exatamente 14 dígitos', async () => {
+    const banco = bancoDe(marcos);
+    await assertFails(
+      setDoc(doc(banco, 'empresas', marcos.uid), empresaDe(marcos, { cnpj: '11.222.333/0001-81' })),
+    );
+    await assertFails(
+      setDoc(doc(banco, 'empresas', marcos.uid), empresaDe(marcos, { cnpj: '123' })),
+    );
+  });
+
+  test('o perfil da empresa não aceita campos fora do cadastro', async () => {
+    await assertFails(
+      setDoc(
+        doc(bancoDe(marcos), 'empresas', marcos.uid),
+        empresaDe(marcos, { senha: 'segredo123' }),
+      ),
+    );
+  });
+
+  test('o e-mail do perfil precisa ser o e-mail da conta', async () => {
+    await assertFails(
+      setDoc(
+        doc(bancoDe(marcos), 'empresas', marcos.uid),
+        empresaDe(marcos, { email: 'outro@example.com' }),
+      ),
+    );
+  });
+
+  test('o perfil precisa do aceite da política', async () => {
+    const semAceite = empresaDe(marcos);
+    delete semAceite.aceitePoliticaEm;
+    await assertFails(setDoc(doc(bancoDe(marcos), 'empresas', marcos.uid), semAceite));
+  });
+});
+
 describe('Demais coleções', () => {
   test('coleções que o app não usa ficam fechadas', async () => {
     const banco = bancoDe(carla);
