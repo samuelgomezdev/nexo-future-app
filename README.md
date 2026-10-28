@@ -61,7 +61,7 @@ O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade 
 - **Menores de idade:** de 12 a 17 anos, o cadastro exige a confirmação de que um responsável autorizou; menores de 12 anos não se cadastram.
 - **Consentimento:** o aceite da Política de Privacidade é obrigatório e fica registrado com data e hora.
 - **Senha:** fica só no Firebase Authentication; o perfil salvo no Firestore não guarda a senha.
-- **Regras do Cloud Firestore:** cada pessoa lê e grava só o próprio perfil (de jovem ou de empresa), o perfil não aceita campos fora do cadastro (como CPF ou senha) e as demais coleções ficam fechadas. As regras têm 18 testes automáticos que rodam no emulador do Firebase, também no GitHub Actions ([`testes_regras`](testes_regras)).
+- **Regras do Cloud Firestore:** cada pessoa lê e grava só o próprio perfil (de jovem, empresa ou oficina), o perfil não aceita campos fora do cadastro (como CPF ou senha) e as demais coleções ficam fechadas. As regras têm 25 testes automáticos que rodam no emulador do Firebase, também no GitHub Actions ([`testes_regras`](testes_regras)).
 - **Dados no Brasil:** o banco fica em São Paulo (`southamerica-east1`).
 - **Testes e evidências:** usam apenas contas e dados fictícios.
 
@@ -85,17 +85,18 @@ Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha
 | RF0003 | O cadastro do jovem valida os campos, a cidade da AMFRI, a idade (responsável de 12 a 17 anos) e o aceite da Política de Privacidade. |
 | RF0016 | Ao criar a conta, o app envia o e-mail de confirmação e só deixa entrar depois que o e-mail é confirmado. |
 | RF0001 | O cadastro da empresa valida o nome, o CNPJ (dígitos verificadores), o recrutador, o e-mail, a senha, a cidade da AMFRI e o aceite da Política de Privacidade. |
+| RF0002 | O cadastro da oficina valida os mesmos campos da empresa e o alvará de ensino: opcional no cadastro, mas, se informado, com número e validade em dia. |
 | RN0003 | A oficina só publica curso com o alvará de ensino apresentado e dentro da validade. |
 
 As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e da cobertura) estão em [`docs/evidencias`](docs/evidencias).
 
 ### Testes e cobertura
 
-São **144 testes automatizados**, todos passando:
+São **159 testes automatizados**, todos passando:
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
-| Unitários de regras de negócio | `test/domain` | 67 |
+| Unitários de regras de negócio | `test/domain` | 82 |
 | Unitários da camada de dados | `test/data` | 24 |
 | ViewModels | `test/ui/viewmodels` | 29 |
 | Widgets (telas e máscara de data) | `test/ui` | 23 |
@@ -103,7 +104,7 @@ São **144 testes automatizados**, todos passando:
 
 Nos testes, o Firebase é substituído por versões falsas em memória (`test/apoio`), para que rodem rápido e sem internet.
 
-Cobertura medida com `flutter test --coverage`: **95,5%** do código, com 93,8% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,3% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
+Cobertura medida com `flutter test --coverage`: **95,7%** do código, com 95,0% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,3% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
 
 A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório.
 
@@ -159,8 +160,7 @@ integration_test/   teste de integração no dispositivo
 
 ## Próximos passos (Etapa 2)
 
-- Tela de cadastro da empresa (a validação, o perfil no Firestore e as regras de segurança já estão no código e testados).
-- Cadastro da oficina (a regra do alvará, RN0003, já está no código e testada).
+- Telas de cadastro da empresa e da oficina, com a escolha do tipo de perfil (a validação, os perfis no Firestore, a regra do alvará e as regras de segurança já estão no código e testados).
 - Cadastro de vagas e de cursos e vínculo curso–vaga com aprovação do recrutador.
 - Nova versão do APK (v0.2.0) com login e cadastros.
 - Validação em dispositivos reais e com usuários da comunidade.
