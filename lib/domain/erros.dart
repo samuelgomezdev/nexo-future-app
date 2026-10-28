@@ -88,3 +88,21 @@ class CursoJaVinculado implements Exception {
   @override
   String toString() => 'Este curso já está vinculado à vaga.';
 }
+
+/// Lançada quando a oficina tenta publicar curso sem o alvará (RN0003).
+class OficinaSemAlvara implements Exception {
+  const OficinaSemAlvara();
+
+  @override
+  String toString() =>
+      'Envie o alvará de ensino da oficina para publicar cursos.';
+}
+
+/// Lançada quando o alvará da oficina já venceu (RN0003).
+class AlvaraVencido implements Exception {
+  const AlvaraVencido();
+
+  @override
+  String toString() =>
+      'O alvará de ensino da oficina venceu. Envie o alvará renovado para publicar cursos.';
+}
