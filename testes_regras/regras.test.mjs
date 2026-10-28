@@ -189,6 +189,74 @@ describe('Perfis de empresas', () => {
   });
 });
 
+function oficinaDe(pessoa, extras = {}) {
+  return {
+    nome: 'Oficina Escola Mãos do Porto',
+    cnpj: '11222333000181',
+    gestor: 'Rita Moraes',
+    email: pessoa.email,
+    cidade: 'Itajaí',
+    alvaraNumero: 'AE-2026-0042',
+    alvaraValidade: Timestamp.fromDate(new Date(2027, 2, 1)),
+    aceitePoliticaEm: Timestamp.now(),
+    criadoEm: serverTimestamp(),
+    ...extras,
+  };
+}
+
+describe('Perfis de oficinas', () => {
+  const rita = { uid: 'uid-rita', email: 'contato@maosdoporto.example.com' };
+
+  test('o gestor cria o perfil da própria oficina com o alvará', async () => {
+    await assertSucceeds(
+      setDoc(doc(bancoDe(rita), 'oficinas', rita.uid), oficinaDe(rita)),
+    );
+  });
+
+  test('a oficina pode se cadastrar sem o alvará', async () => {
+    const semAlvara = oficinaDe(rita);
+    delete semAlvara.alvaraNumero;
+    delete semAlvara.alvaraValidade;
+    await assertSucceeds(setDoc(doc(bancoDe(rita), 'oficinas', rita.uid), semAlvara));
+  });
+
+  test('o alvará vem completo: número e validade juntos', async () => {
+    const semValidade = oficinaDe(rita);
+    delete semValidade.alvaraValidade;
+    await assertFails(setDoc(doc(bancoDe(rita), 'oficinas', rita.uid), semValidade));
+  });
+
+  test('o gestor lê o perfil da própria oficina, e outra pessoa não', async () => {
+    await assertSucceeds(
+      setDoc(doc(bancoDe(rita), 'oficinas', rita.uid), oficinaDe(rita)),
+    );
+    await assertSucceeds(getDoc(doc(bancoDe(rita), 'oficinas', rita.uid)));
+    await assertFails(getDoc(doc(bancoDe(bruno), 'oficinas', rita.uid)));
+  });
+
+  test('ninguém cria oficina no lugar de outra pessoa', async () => {
+    await assertFails(
+      setDoc(doc(bancoDe(bruno), 'oficinas', rita.uid), oficinaDe(bruno)),
+    );
+  });
+
+  test('o CNPJ tem exatamente 14 dígitos e o e-mail é o da conta', async () => {
+    const banco = bancoDe(rita);
+    await assertFails(
+      setDoc(doc(banco, 'oficinas', rita.uid), oficinaDe(rita, { cnpj: '123' })),
+    );
+    await assertFails(
+      setDoc(doc(banco, 'oficinas', rita.uid), oficinaDe(rita, { email: 'outro@example.com' })),
+    );
+  });
+
+  test('o perfil da oficina não aceita campos fora do cadastro', async () => {
+    await assertFails(
+      setDoc(doc(bancoDe(rita), 'oficinas', rita.uid), oficinaDe(rita, { senha: 'segredo123' })),
+    );
+  });
+});
+
 describe('Demais coleções', () => {
   test('coleções que o app não usa ficam fechadas', async () => {
     const banco = bancoDe(carla);
