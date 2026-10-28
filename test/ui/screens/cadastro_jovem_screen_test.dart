@@ -35,6 +35,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cadastre-se'));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Sou jovem'));
+      await tester.tap(find.text('Continuar'));
+      await tester.pumpAndSettle();
     }
 
     Future<void> preencher(
