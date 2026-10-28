@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexo_future_app/domain/models/cadastro.dart';
 import 'package:nexo_future_app/domain/models/empresa.dart';
+import 'package:nexo_future_app/domain/models/oficina.dart';
 import 'package:nexo_future_app/domain/regras/cadastro_empresa.dart';
 import 'package:nexo_future_app/domain/regras/cadastro_oficina.dart';
 import 'package:nexo_future_app/ui/viewmodels/cadastro_empresa_viewmodel.dart';
