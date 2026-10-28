@@ -6,6 +6,7 @@ import '../../domain/regras/cadastro_jovem.dart';
 import '../mascara_data.dart';
 import '../tema.dart';
 import '../viewmodels/cadastro_jovem_viewmodel.dart';
+import 'componentes_cadastro.dart';
 import 'login_screen.dart';
 import 'politica_privacidade_screen.dart';
 
@@ -150,7 +151,7 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
           ),
           if (pedeAutorizacao) ...[
             const SizedBox(height: 8),
-            _Confirmacao(
+            CaixaConfirmacao(
               texto: 'Meu responsável autorizou este cadastro',
               marcado: _autorizacao,
               erro: erros[CampoCadastro.responsavel],
@@ -158,7 +159,7 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
             ),
           ],
           const SizedBox(height: 8),
-          _Confirmacao(
+          CaixaConfirmacao(
             texto: 'Li e aceito a Política de Privacidade',
             marcado: _aceite,
             erro: erros[CampoCadastro.politica],
@@ -194,36 +195,6 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Caixa de confirmação com o erro logo abaixo, quando houver.
-class _Confirmacao extends StatelessWidget {
-  const _Confirmacao({
-    required this.texto,
-    required this.marcado,
-    required this.aoMudar,
-    this.erro,
-  });
-
-  final String texto;
-  final bool marcado;
-  final String? erro;
-  final ValueChanged<bool> aoMudar;
-
-  @override
-  Widget build(BuildContext context) {
-    final erro = this.erro;
-    return CheckboxListTile(
-      value: marcado,
-      onChanged: (valor) => aoMudar(valor ?? false),
-      controlAffinity: ListTileControlAffinity.leading,
-      contentPadding: EdgeInsets.zero,
-      title: Text(texto),
-      subtitle: erro == null
-          ? null
-          : Text(erro, style: const TextStyle(color: CoresNexo.erro)),
     );
   }
 }

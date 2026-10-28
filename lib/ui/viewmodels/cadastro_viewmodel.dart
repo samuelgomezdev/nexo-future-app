@@ -14,6 +14,20 @@ class CadastroViewModel<D, P> extends ChangeNotifier {
   bool carregando = false;
   P? perfil;
 
+  /// Mostra só os erros dos campos da etapa; devolve true quando ela pode avançar.
+  bool conferirEtapa(
+    Map<CampoCadastro, String> todosOsErros,
+    Set<CampoCadastro> campos,
+  ) {
+    erros = {
+      for (final erro in todosOsErros.entries)
+        if (campos.contains(erro.key)) erro.key: erro.value,
+    };
+    erroGeral = null;
+    notifyListeners();
+    return erros.isEmpty;
+  }
+
   Future<bool> cadastrar(D dados) async {
     erros = const {};
     erroGeral = null;

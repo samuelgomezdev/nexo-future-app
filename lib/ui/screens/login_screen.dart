@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../tema.dart';
 import '../viewmodels/login_viewmodel.dart';
-import 'cadastro_jovem_screen.dart';
+import 'escolha_perfil_screen.dart';
 import 'lista_vagas_screen.dart';
 
 /// A2 e A3 do protótipo: entrar com e-mail e senha.
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextButton(
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const CadastroJovemScreen(),
+                        builder: (_) => const EscolhaPerfilScreen(),
                       ),
                     ),
                     child: const Text('Cadastre-se'),
