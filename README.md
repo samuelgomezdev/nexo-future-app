@@ -61,6 +61,8 @@ O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade 
 - **Menores de idade:** de 12 a 17 anos, o cadastro exige a confirmação de que um responsável autorizou; menores de 12 anos não se cadastram.
 - **Consentimento:** o aceite da Política de Privacidade é obrigatório e fica registrado com data e hora.
 - **Senha:** fica só no Firebase Authentication; o perfil salvo no Firestore não guarda a senha.
+- **Regras do Cloud Firestore:** cada pessoa lê e grava só o próprio perfil, o perfil não aceita campos fora do cadastro (como CPF ou senha) e as demais coleções ficam fechadas. As regras têm 11 testes automáticos que rodam no emulador do Firebase, também no GitHub Actions ([`testes_regras`](testes_regras)).
+- **Dados no Brasil:** o banco fica em São Paulo (`southamerica-east1`).
 - **Testes e evidências:** usam apenas contas e dados fictícios.
 
 | Bloqueio após 5 senhas erradas (celular) | Login no celular (vídeo) |
@@ -151,7 +153,6 @@ integration_test/   teste de integração no dispositivo
 
 ## Próximos passos (Etapa 2)
 
-- Regras de segurança do Cloud Firestore (cada pessoa acessa só os próprios dados).
 - Cadastros de empresas e oficinas, com a regra do alvará (oficina sem alvará não publica curso).
 - Cadastro de vagas e de cursos e vínculo curso–vaga com aprovação do recrutador.
 - Nova versão do APK (v0.2.0) com login e cadastros.
