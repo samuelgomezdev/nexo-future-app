@@ -31,6 +31,27 @@ service cloud.firestore {
       allow create, update: if eDono(uid) && perfilJovemValido();
     }
 
+    function perfilEmpresaValido() {
+      let dados = request.resource.data;
+      return dados.keys().hasOnly([
+          'nome', 'cnpj', 'recrutador', 'email', 'cidade',
+          'aceitePoliticaEm', 'criadoEm'])
+        && dados.keys().hasAll([
+          'nome', 'cnpj', 'recrutador', 'email', 'cidade', 'aceitePoliticaEm'])
+        && dados.nome is string && dados.nome.size() > 0 && dados.nome.size() <= 120
+        && dados.cnpj is string && dados.cnpj.matches('[0-9]{14}')
+        && dados.recrutador is string && dados.recrutador.size() > 0
+        && dados.recrutador.size() <= 120
+        && dados.email == request.auth.token.email
+        && dados.cidade is string
+        && dados.aceitePoliticaEm is timestamp;
+    }
+
+    match /empresas/{uid} {
+      allow read, delete: if eDono(uid);
+      allow create, update: if eDono(uid) && perfilEmpresaValido();
+    }
+
     // Qualquer outra coleção fica fechada até ter regra própria.
     match /{documento=**} {
       allow read, write: if false;
