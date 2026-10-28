@@ -52,6 +52,33 @@ service cloud.firestore {
       allow create, update: if eDono(uid) && perfilEmpresaValido();
     }
 
+    // O alvará é opcional no cadastro, mas vem completo: número e validade (RN0003).
+    function perfilOficinaValido() {
+      let dados = request.resource.data;
+      let temNumero = 'alvaraNumero' in dados;
+      let temValidade = 'alvaraValidade' in dados;
+      return dados.keys().hasOnly([
+          'nome', 'cnpj', 'gestor', 'email', 'cidade',
+          'alvaraNumero', 'alvaraValidade', 'aceitePoliticaEm', 'criadoEm'])
+        && dados.keys().hasAll([
+          'nome', 'cnpj', 'gestor', 'email', 'cidade', 'aceitePoliticaEm'])
+        && dados.nome is string && dados.nome.size() > 0 && dados.nome.size() <= 120
+        && dados.cnpj is string && dados.cnpj.matches('[0-9]{14}')
+        && dados.gestor is string && dados.gestor.size() > 0 && dados.gestor.size() <= 120
+        && dados.email == request.auth.token.email
+        && dados.cidade is string
+        && temNumero == temValidade
+        && (!temNumero || (dados.alvaraNumero is string
+          && dados.alvaraNumero.size() > 0 && dados.alvaraNumero.size() <= 60
+          && dados.alvaraValidade is timestamp))
+        && dados.aceitePoliticaEm is timestamp;
+    }
+
+    match /oficinas/{uid} {
+      allow read, delete: if eDono(uid);
+      allow create, update: if eDono(uid) && perfilOficinaValido();
+    }
+
     // Qualquer outra coleção fica fechada até ter regra própria.
     match /{documento=**} {
       allow read, write: if false;
