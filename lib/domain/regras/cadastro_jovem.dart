@@ -40,7 +40,7 @@ Map<CampoCadastro, String> validarCadastroJovem(
   final nome = dados.nome.trim();
   if (nome.isEmpty) {
     erros[CampoCadastro.nome] = 'Informe seu nome completo.';
-  } else if (nome.split(RegExp(r'\s+')).length < 2) {
+  } else if (!temSobrenome(nome)) {
     erros[CampoCadastro.nome] = 'Informe nome e sobrenome.';
   }
 
@@ -78,16 +78,6 @@ Map<CampoCadastro, String> validarCadastroJovem(
         'Aceite a Política de Privacidade para continuar.';
   }
   return erros;
-}
-
-/// Lançada quando o cadastro tem campos a corrigir.
-class CadastroInvalido implements Exception {
-  const CadastroInvalido(this.erros);
-
-  final Map<CampoCadastro, String> erros;
-
-  @override
-  String toString() => erros.values.join('\n');
 }
 
 /// RF0003 e RF0016: cria a conta, envia a confirmação e salva o perfil.

@@ -1,13 +1,4 @@
-/// Campos do cadastro do jovem, para apontar o erro no lugar certo.
-enum CampoCadastro {
-  nome,
-  email,
-  senha,
-  cidade,
-  nascimento,
-  responsavel,
-  politica,
-}
+export 'cadastro.dart';
 
 /// O que o jovem preenche no cadastro.
 class DadosCadastroJovem {
@@ -51,9 +42,4 @@ class PerfilJovem {
   final DateTime dataNascimento;
   final bool autorizacaoResponsavel;
   final DateTime aceitePoliticaEm;
-}
-
-/// Onde os perfis são guardados: o Firestore no app, uma versão falsa nos testes.
-abstract class RepositorioPerfis {
-  Future<void> salvarJovem(PerfilJovem perfil);
 }
