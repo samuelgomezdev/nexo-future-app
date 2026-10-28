@@ -123,6 +123,10 @@ flutter run
 flutter test --coverage
 dart run tool/cobertura.dart   # resumo da cobertura por arquivo e por camada
 
+# regras de segurança do Firestore, no emulador do Firebase (precisa do Node.js;
+# usa o Java 21+ do computador ou, se não houver, o JDK do Android Studio)
+powershell -ExecutionPolicy Bypass -File tool/testar_regras.ps1
+
 # teste de integração (precisa de um emulador ou celular conectado)
 flutter test integration_test/fluxo_candidatura_test.dart
 
