@@ -84,16 +84,17 @@ Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha
 | RNF0007 | Depois de 5 senhas erradas, o login fica bloqueado por 15 minutos; a contagem é separada por e-mail. |
 | RF0003 | O cadastro do jovem valida os campos, a cidade da AMFRI, a idade (responsável de 12 a 17 anos) e o aceite da Política de Privacidade. |
 | RF0016 | Ao criar a conta, o app envia o e-mail de confirmação e só deixa entrar depois que o e-mail é confirmado. |
+| RN0003 | A oficina só publica curso com o alvará de ensino apresentado e dentro da validade. |
 
 As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e da cobertura) estão em [`docs/evidencias`](docs/evidencias).
 
 ### Testes e cobertura
 
-São **125 testes automatizados**, todos passando:
+São **131 testes automatizados**, todos passando:
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
-| Unitários de regras de negócio | `test/domain` | 48 |
+| Unitários de regras de negócio | `test/domain` | 54 |
 | Unitários da camada de dados | `test/data` | 24 |
 | ViewModels | `test/ui/viewmodels` | 29 |
 | Widgets (telas e máscara de data) | `test/ui` | 23 |
@@ -101,7 +102,7 @@ São **125 testes automatizados**, todos passando:
 
 Nos testes, o Firebase é substituído por versões falsas em memória (`test/apoio`), para que rodem rápido e sem internet.
 
-Cobertura medida com `flutter test --coverage`: **95,1%** do código, com 90,6% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,3% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
+Cobertura medida com `flutter test --coverage`: **95,2%** do código, com 91,5% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,3% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
 
 A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório.
 
@@ -153,7 +154,7 @@ integration_test/   teste de integração no dispositivo
 
 ## Próximos passos (Etapa 2)
 
-- Cadastros de empresas e oficinas, com a regra do alvará (oficina sem alvará não publica curso).
+- Cadastros de empresas e oficinas (a regra do alvará, RN0003, já está no código e testada).
 - Cadastro de vagas e de cursos e vínculo curso–vaga com aprovação do recrutador.
 - Nova versão do APK (v0.2.0) com login e cadastros.
 - Validação em dispositivos reais e com usuários da comunidade.
