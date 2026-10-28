@@ -29,6 +29,7 @@ class FirestorePerfis implements RepositorioPerfis {
     return _banco.collection('empresas').doc(perfil.id).set({
       'nome': perfil.nome,
       'cnpj': perfil.cnpj,
+      'setor': perfil.setor,
       'recrutador': perfil.recrutador,
       'email': perfil.email,
       'cidade': perfil.cidade,

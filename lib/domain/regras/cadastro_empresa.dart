@@ -4,16 +4,30 @@ import '../models/empresa.dart';
 import 'cadastro_jovem.dart';
 import 'validacoes.dart';
 
+/// Os setores são as mesmas áreas usadas no filtro das vagas.
+const setoresEmpresa = [
+  'Alimentos',
+  'Construção Civil',
+  'Logística',
+  'Metalurgia',
+  'Naval',
+  'Turismo e Hotelaria',
+];
+
 /// Devolve os erros por campo; vazio quando o cadastro pode seguir.
 Map<CampoCadastro, String> validarCadastroEmpresa(DadosCadastroEmpresa dados) {
   final erros = <CampoCadastro, String>{};
 
   if (dados.nome.trim().isEmpty) {
-    erros[CampoCadastro.nome] = 'Informe o nome da empresa.';
+    erros[CampoCadastro.nome] = 'Informe a razão social.';
   }
 
   if (!cnpjValido(dados.cnpj)) {
     erros[CampoCadastro.cnpj] = 'Informe um CNPJ válido.';
+  }
+
+  if (!setoresEmpresa.contains(dados.setor)) {
+    erros[CampoCadastro.setor] = 'Escolha o setor da empresa.';
   }
 
   if (dados.recrutador.trim().isEmpty) {
@@ -63,6 +77,7 @@ class CadastrarEmpresa {
       id: usuario.id,
       nome: dados.nome.trim(),
       cnpj: somenteDigitos(dados.cnpj),
+      setor: dados.setor,
       recrutador: dados.recrutador.trim(),
       email: email,
       cidade: dados.cidade,

@@ -12,6 +12,7 @@ enum CampoCadastro {
   responsavel,
   politica,
   cnpj,
+  setor,
   recrutador,
   gestor,
   alvara,

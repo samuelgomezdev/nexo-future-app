@@ -34,12 +34,14 @@ service cloud.firestore {
     function perfilEmpresaValido() {
       let dados = request.resource.data;
       return dados.keys().hasOnly([
-          'nome', 'cnpj', 'recrutador', 'email', 'cidade',
+          'nome', 'cnpj', 'setor', 'recrutador', 'email', 'cidade',
           'aceitePoliticaEm', 'criadoEm'])
         && dados.keys().hasAll([
-          'nome', 'cnpj', 'recrutador', 'email', 'cidade', 'aceitePoliticaEm'])
+          'nome', 'cnpj', 'setor', 'recrutador', 'email', 'cidade',
+          'aceitePoliticaEm'])
         && dados.nome is string && dados.nome.size() > 0 && dados.nome.size() <= 120
         && dados.cnpj is string && dados.cnpj.matches('[0-9]{14}')
+        && dados.setor is string && dados.setor.size() > 0
         && dados.recrutador is string && dados.recrutador.size() > 0
         && dados.recrutador.size() <= 120
         && dados.email == request.auth.token.email

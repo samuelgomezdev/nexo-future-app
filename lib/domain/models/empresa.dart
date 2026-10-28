@@ -3,6 +3,7 @@ class DadosCadastroEmpresa {
   const DadosCadastroEmpresa({
     required this.nome,
     required this.cnpj,
+    required this.setor,
     required this.recrutador,
     required this.email,
     required this.senha,
@@ -10,8 +11,12 @@ class DadosCadastroEmpresa {
     required this.aceitePolitica,
   });
 
+  /// Razão social.
   final String nome;
   final String cnpj;
+
+  /// Uma das áreas das vagas, como Naval ou Logística.
+  final String setor;
 
   /// Nome de quem faz o cadastro e responde pelas vagas.
   final String recrutador;
@@ -27,6 +32,7 @@ class PerfilEmpresa {
     required this.id,
     required this.nome,
     required this.cnpj,
+    required this.setor,
     required this.recrutador,
     required this.email,
     required this.cidade,
@@ -38,6 +44,7 @@ class PerfilEmpresa {
 
   /// Só os 14 dígitos, sem pontuação.
   final String cnpj;
+  final String setor;
   final String recrutador;
   final String email;
   final String cidade;
