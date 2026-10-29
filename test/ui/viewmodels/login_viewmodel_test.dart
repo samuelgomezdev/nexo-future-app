@@ -1,18 +1,22 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexo_future_app/domain/autenticacao.dart';
+import 'package:nexo_future_app/domain/models/empresa.dart';
 import 'package:nexo_future_app/domain/regras/bloqueio_login.dart';
 import 'package:nexo_future_app/ui/viewmodels/login_viewmodel.dart';
 
 import '../../apoio/autenticacao_falsa.dart';
+import '../../apoio/perfis_falsos.dart';
 
 void main() {
   group('LoginViewModel', () {
     late AutenticacaoFalsa servico;
+    late PerfisFalsos perfis;
     late LoginViewModel viewModel;
 
     setUp(() {
       servico = AutenticacaoFalsa();
-      viewModel = LoginViewModel(EntrarNaConta(servico));
+      perfis = PerfisFalsos();
+      viewModel = LoginViewModel(EntrarNaConta(servico), perfis: perfis);
     });
 
     test('com a senha certa, entra e guarda o usuário', () async {
@@ -95,6 +99,43 @@ void main() {
       expect(
         viewModel.erroSenha,
         'E-mail ou senha incorretos. Restam 4 tentativas.',
+      );
+    });
+
+    test('depois de entrar, carrega o perfil de quem entrou', () async {
+      final empresa = PerfilEmpresa(
+        id: 'uid-ana@email.com',
+        nome: 'Estaleiro Foz Azul Ltda.',
+        cnpj: '11222333000181',
+        setor: 'Naval',
+        recrutador: 'Marcos Pereira',
+        email: 'ana@email.com',
+        cidade: 'Itajaí',
+        aceitePoliticaEm: DateTime(2026, 10, 29),
+      );
+      perfis.empresas[empresa.id] = empresa;
+
+      await viewModel.entrar('ana@email.com', 'senha-certa');
+
+      expect(viewModel.perfil, same(empresa));
+    });
+
+    test('conta sem perfil salvo entra sem perfil', () async {
+      final entrou = await viewModel.entrar('ana@email.com', 'senha-certa');
+
+      expect(entrou, isTrue);
+      expect(viewModel.perfil, isNull);
+    });
+
+    test('falha ao carregar o perfil mostra o aviso geral', () async {
+      perfis.falhaInesperada = Exception('sem conexão');
+
+      final entrou = await viewModel.entrar('ana@email.com', 'senha-certa');
+
+      expect(entrou, isFalse);
+      expect(
+        viewModel.erroGeral,
+        'Não foi possível entrar agora. Confira sua internet e tente de novo.',
       );
     });
 
