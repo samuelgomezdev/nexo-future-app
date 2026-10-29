@@ -72,6 +72,14 @@ O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade 
 |---|---|
 | ![5 tentativas e bloqueio](docs/evidencias/sprint2-rnf0007-celular-5-tentativas.png) | [sprint2-login-celular.mp4](docs/evidencias/sprint2-login-celular.mp4) |
 
+Cadastros de empresa e oficina testados no celular com o Firebase, usando contas de teste do projeto:
+
+| Escolha do perfil | Empresa: campos obrigatórios | Oficina: alvará de ensino |
+|---|---|---|
+| ![Escolha do perfil](docs/evidencias/sprint2-c1-escolha-perfil.png) | ![Validação da empresa](docs/evidencias/sprint2-c3-empresa-validacao.png) | ![Alvará da oficina](docs/evidencias/sprint2-c4-oficina-alvara.png) |
+
+Vídeos: [cadastro da empresa](docs/evidencias/sprint2-cadastro-empresa.mp4) · [oficina com alvará](docs/evidencias/sprint2-cadastro-oficina-com-alvara.mp4) · [oficina sem alvará ("Enviar depois")](docs/evidencias/sprint2-cadastro-oficina-enviar-depois.mp4)
+
 ## Desenvolvimento orientado a testes (TDD)
 
 Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha (vermelho), depois vem o código mínimo que o faz passar (verde). No histórico de commits, cada regra aparece em dois registros seguidos: `test: ... (vermelho)` e `feat: ... (verde)`.
@@ -95,19 +103,19 @@ As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e
 
 ### Testes e cobertura
 
-São **189 testes automatizados**, todos passando:
+São **200 testes automatizados**, todos passando:
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
 | Unitários de regras de negócio | `test/domain` | 83 |
 | Unitários da camada de dados | `test/data` | 24 |
-| ViewModels | `test/ui/viewmodels` | 39 |
-| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 42 |
+| ViewModels | `test/ui/viewmodels` | 42 |
+| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 50 |
 | Integração no dispositivo | `integration_test` | 1 |
 
 Nos testes, o Firebase é substituído por versões falsas em memória (`test/apoio`), para que rodem rápido e sem internet.
 
-Cobertura medida com `flutter test --coverage`: **95,5%** do código, com 94,3% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,3% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
+Cobertura medida com `flutter test --coverage`: **95,4%** do código, com 94,3% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,2% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
 
 A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório.
 
