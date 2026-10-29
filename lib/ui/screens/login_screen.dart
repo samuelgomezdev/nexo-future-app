@@ -7,16 +7,14 @@ import '../../domain/models/empresa.dart';
 import '../../domain/models/oficina.dart';
 import '../tema.dart';
 import '../viewmodels/login_viewmodel.dart';
+import '../viewmodels/sessao_viewmodel.dart';
 import 'escolha_perfil_screen.dart';
 import 'inicio_organizacao_screen.dart';
 import 'lista_vagas_screen.dart';
 
 /// A2 e A3 do protótipo: entrar com e-mail e senha.
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, this.permiteCadastro = false});
-
-  /// Mostra o link "Cadastre-se" (precisa do cadastro configurado no app).
-  final bool permiteCadastro;
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -37,15 +35,29 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _entrar() async {
     final viewModel = context.read<LoginViewModel>();
     final navegador = Navigator.of(context);
+    final sessao = context.read<SessaoViewModel>();
     final entrou = await viewModel.entrar(_email.text, _senha.text);
     if (entrou) {
-      // RF0019: cada perfil abre as próprias telas.
-      final inicio = switch (viewModel.perfil) {
+      sessao.entrou(viewModel.perfil);
+      // RF0019: empresa e oficina abrem os painéis; o jovem volta para onde
+      // estava (as vagas ou a vaga em que tentou se candidatar).
+      final painel = switch (viewModel.perfil) {
         final PerfilEmpresa empresa => InicioEmpresaScreen(empresa: empresa),
         final PerfilOficina oficina => InicioOficinaScreen(oficina: oficina),
-        _ => const ListaVagasScreen(),
+        _ => null,
       };
-      navegador.pushReplacement(MaterialPageRoute(builder: (_) => inicio));
+      if (painel != null) {
+        navegador.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => painel),
+          (_) => false,
+        );
+      } else if (navegador.canPop()) {
+        navegador.pop();
+      } else {
+        navegador.pushReplacement(
+          MaterialPageRoute(builder: (_) => const ListaVagasScreen()),
+        );
+      }
     } else if (viewModel.bloqueado) {
       navegador.push(
         MaterialPageRoute(
@@ -66,11 +78,15 @@ class _LoginScreenState extends State<LoginScreen> {
     final viewModel = context.watch<LoginViewModel>();
     final textos = Theme.of(context).textTheme;
 
+    final permiteCadastro = context.read<SessaoViewModel>().permiteCadastro;
+
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(backgroundColor: Colors.white),
       body: SafeArea(
+        top: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           children: [
             Align(
               alignment: Alignment.centerLeft,
@@ -147,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     )
                   : const Text('Entrar'),
             ),
-            if (widget.permiteCadastro) ...[
+            if (permiteCadastro) ...[
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -351,7 +367,14 @@ class ConfirmeEmailScreen extends StatelessWidget {
             ),
             const Spacer(),
             FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
+              // Volta para as vagas e abre o login para entrar com a conta ativa.
+              onPressed: () {
+                final navegador = Navigator.of(context);
+                navegador.popUntil((rota) => rota.isFirst);
+                navegador.push(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                );
+              },
               child: const Text('Já confirmei'),
             ),
           ],

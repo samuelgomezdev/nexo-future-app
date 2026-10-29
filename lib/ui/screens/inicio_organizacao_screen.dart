@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../domain/erros.dart';
 import '../../domain/models/empresa.dart';
@@ -6,7 +7,9 @@ import '../../domain/models/oficina.dart';
 import '../../domain/regras/alvara_oficina.dart';
 import '../mascara_data.dart';
 import '../tema.dart';
+import '../viewmodels/sessao_viewmodel.dart';
 import 'componentes_cadastro.dart';
+import 'lista_vagas_screen.dart';
 
 /// E1 do protótipo, primeira versão: o painel ganha vagas na Sprint 3.
 class InicioEmpresaScreen extends StatelessWidget {
@@ -112,6 +115,20 @@ class _Painel extends StatelessWidget {
           height: 36,
           semanticLabel: 'Nexo Future',
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Sair',
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              final navegador = Navigator.of(context);
+              await context.read<SessaoViewModel>().sair();
+              navegador.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const ListaVagasScreen()),
+                (_) => false,
+              );
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),

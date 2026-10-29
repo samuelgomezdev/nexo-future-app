@@ -10,13 +10,13 @@ import '../domain/regras/cadastro_empresa.dart';
 import '../domain/regras/cadastro_jovem.dart';
 import '../domain/regras/cadastro_oficina.dart';
 import 'screens/lista_vagas_screen.dart';
-import 'screens/login_screen.dart';
 import 'tema.dart';
 import 'viewmodels/cadastro_empresa_viewmodel.dart';
 import 'viewmodels/cadastro_jovem_viewmodel.dart';
 import 'viewmodels/cadastro_oficina_viewmodel.dart';
 import 'viewmodels/candidaturas_viewmodel.dart';
 import 'viewmodels/login_viewmodel.dart';
+import 'viewmodels/sessao_viewmodel.dart';
 import 'viewmodels/vagas_viewmodel.dart';
 
 /// Perfil fixo de demonstração da Etapa 1 (sem login).
@@ -26,8 +26,8 @@ const alunoDemoNome = 'Jovem Demo';
 class NexoFutureApp extends StatelessWidget {
   const NexoFutureApp({super.key, this.autenticacao, this.perfis});
 
-  /// Com o serviço de autenticação, o app abre no login;
-  /// sem ele, abre direto nas vagas, como na demonstração da Etapa 1.
+  /// Com o serviço de autenticação, o visitante vê vagas e cursos e entra para
+  /// agir; sem ele, tudo fica liberado, como na demonstração da Etapa 1.
   final ServicoAutenticacao? autenticacao;
 
   /// Com os perfis, o login oferece os cadastros de jovem, empresa e oficina.
@@ -40,6 +40,9 @@ class NexoFutureApp extends StatelessWidget {
     final perfis = this.perfis;
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => SessaoViewModel(autenticacao, perfis != null),
+        ),
         ChangeNotifierProvider(create: (_) => VagasViewModel(vagas)),
         ChangeNotifierProvider(
           create: (_) => CandidaturasViewModel(
@@ -73,9 +76,7 @@ class NexoFutureApp extends StatelessWidget {
         title: 'Nexo Future',
         debugShowCheckedModeBanner: false,
         theme: temaNexo(),
-        home: autenticacao != null
-            ? LoginScreen(permiteCadastro: perfis != null)
-            : const ListaVagasScreen(),
+        home: const ListaVagasScreen(),
       ),
     );
   }

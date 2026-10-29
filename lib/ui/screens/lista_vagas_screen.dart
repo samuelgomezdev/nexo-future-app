@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../app.dart';
+import '../viewmodels/sessao_viewmodel.dart';
 import '../viewmodels/vagas_viewmodel.dart';
 import 'detalhe_vaga_screen.dart';
+import 'login_screen.dart';
 import 'minhas_candidaturas_screen.dart';
 import 'situacao_chip.dart';
 
@@ -11,24 +13,46 @@ import 'situacao_chip.dart';
 class ListaVagasScreen extends StatelessWidget {
   const ListaVagasScreen({super.key});
 
+  String _saudacao(SessaoViewModel sessao) {
+    const convite = 'Encontre uma vaga e o curso que leva até ela.';
+    if (!sessao.exigeLogin) return 'Olá, $alunoDemoNome! $convite';
+    final nome = sessao.perfil?.nome.split(' ').first;
+    return nome == null ? convite : 'Olá, $nome! $convite';
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<VagasViewModel>();
+    final sessao = context.watch<SessaoViewModel>();
     final vagas = viewModel.vagas;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vagas'),
         actions: [
-          IconButton(
-            tooltip: 'Minhas candidaturas',
-            icon: const Icon(Icons.assignment_turned_in_outlined),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const MinhasCandidaturasScreen(),
+          if (sessao.podeAgir)
+            IconButton(
+              tooltip: 'Minhas candidaturas',
+              icon: const Icon(Icons.assignment_turned_in_outlined),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const MinhasCandidaturasScreen(),
+                ),
               ),
             ),
-          ),
+          if (sessao.logado)
+            IconButton(
+              tooltip: 'Sair',
+              icon: const Icon(Icons.logout),
+              onPressed: sessao.sair,
+            )
+          else if (sessao.exigeLogin)
+            TextButton(
+              key: const Key('botao-entrar'),
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => const LoginScreen())),
+              child: const Text('Entrar'),
+            ),
         ],
       ),
       body: Column(
@@ -38,7 +62,7 @@ class ListaVagasScreen extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Olá, $alunoDemoNome! Encontre uma vaga e o curso que leva até ela.',
+                _saudacao(sessao),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),

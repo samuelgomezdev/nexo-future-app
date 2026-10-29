@@ -12,6 +12,9 @@ class AutenticacaoFalsa implements ServicoAutenticacao {
 
   /// E-mails que receberam o link de confirmação.
   final confirmacoesEnviadas = <String>[];
+
+  /// Quantas vezes a pessoa saiu da conta.
+  int saidas = 0;
   String? _ultimaContaCriada;
 
   /// Simula uma falha que não é de senha (sem internet, servidor fora etc.).
@@ -47,5 +50,10 @@ class AutenticacaoFalsa implements ServicoAutenticacao {
   Future<void> enviarConfirmacaoEmail() async {
     final email = _ultimaContaCriada;
     if (email != null) confirmacoesEnviadas.add(email);
+  }
+
+  @override
+  Future<void> sair() async {
+    saidas++;
   }
 }

@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../domain/models/vaga.dart';
 import '../viewmodels/candidaturas_viewmodel.dart';
+import '../viewmodels/sessao_viewmodel.dart';
+import 'escolha_perfil_screen.dart';
+import 'login_screen.dart';
 import 'minhas_candidaturas_screen.dart';
 import 'situacao_chip.dart';
 
@@ -89,6 +92,10 @@ class _BotaoCandidatura extends StatelessWidget {
   }
 
   void _candidatar(BuildContext context) {
+    if (!context.read<SessaoViewModel>().podeAgir) {
+      _pedirConta(context);
+      return;
+    }
     final resultado = candidaturas.candidatar(vaga);
     final mensageiro = ScaffoldMessenger.of(context);
     switch (resultado) {
@@ -109,6 +116,55 @@ class _BotaoCandidatura extends StatelessWidget {
           const SnackBar(content: Text('Você já se candidatou a esta vaga.')),
         );
     }
+  }
+
+  /// O visitante vê a vaga, mas só se candidata quem entrou.
+  void _pedirConta(BuildContext context) {
+    final navegador = Navigator.of(context);
+    final permiteCadastro = context.read<SessaoViewModel>().permiteCadastro;
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (aviso) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Entre ou crie sua conta para se candidatar.',
+                style: Theme.of(aviso).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(aviso).pop();
+                  navegador.push(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+                child: const Text('Entrar'),
+              ),
+              if (permiteCadastro) ...[
+                const SizedBox(height: 8),
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(aviso).pop();
+                    navegador.push(
+                      MaterialPageRoute(
+                        builder: (_) => const EscolhaPerfilScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Criar conta'),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   /// UC0007 E1: no limite, explica a regra e leva para Minhas candidaturas.

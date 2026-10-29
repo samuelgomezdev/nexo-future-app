@@ -59,6 +59,9 @@ class FirebaseAutenticacao implements ServicoAutenticacao {
   }
 
   @override
+  Future<void> sair() => _auth.signOut();
+
+  @override
   Future<void> enviarConfirmacaoEmail() async {
     await _auth.setLanguageCode('pt');
     await _auth.currentUser?.sendEmailVerification();

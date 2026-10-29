@@ -23,6 +23,9 @@ abstract class ServicoAutenticacao {
 
   /// Envia o link de confirmação para o e-mail da conta recém-criada (RF0016).
   Future<void> enviarConfirmacaoEmail();
+
+  /// Encerra a conta no aparelho; a pessoa volta a ser visitante.
+  Future<void> sair();
 }
 
 /// Login com o bloqueio da RNF0007, contado separadamente para cada e-mail.
