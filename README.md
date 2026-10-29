@@ -81,6 +81,14 @@ Cadastros de empresa e oficina testados no celular com o Firebase, usando contas
 
 Vídeos: [cadastro da empresa](docs/evidencias/sprint2-cadastro-empresa.mp4) · [oficina com alvará](docs/evidencias/sprint2-cadastro-oficina-com-alvara.mp4) · [oficina sem alvará ("Enviar depois")](docs/evidencias/sprint2-cadastro-oficina-enviar-depois.mp4)
 
+Acesso de visitante (RN0007) e login por perfil (RF0019), no celular com o Firebase:
+
+| Visitante vê as vagas | Candidatar-se pede conta | Painel da empresa | Oficina com alvará | Oficina sem alvará |
+|---|---|---|---|---|
+| ![Vagas do visitante](docs/evidencias/sprint2-visitante-vagas.png) | ![Aviso para entrar](docs/evidencias/sprint2-visitante-aviso-candidatura.png) | ![Painel da empresa](docs/evidencias/sprint2-painel-empresa.png) | ![Oficina com alvará](docs/evidencias/sprint2-painel-oficina-com-alvara.png) | ![Oficina sem alvará](docs/evidencias/sprint2-painel-oficina-sem-alvara.png) |
+
+Vídeos: [visitante e login da empresa](docs/evidencias/sprint2-visitante-e-login-empresa.mp4) · [login da oficina com alvará](docs/evidencias/sprint2-login-oficina-com-alvara.mp4) · [login da oficina sem alvará](docs/evidencias/sprint2-login-oficina-sem-alvara.mp4)
+
 ## Desenvolvimento orientado a testes (TDD)
 
 Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha (vermelho), depois vem o código mínimo que o faz passar (verde). No histórico de commits, cada regra aparece em dois registros seguidos: `test: ... (vermelho)` e `feat: ... (verde)`.
