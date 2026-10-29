@@ -7,9 +7,10 @@ import '../../apoio/perfis_falsos.dart';
 import '../../apoio/tela_alta.dart';
 
 void main() {
-  // No celular, o corretor do teclado trocava o e-mail digitado
-  // (inseria espaço e sugestões). E-mail não tem correção automática.
-  group('Campos de e-mail sem correção automática', () {
+  // No celular, o corretor do teclado trocava o e-mail digitado (inseria
+  // espaço). Sem correção automática, mas com as sugestões e o preenchimento
+  // automático, para a pessoa não precisar digitar o e-mail inteiro.
+  group('Campos de e-mail', () {
     setUp(usarTelaAlta);
     tearDown(restaurarTela);
 
@@ -39,8 +40,13 @@ void main() {
       expect(campo.autocorrect, isFalse, reason: '$rotulo com autocorreção');
       expect(
         campo.enableSuggestions,
-        isFalse,
-        reason: '$rotulo com sugestões do teclado',
+        isTrue,
+        reason: '$rotulo sem as sugestões do teclado',
+      );
+      expect(
+        campo.autofillHints,
+        contains(AutofillHints.email),
+        reason: '$rotulo sem preenchimento automático',
       );
     }
 
