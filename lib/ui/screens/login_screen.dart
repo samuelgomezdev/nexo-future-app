@@ -85,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _email,
               keyboardType: TextInputType.emailAddress,
               autocorrect: false,
-              enableSuggestions: false,
               autofillHints: const [AutofillHints.email],
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(

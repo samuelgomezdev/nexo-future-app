@@ -158,7 +158,6 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
-                enableSuggestions: false,
                 autofillHints: const [AutofillHints.email],
                 decoration: InputDecoration(
                   labelText: 'E-mail do recrutador *',
