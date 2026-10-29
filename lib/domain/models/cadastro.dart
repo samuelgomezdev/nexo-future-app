@@ -28,6 +28,13 @@ class CadastroInvalido implements Exception {
   String toString() => erros.values.join('\n');
 }
 
+/// O que todo perfil tem, seja de jovem, empresa ou oficina.
+abstract interface class Perfil {
+  String get id;
+  String get nome;
+  String get email;
+}
+
 /// Onde os perfis são guardados: o Firestore no app, uma versão falsa nos testes.
 abstract class RepositorioPerfis {
   Future<void> salvarJovem(PerfilJovem perfil);
@@ -35,4 +42,7 @@ abstract class RepositorioPerfis {
   Future<void> salvarEmpresa(PerfilEmpresa perfil);
 
   Future<void> salvarOficina(PerfilOficina perfil);
+
+  /// O perfil de quem entrou; null quando a conta não tem perfil salvo.
+  Future<Perfil?> buscarPerfil(String id);
 }

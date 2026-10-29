@@ -8,6 +8,9 @@ class PerfisFalsos implements RepositorioPerfis {
   final empresas = <String, PerfilEmpresa>{};
   final oficinas = <String, PerfilOficina>{};
 
+  /// Simula uma falha do banco (sem internet, servidor fora etc.).
+  Exception? falhaInesperada;
+
   @override
   Future<void> salvarJovem(PerfilJovem perfil) async {
     jovens[perfil.id] = perfil;
@@ -21,5 +24,12 @@ class PerfisFalsos implements RepositorioPerfis {
   @override
   Future<void> salvarOficina(PerfilOficina perfil) async {
     oficinas[perfil.id] = perfil;
+  }
+
+  @override
+  Future<Perfil?> buscarPerfil(String id) async {
+    final falha = falhaInesperada;
+    if (falha != null) throw falha;
+    return jovens[id] ?? empresas[id] ?? oficinas[id];
   }
 }

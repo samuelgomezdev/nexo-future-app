@@ -2,14 +2,18 @@ import 'package:flutter/foundation.dart';
 
 import '../../domain/autenticacao.dart';
 import '../../domain/erros.dart';
+import '../../domain/models/cadastro.dart';
 
 final _formatoEmail = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
 /// Login (protótipo A2 a A5): valida os campos, entra e explica o que deu errado.
 class LoginViewModel extends ChangeNotifier {
-  LoginViewModel(this._login);
+  LoginViewModel(this._login, {this.perfis});
 
   final EntrarNaConta _login;
+
+  /// Sem os perfis (demonstração da Etapa 1), todo mundo entra como jovem.
+  final RepositorioPerfis? perfis;
 
   bool carregando = false;
   String? erroEmail;
@@ -18,6 +22,9 @@ class LoginViewModel extends ChangeNotifier {
   /// Falha que não é de e-mail nem de senha (internet, servidor).
   String? erroGeral;
   Usuario? usuario;
+
+  /// RF0019: decide quais telas abrir depois do login.
+  Perfil? perfil;
   bool precisaConfirmarEmail = false;
   Duration? tempoBloqueio;
 
@@ -45,7 +52,9 @@ class LoginViewModel extends ChangeNotifier {
     carregando = true;
     notifyListeners();
     try {
-      usuario = await _login.entrar(emailLimpo, senha);
+      final usuario = await _login.entrar(emailLimpo, senha);
+      perfil = await perfis?.buscarPerfil(usuario.id);
+      this.usuario = usuario;
       return true;
     } on SenhaIncorreta catch (e) {
       erroSenha = e.toString();

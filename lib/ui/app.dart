@@ -49,7 +49,8 @@ class NexoFutureApp extends StatelessWidget {
         ),
         if (autenticacao != null)
           ChangeNotifierProvider(
-            create: (_) => LoginViewModel(EntrarNaConta(autenticacao)),
+            create: (_) =>
+                LoginViewModel(EntrarNaConta(autenticacao), perfis: perfis),
           ),
         if (autenticacao != null && perfis != null) ...[
           ChangeNotifierProvider(

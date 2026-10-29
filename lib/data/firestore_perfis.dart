@@ -53,4 +53,55 @@ class FirestorePerfis implements RepositorioPerfis {
       'criadoEm': FieldValue.serverTimestamp(),
     });
   }
+
+  @override
+  Future<Perfil?> buscarPerfil(String id) async {
+    final documentos = await Future.wait([
+      _banco.collection('jovens').doc(id).get(),
+      _banco.collection('empresas').doc(id).get(),
+      _banco.collection('oficinas').doc(id).get(),
+    ]);
+    final [jovem, empresa, oficina] = documentos;
+
+    if (jovem.data() case final dados?) {
+      return PerfilJovem(
+        id: id,
+        nome: dados['nome'] as String,
+        email: dados['email'] as String,
+        cidade: dados['cidade'] as String,
+        dataNascimento: (dados['dataNascimento'] as Timestamp).toDate(),
+        autorizacaoResponsavel: dados['autorizacaoResponsavel'] as bool,
+        aceitePoliticaEm: (dados['aceitePoliticaEm'] as Timestamp).toDate(),
+      );
+    }
+    if (empresa.data() case final dados?) {
+      return PerfilEmpresa(
+        id: id,
+        nome: dados['nome'] as String,
+        cnpj: dados['cnpj'] as String,
+        setor: dados['setor'] as String,
+        recrutador: dados['recrutador'] as String,
+        email: dados['email'] as String,
+        cidade: dados['cidade'] as String,
+        aceitePoliticaEm: (dados['aceitePoliticaEm'] as Timestamp).toDate(),
+      );
+    }
+    if (oficina.data() case final dados?) {
+      final numero = dados['alvaraNumero'] as String?;
+      final validade = dados['alvaraValidade'] as Timestamp?;
+      return PerfilOficina(
+        id: id,
+        nome: dados['nome'] as String,
+        cnpj: dados['cnpj'] as String,
+        gestor: dados['gestor'] as String,
+        email: dados['email'] as String,
+        cidade: dados['cidade'] as String,
+        alvara: numero == null || validade == null
+            ? null
+            : Alvara(numero: numero, validade: validade.toDate()),
+        aceitePoliticaEm: (dados['aceitePoliticaEm'] as Timestamp).toDate(),
+      );
+    }
+    return null;
+  }
 }

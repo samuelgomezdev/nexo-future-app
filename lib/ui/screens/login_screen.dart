@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../domain/models/empresa.dart';
+import '../../domain/models/oficina.dart';
 import '../tema.dart';
 import '../viewmodels/login_viewmodel.dart';
 import 'escolha_perfil_screen.dart';
+import 'inicio_organizacao_screen.dart';
 import 'lista_vagas_screen.dart';
 
 /// A2 e A3 do protótipo: entrar com e-mail e senha.
@@ -36,9 +39,13 @@ class _LoginScreenState extends State<LoginScreen> {
     final navegador = Navigator.of(context);
     final entrou = await viewModel.entrar(_email.text, _senha.text);
     if (entrou) {
-      navegador.pushReplacement(
-        MaterialPageRoute(builder: (_) => const ListaVagasScreen()),
-      );
+      // RF0019: cada perfil abre as próprias telas.
+      final inicio = switch (viewModel.perfil) {
+        final PerfilEmpresa empresa => InicioEmpresaScreen(empresa: empresa),
+        final PerfilOficina oficina => InicioOficinaScreen(oficina: oficina),
+        _ => const ListaVagasScreen(),
+      };
+      navegador.pushReplacement(MaterialPageRoute(builder: (_) => inicio));
     } else if (viewModel.bloqueado) {
       navegador.push(
         MaterialPageRoute(

@@ -1,3 +1,5 @@
+import 'cadastro.dart';
+
 /// O que o recrutador preenche no cadastro da empresa.
 class DadosCadastroEmpresa {
   const DadosCadastroEmpresa({
@@ -27,7 +29,7 @@ class DadosCadastroEmpresa {
 }
 
 /// O que fica salvo da empresa. A senha fica só no Firebase Auth.
-class PerfilEmpresa {
+class PerfilEmpresa implements Perfil {
   const PerfilEmpresa({
     required this.id,
     required this.nome,
@@ -39,13 +41,16 @@ class PerfilEmpresa {
     required this.aceitePoliticaEm,
   });
 
+  @override
   final String id;
+  @override
   final String nome;
 
   /// Só os 14 dígitos, sem pontuação.
   final String cnpj;
   final String setor;
   final String recrutador;
+  @override
   final String email;
   final String cidade;
   final DateTime aceitePoliticaEm;

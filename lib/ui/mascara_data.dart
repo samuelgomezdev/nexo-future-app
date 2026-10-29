@@ -1,5 +1,11 @@
 import 'package:flutter/services.dart';
 
+/// Mostra a data como dd/mm/aaaa.
+String formatarDataBr(DateTime data) {
+  String doisDigitos(int n) => n.toString().padLeft(2, '0');
+  return '${doisDigitos(data.day)}/${doisDigitos(data.month)}/${data.year}';
+}
+
 /// Coloca as barras de dd/mm/aaaa enquanto a pessoa digita só os números.
 class MascaraData extends TextInputFormatter {
   @override

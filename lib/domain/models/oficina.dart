@@ -1,3 +1,5 @@
+import 'cadastro.dart';
+
 /// Alvará de ensino que a oficina apresenta para publicar cursos (RN0003).
 class Alvara {
   const Alvara({required this.numero, required this.validade});
@@ -53,7 +55,7 @@ class DadosCadastroOficina {
 }
 
 /// O que fica salvo da oficina. A senha fica só no Firebase Auth.
-class PerfilOficina {
+class PerfilOficina implements Perfil {
   const PerfilOficina({
     required this.id,
     required this.nome,
@@ -65,12 +67,15 @@ class PerfilOficina {
     required this.aceitePoliticaEm,
   });
 
+  @override
   final String id;
+  @override
   final String nome;
 
   /// Só os 14 dígitos, sem pontuação.
   final String cnpj;
   final String gestor;
+  @override
   final String email;
   final String cidade;
   final Alvara? alvara;

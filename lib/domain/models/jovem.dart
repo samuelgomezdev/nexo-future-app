@@ -1,3 +1,5 @@
+import 'cadastro.dart';
+
 export 'cadastro.dart';
 
 /// O que o jovem preenche no cadastro.
@@ -24,7 +26,7 @@ class DadosCadastroJovem {
 }
 
 /// O que fica salvo do jovem. A senha fica só no Firebase Auth.
-class PerfilJovem {
+class PerfilJovem implements Perfil {
   const PerfilJovem({
     required this.id,
     required this.nome,
@@ -35,8 +37,11 @@ class PerfilJovem {
     required this.aceitePoliticaEm,
   });
 
+  @override
   final String id;
+  @override
   final String nome;
+  @override
   final String email;
   final String cidade;
   final DateTime dataNascimento;
