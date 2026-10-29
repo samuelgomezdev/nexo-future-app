@@ -62,6 +62,9 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
     }
   }
 
+  void _limpar(CampoCadastro campo) =>
+      context.read<CadastroJovemViewModel>().limparErro(campo);
+
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<CadastroJovemViewModel>();
@@ -86,6 +89,7 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
             controller: _nome,
             textCapitalization: TextCapitalization.words,
             autofillHints: const [AutofillHints.name],
+            onChanged: (_) => _limpar(CampoCadastro.nome),
             decoration: InputDecoration(
               labelText: 'Nome completo',
               errorText: erros[CampoCadastro.nome],
@@ -97,6 +101,7 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
             autofillHints: const [AutofillHints.email],
+            onChanged: (_) => _limpar(CampoCadastro.email),
             decoration: InputDecoration(
               labelText: 'E-mail',
               errorText: erros[CampoCadastro.email],
@@ -108,6 +113,7 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
             controller: _senha,
             obscureText: !_senhaVisivel,
             autofillHints: const [AutofillHints.newPassword],
+            onChanged: (_) => _limpar(CampoCadastro.senha),
             decoration: InputDecoration(
               labelText: 'Senha',
               helperText: 'Pelo menos $tamanhoMinimoSenha caracteres.',
@@ -128,7 +134,11 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
             controller: _nascimento,
             keyboardType: TextInputType.number,
             inputFormatters: [MascaraData()],
-            onChanged: (_) => setState(() {}),
+            onChanged: (_) {
+              _limpar(CampoCadastro.nascimento);
+              _limpar(CampoCadastro.responsavel);
+              setState(() {});
+            },
             decoration: InputDecoration(
               labelText: 'Data de nascimento',
               hintText: 'dd/mm/aaaa',
@@ -148,7 +158,10 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
               for (final cidade in cidadesAmfri)
                 DropdownMenuItem(value: cidade, child: Text(cidade)),
             ],
-            onChanged: (cidade) => setState(() => _cidade = cidade),
+            onChanged: (cidade) {
+              _limpar(CampoCadastro.cidade);
+              setState(() => _cidade = cidade);
+            },
           ),
           if (pedeAutorizacao) ...[
             const SizedBox(height: 8),
@@ -156,7 +169,10 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
               texto: 'Meu responsável autorizou este cadastro',
               marcado: _autorizacao,
               erro: erros[CampoCadastro.responsavel],
-              aoMudar: (valor) => setState(() => _autorizacao = valor),
+              aoMudar: (valor) {
+                _limpar(CampoCadastro.responsavel);
+                setState(() => _autorizacao = valor);
+              },
             ),
           ],
           const SizedBox(height: 8),
@@ -164,7 +180,10 @@ class _CadastroJovemScreenState extends State<CadastroJovemScreen> {
             texto: 'Li e aceito a Política de Privacidade',
             marcado: _aceite,
             erro: erros[CampoCadastro.politica],
-            aoMudar: (valor) => setState(() => _aceite = valor),
+            aoMudar: (valor) {
+              _limpar(CampoCadastro.politica);
+              setState(() => _aceite = valor);
+            },
           ),
           Align(
             alignment: Alignment.centerLeft,

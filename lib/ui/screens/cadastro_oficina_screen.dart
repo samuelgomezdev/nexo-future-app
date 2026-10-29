@@ -76,6 +76,9 @@ class _CadastroOficinaScreenState extends State<CadastroOficinaScreen> {
     if (podeSeguir) setState(() => _etapa = 2);
   }
 
+  void _limpar(CampoCadastro campo) =>
+      context.read<CadastroOficinaViewModel>().limparErro(campo);
+
   void _voltar() {
     if (_etapa == 2) {
       context.read<CadastroOficinaViewModel>().conferirEtapa(
@@ -137,6 +140,7 @@ class _CadastroOficinaScreenState extends State<CadastroOficinaScreen> {
             if (_etapa == 1) ...[
               TextField(
                 controller: _nome,
+                onChanged: (_) => _limpar(CampoCadastro.nome),
                 textCapitalization: TextCapitalization.words,
                 decoration: InputDecoration(
                   labelText: 'Nome da oficina *',
@@ -146,6 +150,7 @@ class _CadastroOficinaScreenState extends State<CadastroOficinaScreen> {
               const SizedBox(height: 14),
               TextField(
                 controller: _cnpj,
+                onChanged: (_) => _limpar(CampoCadastro.cnpj),
                 keyboardType: TextInputType.number,
                 inputFormatters: [MascaraCnpj()],
                 decoration: InputDecoration(
@@ -157,6 +162,7 @@ class _CadastroOficinaScreenState extends State<CadastroOficinaScreen> {
               const SizedBox(height: 14),
               TextField(
                 controller: _gestor,
+                onChanged: (_) => _limpar(CampoCadastro.gestor),
                 textCapitalization: TextCapitalization.words,
                 autofillHints: const [AutofillHints.name],
                 decoration: InputDecoration(
@@ -173,11 +179,15 @@ class _CadastroOficinaScreenState extends State<CadastroOficinaScreen> {
                 opcoes: cidadesAmfri,
                 valor: _cidade,
                 erro: erros[CampoCadastro.cidade],
-                aoMudar: (cidade) => setState(() => _cidade = cidade),
+                aoMudar: (cidade) {
+                  _limpar(CampoCadastro.cidade);
+                  setState(() => _cidade = cidade);
+                },
               ),
               const SizedBox(height: 14),
               TextField(
                 controller: _email,
+                onChanged: (_) => _limpar(CampoCadastro.email),
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
                 autofillHints: const [AutofillHints.email],
@@ -191,6 +201,7 @@ class _CadastroOficinaScreenState extends State<CadastroOficinaScreen> {
               const SizedBox(height: 14),
               CampoSenha(
                 controller: _senha,
+                aoMudar: (_) => _limpar(CampoCadastro.senha),
                 rotulo: 'Senha *',
                 erro: erros[CampoCadastro.senha],
               ),
@@ -198,7 +209,10 @@ class _CadastroOficinaScreenState extends State<CadastroOficinaScreen> {
               AceitePolitica(
                 marcado: _aceite,
                 erro: erros[CampoCadastro.politica],
-                aoMudar: (valor) => setState(() => _aceite = valor),
+                aoMudar: (valor) {
+                  _limpar(CampoCadastro.politica);
+                  setState(() => _aceite = valor);
+                },
               ),
             ] else ...[
               Text('Informe o alvará de ensino', style: textos.headlineSmall),
@@ -210,6 +224,7 @@ class _CadastroOficinaScreenState extends State<CadastroOficinaScreen> {
               const SizedBox(height: 20),
               TextField(
                 controller: _numeroAlvara,
+                onChanged: (_) => _limpar(CampoCadastro.alvara),
                 textCapitalization: TextCapitalization.characters,
                 decoration: InputDecoration(
                   labelText: 'Número do alvará',
@@ -220,6 +235,7 @@ class _CadastroOficinaScreenState extends State<CadastroOficinaScreen> {
               const SizedBox(height: 14),
               TextField(
                 controller: _validadeAlvara,
+                onChanged: (_) => _limpar(CampoCadastro.alvara),
                 keyboardType: TextInputType.number,
                 inputFormatters: [MascaraData()],
                 decoration: const InputDecoration(

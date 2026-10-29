@@ -67,6 +67,9 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
     if (podeSeguir) setState(() => _etapa = 2);
   }
 
+  void _limpar(CampoCadastro campo) =>
+      context.read<CadastroEmpresaViewModel>().limparErro(campo);
+
   void _voltar() {
     if (_etapa == 2) {
       context.read<CadastroEmpresaViewModel>().conferirEtapa(
@@ -127,6 +130,7 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
             if (_etapa == 1) ...[
               TextField(
                 controller: _razaoSocial,
+                onChanged: (_) => _limpar(CampoCadastro.nome),
                 textCapitalization: TextCapitalization.words,
                 decoration: InputDecoration(
                   labelText: 'Razão social *',
@@ -136,6 +140,7 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
               const SizedBox(height: 14),
               TextField(
                 controller: _cnpj,
+                onChanged: (_) => _limpar(CampoCadastro.cnpj),
                 keyboardType: TextInputType.number,
                 inputFormatters: [MascaraCnpj()],
                 decoration: InputDecoration(
@@ -151,11 +156,15 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
                 opcoes: setoresEmpresa,
                 valor: _setor,
                 erro: erros[CampoCadastro.setor],
-                aoMudar: (setor) => setState(() => _setor = setor),
+                aoMudar: (setor) {
+                  _limpar(CampoCadastro.setor);
+                  setState(() => _setor = setor);
+                },
               ),
               const SizedBox(height: 14),
               TextField(
                 controller: _email,
+                onChanged: (_) => _limpar(CampoCadastro.email),
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
                 autofillHints: const [AutofillHints.email],
@@ -170,6 +179,7 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
             ] else ...[
               TextField(
                 controller: _recrutador,
+                onChanged: (_) => _limpar(CampoCadastro.recrutador),
                 textCapitalization: TextCapitalization.words,
                 autofillHints: const [AutofillHints.name],
                 decoration: InputDecoration(
@@ -184,11 +194,15 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
                 opcoes: cidadesAmfri,
                 valor: _cidade,
                 erro: erros[CampoCadastro.cidade],
-                aoMudar: (cidade) => setState(() => _cidade = cidade),
+                aoMudar: (cidade) {
+                  _limpar(CampoCadastro.cidade);
+                  setState(() => _cidade = cidade);
+                },
               ),
               const SizedBox(height: 14),
               CampoSenha(
                 controller: _senha,
+                aoMudar: (_) => _limpar(CampoCadastro.senha),
                 rotulo: 'Senha *',
                 erro: erros[CampoCadastro.senha],
               ),
@@ -196,7 +210,10 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
               AceitePolitica(
                 marcado: _aceite,
                 erro: erros[CampoCadastro.politica],
-                aoMudar: (valor) => setState(() => _aceite = valor),
+                aoMudar: (valor) {
+                  _limpar(CampoCadastro.politica);
+                  setState(() => _aceite = valor);
+                },
               ),
             ],
             if (erros.isNotEmpty) ...[

@@ -114,11 +114,13 @@ class CampoSenha extends StatefulWidget {
     required this.controller,
     this.rotulo = 'Senha',
     this.erro,
+    this.aoMudar,
   });
 
   final TextEditingController controller;
   final String rotulo;
   final String? erro;
+  final ValueChanged<String>? aoMudar;
 
   @override
   State<CampoSenha> createState() => _CampoSenhaState();
@@ -133,6 +135,7 @@ class _CampoSenhaState extends State<CampoSenha> {
       controller: widget.controller,
       obscureText: !_visivel,
       autofillHints: const [AutofillHints.newPassword],
+      onChanged: widget.aoMudar,
       decoration: InputDecoration(
         labelText: widget.rotulo,
         helperText: 'Pelo menos $tamanhoMinimoSenha caracteres.',

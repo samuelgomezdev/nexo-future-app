@@ -14,6 +14,13 @@ class CadastroViewModel<D, P> extends ChangeNotifier {
   bool carregando = false;
   P? perfil;
 
+  /// Quando a pessoa edita um campo, o erro dele some na hora.
+  void limparErro(CampoCadastro campo) {
+    if (!erros.containsKey(campo)) return;
+    erros = {...erros}..remove(campo);
+    notifyListeners();
+  }
+
   /// Mostra só os erros dos campos da etapa; devolve true quando ela pode avançar.
   bool conferirEtapa(
     Map<CampoCadastro, String> todosOsErros,
