@@ -55,6 +55,7 @@ Já no código, testado no celular com o Firebase:
 | F9 | Escolha do perfil | No "Cadastre-se", a pessoa escolhe entre jovem, empresa e oficina; cada perfil tem o seu cadastro. |
 | F10 | Cadastro da empresa | Em 2 etapas: razão social, CNPJ (com máscara e conferência dos dígitos), setor e e-mail do recrutador; depois nome do recrutador, cidade, senha e Política de Privacidade. |
 | F11 | Cadastro da oficina | Em 2 etapas: dados da oficina e, na segunda, o alvará de ensino (número e validade). Dá para enviar o alvará depois, mas sem ele a oficina não publica cursos (RN0003). |
+| F12 | Visitante e login por perfil | Sem conta, dá para pesquisar vagas e ver o detalhe com os cursos vinculados. Candidatar-se pede login e, depois de entrar, o app volta para a mesma vaga. Ao entrar, a empresa vai para o painel do recrutador e a oficina vê se já pode publicar cursos (RN0003). |
 
 O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade do projeto (azul `#004089` e fonte Inter).
 
@@ -98,24 +99,26 @@ Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha
 | RF0001 | O cadastro da empresa valida o nome, o CNPJ (dígitos verificadores), o recrutador, o e-mail, a senha, a cidade da AMFRI e o aceite da Política de Privacidade. |
 | RF0002 | O cadastro da oficina valida os mesmos campos da empresa e o alvará de ensino: opcional no cadastro, mas, se informado, com número e validade em dia. |
 | RN0003 | A oficina só publica curso com o alvará de ensino apresentado e dentro da validade. |
+| RN0007 | O visitante vê vagas e cursos sem conta; candidatar-se e os painéis de empresa e oficina pedem login. |
+| RF0019 | O login abre as telas do perfil de quem entrou: jovem, empresa ou oficina. |
 
 As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e da cobertura) estão em [`docs/evidencias`](docs/evidencias).
 
 ### Testes e cobertura
 
-São **200 testes automatizados**, todos passando:
+São **221 testes automatizados**, todos passando:
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
 | Unitários de regras de negócio | `test/domain` | 83 |
 | Unitários da camada de dados | `test/data` | 24 |
-| ViewModels | `test/ui/viewmodels` | 42 |
-| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 50 |
+| ViewModels | `test/ui/viewmodels` | 50 |
+| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 63 |
 | Integração no dispositivo | `integration_test` | 1 |
 
 Nos testes, o Firebase é substituído por versões falsas em memória (`test/apoio`), para que rodem rápido e sem internet.
 
-Cobertura medida com `flutter test --coverage`: **95,4%** do código, com 94,3% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,2% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
+Cobertura medida com `flutter test --coverage`: **95,8%** do código, com 94,3% nas regras de negócio (`lib/domain`), 100% na camada de dados e 95,7% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
 
 A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório.
 
