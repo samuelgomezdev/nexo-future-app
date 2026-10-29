@@ -179,6 +179,8 @@ class _CadastroOficinaScreenState extends State<CadastroOficinaScreen> {
               TextField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
+                autocorrect: false,
+                enableSuggestions: false,
                 autofillHints: const [AutofillHints.email],
                 decoration: InputDecoration(
                   labelText: 'E-mail *',
