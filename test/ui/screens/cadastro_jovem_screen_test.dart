@@ -89,6 +89,26 @@ void main() {
       );
     });
 
+    testWidgets('corrigir um campo tira o erro dele na hora', (tester) async {
+      await abrirCadastro(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Criar conta'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Nome completo'),
+        'Carla Lima',
+      );
+      await tester.tap(find.text('Li e aceito a Política de Privacidade'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Informe seu nome completo.'), findsNothing);
+      expect(
+        find.text('Aceite a Política de Privacidade para continuar.'),
+        findsNothing,
+      );
+      expect(find.text('Informe um e-mail válido.'), findsOneWidget);
+    });
+
     testWidgets(
       'para quem tem menos de 18 anos, pede a autorização do responsável',
       (tester) async {

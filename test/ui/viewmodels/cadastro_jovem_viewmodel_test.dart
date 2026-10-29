@@ -80,6 +80,14 @@ void main() {
       );
     });
 
+    test('editar um campo limpa só o erro dele', () async {
+      await viewModel.cadastrar(dados(nome: 'Carla', email: 'carla'));
+
+      viewModel.limparErro(CampoCadastro.nome);
+
+      expect(viewModel.erros.keys, [CampoCadastro.email]);
+    });
+
     test('falha do servidor mostra um aviso geral', () async {
       auth.falhaInesperada = Exception('sem conexão');
 

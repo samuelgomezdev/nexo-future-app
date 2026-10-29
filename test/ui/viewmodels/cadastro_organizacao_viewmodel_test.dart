@@ -91,6 +91,26 @@ void main() {
       );
     });
 
+    test('editar um campo limpa só o erro dele', () async {
+      await viewModel.cadastrar(dados(cnpj: '123', email: 'rh'));
+      var avisos = 0;
+      viewModel.addListener(() => avisos++);
+
+      viewModel.limparErro(CampoCadastro.cnpj);
+
+      expect(viewModel.erros.keys, [CampoCadastro.email]);
+      expect(avisos, 1);
+    });
+
+    test('limpar um campo sem erro não avisa a tela', () {
+      var avisos = 0;
+      viewModel.addListener(() => avisos++);
+
+      viewModel.limparErro(CampoCadastro.nome);
+
+      expect(avisos, 0);
+    });
+
     test('uma nova tentativa limpa os erros anteriores', () async {
       await viewModel.cadastrar(dados(cnpj: '123'));
       await viewModel.cadastrar(dados());

@@ -97,6 +97,23 @@ void main() {
       expect(find.text('Etapa 1 de 2 · Dados da empresa'), findsOneWidget);
     });
 
+    testWidgets('corrigir um campo tira o erro dele na hora', (tester) async {
+      await abrirCadastro(tester);
+      await tester.tap(find.text('Próxima etapa'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Razão social *'),
+        'Estaleiro Foz Azul Ltda.',
+      );
+      await escolher(tester, 'campo-setor', 'Naval');
+
+      expect(find.text('Informe a razão social.'), findsNothing);
+      expect(find.text('Escolha o setor da empresa.'), findsNothing);
+      expect(find.text('Informe um CNPJ válido.'), findsOneWidget);
+      expect(find.text('Corrija 2 campos para continuar.'), findsOneWidget);
+    });
+
     testWidgets('com um campo errado, o aviso fala em 1 campo', (tester) async {
       await abrirCadastro(tester);
       await preencherEtapa1(tester);

@@ -85,6 +85,42 @@ void main() {
       expect(find.text('Etapa 1 de 2 · Dados da oficina'), findsOneWidget);
     });
 
+    testWidgets('corrigir os campos tira os erros deles na hora', (
+      tester,
+    ) async {
+      await abrirCadastro(tester);
+      await tester.tap(find.text('Próxima etapa'));
+      await tester.pumpAndSettle();
+
+      await preencherEtapa1(tester);
+
+      expect(find.textContaining('Corrija'), findsNothing);
+      expect(find.text('Informe o nome da oficina.'), findsNothing);
+      expect(
+        find.text('Aceite a Política de Privacidade para continuar.'),
+        findsNothing,
+      );
+    });
+
+    testWidgets('o erro do alvará some ao editar o número', (tester) async {
+      await irParaEtapa2(tester);
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Número do alvará'),
+        'AE-2026-0042',
+      );
+      await tester.tap(find.text('Concluir cadastro'));
+      await tester.pumpAndSettle();
+      expect(find.text('Informe a validade do alvará.'), findsOneWidget);
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Número do alvará'),
+        'AE-2026-0043',
+      );
+      await tester.pump();
+
+      expect(find.text('Informe a validade do alvará.'), findsNothing);
+    });
+
     testWidgets('a etapa 2 pede o alvará e explica a RN0003', (tester) async {
       await irParaEtapa2(tester);
 
