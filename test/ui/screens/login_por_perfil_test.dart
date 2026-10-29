@@ -37,6 +37,8 @@ void main() {
         NexoFutureApp(autenticacao: AutenticacaoFalsa(), perfis: perfis),
       );
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('botao-entrar')));
+      await tester.pumpAndSettle();
       await tester.enterText(
         find.widgetWithText(TextField, 'E-mail'),
         'ana@email.com',

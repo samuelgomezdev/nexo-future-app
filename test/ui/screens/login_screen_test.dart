@@ -9,6 +9,8 @@ void main() {
     Future<void> abrirApp(WidgetTester tester) async {
       await tester.pumpWidget(NexoFutureApp(autenticacao: AutenticacaoFalsa()));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('botao-entrar')));
+      await tester.pumpAndSettle();
     }
 
     Future<void> entrar(WidgetTester tester, String email, String senha) async {
@@ -65,6 +67,8 @@ void main() {
       final servico = AutenticacaoFalsa()
         ..falhaInesperada = Exception('servidor fora');
       await tester.pumpWidget(NexoFutureApp(autenticacao: servico));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('botao-entrar')));
       await tester.pumpAndSettle();
 
       await entrar(tester, 'ana@email.com', 'senha-certa');

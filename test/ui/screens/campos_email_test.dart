@@ -22,6 +22,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('botao-entrar')));
+      await tester.pumpAndSettle();
     }
 
     Future<void> abrirCadastro(WidgetTester tester, String perfil) async {

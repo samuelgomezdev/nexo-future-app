@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexo_future_app/ui/app.dart';
 
@@ -17,6 +18,8 @@ void main() {
           perfis: PerfisFalsos(),
         ),
       );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('botao-entrar')));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cadastre-se'));
       await tester.pumpAndSettle();

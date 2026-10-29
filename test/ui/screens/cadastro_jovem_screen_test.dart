@@ -33,6 +33,8 @@ void main() {
         NexoFutureApp(autenticacao: auth, perfis: perfis),
       );
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('botao-entrar')));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Cadastre-se'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Sou jovem'));
