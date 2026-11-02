@@ -81,6 +81,64 @@ service cloud.firestore {
       allow create, update: if eDono(uid) && perfilOficinaValido();
     }
 
+    // RN0001: publicar vaga ou curso, ou decidir um curso, só com o e-mail confirmado.
+    function contaConfirmada() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function textoEntre(valor, minimo, maximo) {
+      return valor is string && valor.size() >= minimo && valor.size() <= maximo;
+    }
+
+    function inteiroEntre(valor, minimo, maximo) {
+      return valor is int && valor >= minimo && valor <= maximo;
+    }
+
+    // A vaga não guarda dados pessoais: o visitante pode lê-la (RN0007).
+    function vagaValida() {
+      let dados = request.resource.data;
+      return dados.keys().hasOnly([
+          'titulo', 'empresa', 'empresaId', 'area', 'cidade', 'qualificacao',
+          'posicoes', 'situacao', 'cursos', 'criadoEm'])
+        && dados.keys().hasAll([
+          'titulo', 'empresa', 'empresaId', 'area', 'cidade', 'qualificacao',
+          'posicoes', 'situacao', 'cursos', 'criadoEm'])
+        && textoEntre(dados.titulo, 1, 80)
+        && textoEntre(dados.empresa, 1, 120)
+        && dados.area in ['Alimentos', 'Construção Civil', 'Logística',
+          'Metalurgia', 'Naval', 'Turismo e Hotelaria']
+        && dados.cidade in ['Balneário Camboriú', 'Balneário Piçarras',
+          'Bombinhas', 'Camboriú', 'Ilhota', 'Itajaí', 'Itapema', 'Luiz Alves',
+          'Navegantes', 'Penha', 'Porto Belo']
+        && textoEntre(dados.qualificacao, 1, 500)
+        && inteiroEntre(dados.posicoes, 1, 100)
+        && dados.situacao in ['aberta', 'aguardandoIngresso', 'lotada']
+        && dados.cursos is list
+        // RN0006: no máximo 5 cursos por vaga.
+        && dados.cursos.size() <= 5
+        // RF0007: só aceita candidaturas com pelo menos um curso aprovado.
+        && (dados.situacao != 'aguardandoIngresso' || dados.cursos.size() > 0)
+        && dados.criadoEm is timestamp;
+    }
+
+    match /vagas/{vagaId} {
+      allow read: if true;
+      // RF0004: a vaga nasce aberta, sem cursos, pela empresa dona.
+      allow create: if contaConfirmada()
+        && exists(/databases/$(database)/documents/empresas/$(request.auth.uid))
+        && request.resource.data.empresaId == request.auth.uid
+        && vagaValida()
+        && request.resource.data.situacao == 'aberta'
+        && request.resource.data.cursos.size() == 0
+        && request.resource.data.criadoEm == request.time;
+      allow update: if contaConfirmada()
+        && resource.data.empresaId == request.auth.uid
+        && request.resource.data.empresaId == resource.data.empresaId
+        && request.resource.data.criadoEm == resource.data.criadoEm
+        && vagaValida();
+      allow delete: if contaConfirmada() && resource.data.empresaId == request.auth.uid;
+    }
+
     // Qualquer outra coleção fica fechada até ter regra própria.
     match /{documento=**} {
       allow read, write: if false;
