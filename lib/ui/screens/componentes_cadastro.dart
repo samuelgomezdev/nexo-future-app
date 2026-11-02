@@ -173,12 +173,21 @@ class CampoEscolha extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // isExpanded: a opção mais comprida não pode alargar o campo além da tela.
     return DropdownButtonFormField<String>(
       initialValue: valor,
-      decoration: InputDecoration(labelText: rotulo, errorText: erro),
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: rotulo,
+        errorText: erro,
+        errorMaxLines: 3,
+      ),
       items: [
         for (final opcao in opcoes)
-          DropdownMenuItem(value: opcao, child: Text(opcao)),
+          DropdownMenuItem(
+            value: opcao,
+            child: Text(opcao, overflow: TextOverflow.ellipsis),
+          ),
       ],
       onChanged: aoMudar,
     );

@@ -165,8 +165,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             if (permiteCadastro) ...[
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              // Wrap: com a fonte grande do sistema, o convite quebra a linha.
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text('Não tem conta?', style: textos.bodyMedium),
                   TextButton(
