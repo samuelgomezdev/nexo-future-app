@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nexo_future_app/data/vaga_repository.dart';
 import 'package:nexo_future_app/domain/models/vaga.dart';
 
+import '../apoio/vagas_falsas.dart';
+
 Vaga vaga(String id, String titulo, {String area = 'Naval'}) => Vaga(
   id: id,
   titulo: titulo,
@@ -94,6 +96,90 @@ void main() {
 
     test('lista as áreas sem repetir, em ordem alfabética', () {
       expect(repositorio.areas, ['Logística', 'Metalurgia']);
+    });
+  });
+
+  group('Vagas publicadas no Firestore entram na pesquisa', () {
+    final doSeed = [vaga('vaga-01', 'Laminador'), vaga('vaga-02', 'Soldador')];
+
+    test('antes de atualizar, a pesquisa mostra só as vagas fictícias', () {
+      final fonte = VagasFalsas([vaga('nova', 'Pintor(a) naval')]);
+      final repositorio = VagaRepository(doSeed, fonte: fonte);
+
+      expect(repositorio.pesquisar().map((v) => v.id), ['vaga-01', 'vaga-02']);
+    });
+
+    test('a vaga nova aparece primeiro, antes das fictícias', () async {
+      final fonte = VagasFalsas([vaga('nova', 'Pintor(a) naval')]);
+      final repositorio = VagaRepository(doSeed, fonte: fonte);
+
+      await repositorio.atualizar();
+
+      expect(repositorio.pesquisar().map((v) => v.id), [
+        'nova',
+        'vaga-01',
+        'vaga-02',
+      ]);
+      expect(repositorio.buscarPorId('nova')?.titulo, 'Pintor(a) naval');
+    });
+
+    test('a vaga nova entra no filtro por texto e por área', () async {
+      final fonte = VagasFalsas([
+        vaga('nova', 'Pintor(a) naval'),
+        vaga('outra', 'Cozinheiro', area: 'Alimentos'),
+      ]);
+      final repositorio = VagaRepository(doSeed, fonte: fonte);
+      await repositorio.atualizar();
+
+      expect(repositorio.pesquisar(texto: 'pintor').map((v) => v.id), ['nova']);
+      expect(repositorio.pesquisar(area: 'Alimentos').map((v) => v.id), [
+        'outra',
+      ]);
+      expect(repositorio.areas, ['Alimentos', 'Naval']);
+    });
+
+    test('continua em páginas de 15 com as vagas novas', () async {
+      final fonte = VagasFalsas([
+        for (var i = 1; i <= 10; i++) vaga('nova-$i', 'Pintor $i'),
+      ]);
+      final repositorio = VagaRepository([
+        for (var i = 1; i <= 10; i++) vaga('seed-$i', 'Laminador $i'),
+      ], fonte: fonte);
+      await repositorio.atualizar();
+
+      expect(repositorio.pesquisar(pagina: 1), hasLength(15));
+      expect(repositorio.pesquisar(pagina: 2), hasLength(5));
+    });
+
+    test('atualizar de novo troca as vagas do Firestore sem repetir', () async {
+      final fonte = VagasFalsas([vaga('nova', 'Pintor(a) naval')]);
+      final repositorio = VagaRepository(doSeed, fonte: fonte);
+      await repositorio.atualizar();
+
+      fonte.vagas['nova'] = vaga('nova', 'Pintor(a) naval sênior');
+      await repositorio.atualizar();
+
+      expect(repositorio.pesquisar(), hasLength(3));
+      expect(repositorio.buscarPorId('nova')?.titulo, 'Pintor(a) naval sênior');
+    });
+
+    test('sem internet, a falha chega a quem pediu e as vagas ficam', () async {
+      final fonte = VagasFalsas([vaga('nova', 'Pintor(a) naval')]);
+      final repositorio = VagaRepository(doSeed, fonte: fonte);
+      await repositorio.atualizar();
+
+      fonte.falhaInesperada = Exception('sem internet');
+
+      await expectLater(repositorio.atualizar(), throwsException);
+      expect(repositorio.pesquisar(), hasLength(3));
+    });
+
+    test('sem fonte, atualizar não muda nada', () async {
+      final repositorio = VagaRepository(doSeed);
+
+      await repositorio.atualizar();
+
+      expect(repositorio.pesquisar(), hasLength(2));
     });
   });
 }
