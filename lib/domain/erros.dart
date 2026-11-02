@@ -114,3 +114,11 @@ class AcaoNaoPermitida implements Exception {
   @override
   String toString() => 'Você não tem permissão para fazer isso.';
 }
+
+/// Lançada quando o recrutador tenta decidir um curso que não está em análise.
+class CursoJaDecidido implements Exception {
+  const CursoJaDecidido();
+
+  @override
+  String toString() => 'Este curso não está mais aguardando aprovação.';
+}
