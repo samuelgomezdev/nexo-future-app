@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'data/firebase_autenticacao.dart';
 import 'data/firestore_perfis.dart';
+import 'data/firestore_vagas.dart';
 import 'firebase_options.dart';
 import 'ui/app.dart';
 
@@ -13,6 +14,7 @@ Future<void> main() async {
     NexoFutureApp(
       autenticacao: FirebaseAutenticacao(),
       perfis: FirestorePerfis(),
+      vagas: FirestoreVagas(),
     ),
   );
 }
