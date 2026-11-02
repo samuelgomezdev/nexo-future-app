@@ -137,6 +137,18 @@ void main() {
       );
     });
 
+    testWidgets('no tamanho de um celular, os campos cabem na largura', (
+      tester,
+    ) async {
+      usarTelaDeCelular();
+      await abrirNovaVaga(tester);
+
+      await escolherOpcao(tester, 'campo-area', 'Turismo e Hotelaria');
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Turismo e Hotelaria'), findsOneWidget);
+    });
+
     testWidgets('os campos obrigatórios vazios ficam apontados', (
       tester,
     ) async {
