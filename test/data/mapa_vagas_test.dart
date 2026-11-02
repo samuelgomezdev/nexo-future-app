@@ -14,6 +14,7 @@ void main() {
       situacao: SituacaoVaga.aguardandoIngresso,
       empresaId: 'uid-marcos',
       posicoes: 3,
+      candidaturas: 2,
       cursos: [
         Curso(
           id: 'curso-1',
@@ -33,6 +34,7 @@ void main() {
         'cidade': 'Itajaí',
         'qualificacao': 'Pintura de cascos.',
         'posicoes': 3,
+        'candidaturas': 2,
         'situacao': 'aguardandoIngresso',
         'cursos': [
           {
@@ -55,6 +57,7 @@ void main() {
       expect(lida.titulo, 'Pintor(a) naval');
       expect(lida.empresaId, 'uid-marcos');
       expect(lida.posicoes, 3);
+      expect(lida.candidaturas, 2);
       expect(lida.situacao, SituacaoVaga.aguardandoIngresso);
       expect(lida.cursos.single.nome, 'Pintura naval');
       expect(lida.cursos.single.cargaHoraria, 32);
