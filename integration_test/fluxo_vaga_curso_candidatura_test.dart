@@ -15,7 +15,8 @@ import 'apoio_integracao.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  // RF0004, RF0005, RF0015, RF0007 e RF0008: o caminho completo, com contas e
+  // RF0004, RF0005, RF0015, RF0007 e RF0008: o caminho completo, até a vaga
+  // lotar, com contas e
   // dados fictícios e o Firebase substituído por versões em memória.
   testWidgets('a empresa publica a vaga, a oficina propõe o curso, o '
       'recrutador aprova e o jovem se candidata', (tester) async {
@@ -68,7 +69,7 @@ void main() {
     await entrar(tester, empresa);
     await tocar(tester, find.text('Nova vaga'));
     await digitar(tester, 'Cargo *', 'Pintor(a) naval');
-    await digitar(tester, 'Posições *', '3');
+    await digitar(tester, 'Posições *', '1');
     await digitar(
       tester,
       'Qualificação exigida *',
@@ -111,6 +112,9 @@ void main() {
     await tocar(tester, find.text('Candidatar-se'));
 
     expect(find.text('Candidatura enviada'), findsOneWidget);
+    // A vaga tinha 1 posição: a candidatura a deixou lotada.
+    expect(vagas.vagas.values.single.situacao, SituacaoVaga.lotada);
+    expect(vagas.vagas.values.single.candidaturas, 1);
     expect(
       find.text('Você se candidatou à vaga Pintor(a) naval.'),
       findsOneWidget,
