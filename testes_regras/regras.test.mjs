@@ -361,7 +361,7 @@ describe('Vagas', () => {
     );
   });
 
-  test('a vaga nasce aberta, sem cursos e sem candidaturas', async () => {
+  test('sem cursos, a vaga nasce aberta e sem candidaturas', async () => {
     const banco = contaConfirmada(marcos);
     await assertFails(
       setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { candidaturas: 1 })),
@@ -371,6 +371,26 @@ describe('Vagas', () => {
     );
     await assertFails(
       setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { cursos: [cursoVinculado] })),
+    );
+  });
+
+  test('com cursos preferenciais escolhidos, a vaga já nasce aceitando candidaturas (RF0015)', async () => {
+    const banco = contaConfirmada(marcos);
+    await assertSucceeds(
+      setDoc(
+        doc(banco, 'vagas', 'nova'),
+        vagaDe(marcos, { cursos: [cursoVinculado], situacao: 'aguardandoIngresso' }),
+      ),
+    );
+  });
+
+  test('a vaga nasce com no máximo 5 cursos (RN0006)', async () => {
+    const seis = [1, 2, 3, 4, 5, 6].map((i) => ({ ...cursoVinculado, id: `curso-${i}` }));
+    await assertFails(
+      setDoc(
+        doc(contaConfirmada(marcos), 'vagas', 'nova'),
+        vagaDe(marcos, { cursos: seis, situacao: 'aguardandoIngresso' }),
+      ),
     );
   });
 

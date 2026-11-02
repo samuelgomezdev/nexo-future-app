@@ -149,6 +149,88 @@ void main() {
       expect(find.text('Turismo e Hotelaria'), findsOneWidget);
     });
 
+    testWidgets('a empresa escolhe cursos aprovados da área e a vaga já '
+        'nasce aceitando candidaturas (RF0015)', (tester) async {
+      vagas.cursos['c1'] = proposto(
+        'c1',
+        'outra-vaga',
+        nome: 'Pintura naval',
+      ).copiar(situacao: SituacaoCurso.aprovado);
+      vagas.cursos['c2'] = proposto(
+        'c2',
+        'outra-vaga',
+        nome: 'Curso em análise',
+      );
+      await abrirNovaVaga(tester);
+
+      await tester.tap(find.text('Adicionar'));
+      await tester.pumpAndSettle();
+      expect(find.text('Curso em análise'), findsNothing);
+      await tester.tap(find.text('Pintura naval'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('1 de 5'), findsOneWidget);
+      expect(find.widgetWithText(InputChip, 'Pintura naval'), findsOneWidget);
+      expect(
+        find.text(
+          'Com um curso escolhido, a vaga já começa aceitando candidaturas.',
+        ),
+        findsOneWidget,
+      );
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Cargo *'),
+        'Pintor(a) naval',
+      );
+      await tester.enterText(find.widgetWithText(TextField, 'Posições *'), '3');
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Qualificação exigida *'),
+        'Pintura de cascos.',
+      );
+      await tester.tap(find.text('Publicar vaga'));
+      await tester.pumpAndSettle();
+
+      final publicada = vagas.vagas.values.single;
+      expect(publicada.situacao, SituacaoVaga.aguardandoIngresso);
+      expect(publicada.cursos.single.nome, 'Pintura naval');
+      expect(find.text('Aceitando candidaturas'), findsOneWidget);
+    });
+
+    testWidgets('o curso escolhido sai ao tocar no X', (tester) async {
+      vagas.cursos['c1'] = proposto(
+        'c1',
+        'outra-vaga',
+        nome: 'Pintura naval',
+      ).copiar(situacao: SituacaoCurso.aprovado);
+      await abrirNovaVaga(tester);
+      await tester.tap(find.text('Adicionar'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Pintura naval'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.cancel));
+      await tester.pumpAndSettle();
+
+      expect(find.text('0 de 5'), findsOneWidget);
+      expect(find.widgetWithText(InputChip, 'Pintura naval'), findsNothing);
+    });
+
+    testWidgets('sem cursos aprovados na área, explica o caminho', (
+      tester,
+    ) async {
+      await abrirNovaVaga(tester);
+
+      await tester.tap(find.text('Adicionar'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'Ainda não há cursos aprovados na área Naval. Publique a vaga e as oficinas enviam cursos para você aprovar.',
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('os campos obrigatórios vazios ficam apontados', (
       tester,
     ) async {

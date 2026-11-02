@@ -3,7 +3,7 @@ import 'package:nexo_future_app/domain/autenticacao.dart';
 import 'package:nexo_future_app/domain/erros.dart';
 import 'package:nexo_future_app/domain/models/cadastro.dart';
 import 'package:nexo_future_app/domain/models/empresa.dart';
-import 'package:nexo_future_app/domain/models/vaga.dart';
+import 'package:nexo_future_app/domain/models/curso.dart';
 import 'package:nexo_future_app/domain/regras/cadastro_vaga.dart';
 
 import '../apoio/vagas_falsas.dart';
@@ -176,6 +176,80 @@ void main() {
         ),
       );
       expect(vagas.vagas, isEmpty);
+    });
+  });
+
+  group('RF0015: a empresa escolhe os cursos preferenciais da vaga', () {
+    const laminacao = Curso(
+      id: 'c-laminacao',
+      nome: 'Laminação em fibra de vidro',
+      oficina: 'Oficina Escola Mãos do Porto',
+      cargaHoraria: 40,
+    );
+    Curso curso(int i) =>
+        Curso(id: 'c$i', nome: 'Curso $i', oficina: 'Oficina', cargaHoraria: 8);
+
+    final empresa = PerfilEmpresa(
+      id: 'uid-marcos',
+      nome: 'Estaleiro Foz Azul',
+      cnpj: '11222333000181',
+      setor: 'Naval',
+      recrutador: 'Marcos Pereira',
+      email: 'rh@fozazul.example.com',
+      cidade: 'Itajaí',
+      aceitePoliticaEm: DateTime(2026, 11, 1),
+    );
+    const marcos = Usuario(
+      id: 'uid-marcos',
+      email: 'rh@fozazul.example.com',
+      emailVerificado: true,
+    );
+
+    DadosVaga comCursos(List<Curso> cursos) => DadosVaga(
+      titulo: 'Laminador(a)',
+      area: 'Naval',
+      posicoes: 2,
+      cidade: 'Itajaí',
+      qualificacao: 'Laminação manual.',
+      cursos: cursos,
+    );
+
+    test(
+      'com curso escolhido, a vaga já nasce aceitando candidaturas',
+      () async {
+        final vaga = await PublicarVaga(VagasFalsas())(
+          usuario: marcos,
+          empresa: empresa,
+          dados: comCursos([laminacao]),
+        );
+
+        expect(vaga.situacao, SituacaoVaga.aguardandoIngresso);
+        expect(vaga.cursos.single.nome, 'Laminação em fibra de vidro');
+      },
+    );
+
+    test('no máximo 5 cursos preferenciais (RN0006)', () {
+      expect(
+        validarVaga(comCursos([for (var i = 1; i <= 5; i++) curso(i)])),
+        isEmpty,
+      );
+      expect(
+        validarVaga(comCursos([for (var i = 1; i <= 6; i++) curso(i)])),
+        containsPair(
+          CampoCadastro.cursos,
+          'Escolha no máximo 5 cursos preferenciais.',
+        ),
+      );
+    });
+
+    test('o mesmo curso não entra duas vezes', () {
+      expect(
+        validarVaga(comCursos([laminacao, laminacao])),
+        containsPair(
+          CampoCadastro.cursos,
+          'Este curso já está vinculado à vaga.',
+        ),
+      );
     });
   });
 }
