@@ -99,10 +99,10 @@ service cloud.firestore {
       let dados = request.resource.data;
       return dados.keys().hasOnly([
           'titulo', 'empresa', 'empresaId', 'area', 'cidade', 'qualificacao',
-          'posicoes', 'situacao', 'cursos', 'criadoEm'])
+          'posicoes', 'candidaturas', 'situacao', 'cursos', 'criadoEm'])
         && dados.keys().hasAll([
           'titulo', 'empresa', 'empresaId', 'area', 'cidade', 'qualificacao',
-          'posicoes', 'situacao', 'cursos', 'criadoEm'])
+          'posicoes', 'candidaturas', 'situacao', 'cursos', 'criadoEm'])
         && textoEntre(dados.titulo, 1, 80)
         && textoEntre(dados.empresa, 1, 120)
         && dados.area in ['Alimentos', 'Construção Civil', 'Logística',
@@ -118,7 +118,35 @@ service cloud.firestore {
         && dados.cursos.size() <= 5
         // RF0007: só aceita candidaturas com pelo menos um curso aprovado.
         && (dados.situacao != 'aguardandoIngresso' || dados.cursos.size() > 0)
+        // A vaga lota quando as candidaturas completam as posições.
+        && inteiroEntre(dados.candidaturas, 0, dados.posicoes)
+        && (dados.situacao == 'lotada') == (dados.candidaturas >= dados.posicoes)
         && dados.criadoEm is timestamp;
+    }
+
+    function jovemConfirmado() {
+      return contaConfirmada()
+        && exists(/databases/$(database)/documents/jovens/$(request.auth.uid));
+    }
+
+    // RF0008 e RF0017: o jovem só mexe na contagem da vaga, de uma em uma, e
+    // junto com a própria lista de candidaturas (a vaga entra ou sai dela).
+    function jovemContaCandidatura(vagaId) {
+      let antes = resource.data;
+      let depois = request.resource.data;
+      let lista = /databases/$(database)/documents/candidaturas/$(request.auth.uid);
+      let estavaNaLista = exists(lista) && vagaId in get(lista).data.vagas;
+      let ficaNaLista = existsAfter(lista) && vagaId in getAfter(lista).data.vagas;
+      let entrou = depois.candidaturas == antes.candidaturas + 1
+        && antes.situacao == 'aguardandoIngresso'
+        && !estavaNaLista && ficaNaLista;
+      let saiu = depois.candidaturas == antes.candidaturas - 1
+        && estavaNaLista && !ficaNaLista;
+      return jovemConfirmado()
+        && depois.diff(antes).affectedKeys().hasOnly(['candidaturas', 'situacao'])
+        && (entrou || saiu)
+        && depois.situacao == (depois.candidaturas >= antes.posicoes
+          ? 'lotada' : 'aguardandoIngresso');
     }
 
     match /vagas/{vagaId} {
@@ -130,12 +158,16 @@ service cloud.firestore {
         && vagaValida()
         && request.resource.data.situacao == 'aberta'
         && request.resource.data.cursos.size() == 0
+        && request.resource.data.candidaturas == 0
         && request.resource.data.criadoEm == request.time;
-      allow update: if contaConfirmada()
-        && resource.data.empresaId == request.auth.uid
-        && request.resource.data.empresaId == resource.data.empresaId
-        && request.resource.data.criadoEm == resource.data.criadoEm
-        && vagaValida();
+      // A empresa dona edita a vaga, mas a contagem de candidaturas é dos jovens.
+      allow update: if (contaConfirmada()
+          && resource.data.empresaId == request.auth.uid
+          && request.resource.data.empresaId == resource.data.empresaId
+          && request.resource.data.criadoEm == resource.data.criadoEm
+          && request.resource.data.candidaturas == resource.data.candidaturas
+          && vagaValida())
+        || jovemContaCandidatura(vagaId);
       allow delete: if contaConfirmada() && resource.data.empresaId == request.auth.uid;
     }
 
@@ -206,6 +238,20 @@ service cloud.firestore {
           && oficinaGravaCurso())
         || empresaDecideCurso();
       allow delete: if request.auth != null && resource.data.oficinaId == request.auth.uid;
+    }
+
+    // Lista das vagas em que o jovem se candidatou: só ele lê e grava.
+    match /candidaturas/{uid} {
+      allow read, delete: if eDono(uid);
+      allow create, update: if eDono(uid) && jovemConfirmado()
+        && request.resource.data.keys().hasOnly(['vagas', 'atualizadoEm'])
+        && request.resource.data.keys().hasAll(['vagas', 'atualizadoEm'])
+        && request.resource.data.vagas is list
+        // RN0005: no máximo 5 candidaturas ativas, sem repetir a vaga.
+        && request.resource.data.vagas.size() <= 5
+        && request.resource.data.vagas.toSet().size()
+          == request.resource.data.vagas.size()
+        && request.resource.data.atualizadoEm == request.time;
     }
 
     // Qualquer outra coleção fica fechada até ter regra própria.
