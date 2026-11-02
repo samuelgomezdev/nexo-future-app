@@ -24,6 +24,7 @@ enum CampoCadastro {
   cargaHoraria,
   vagasTurma,
   descricao,
+  cursos,
 }
 
 /// Lançada quando o cadastro tem campos a corrigir.

@@ -5,6 +5,7 @@ import '../models/curso.dart';
 import '../models/empresa.dart';
 import 'cadastro_empresa.dart';
 import 'cadastro_jovem.dart';
+import 'vinculo_cursos.dart';
 
 /// As áreas das vagas são os mesmos setores das empresas.
 const areasVagas = setoresEmpresa;
@@ -20,6 +21,7 @@ class DadosVaga {
     required this.posicoes,
     required this.cidade,
     required this.qualificacao,
+    this.cursos = const [],
   });
 
   /// Cargo, como "Pintor(a) naval".
@@ -30,6 +32,9 @@ class DadosVaga {
   final int? posicoes;
   final String cidade;
   final String qualificacao;
+
+  /// Cursos preferenciais que o recrutador já escolheu (RF0015).
+  final List<Curso> cursos;
 }
 
 /// Devolve os erros por campo; vazio quando a vaga pode ser publicada.
@@ -63,10 +68,21 @@ Map<CampoCadastro, String> validarVaga(DadosVaga dados) {
   if (dados.qualificacao.trim().isEmpty) {
     erros[CampoCadastro.qualificacao] = 'Informe a qualificação exigida.';
   }
+
+  // RN0006: os cursos passam pela mesma regra do vínculo.
+  try {
+    dados.cursos.fold(<Curso>[], vincularCurso);
+  } on LimiteCursosAtingido {
+    erros[CampoCadastro.cursos] =
+        'Escolha no máximo $limiteCursosPorVaga cursos preferenciais.';
+  } on CursoJaVinculado catch (e) {
+    erros[CampoCadastro.cursos] = e.toString();
+  }
   return erros;
 }
 
-/// RF0004: a empresa publica a vaga, que nasce aberta e sem cursos.
+/// RF0004: a empresa publica a vaga. Sem cursos, ela nasce aberta; com os
+/// cursos preferenciais já escolhidos (RF0015), já aceita candidaturas.
 /// RN0001: só depois de confirmar o e-mail.
 class PublicarVaga {
   PublicarVaga(this._vagas);
@@ -91,7 +107,10 @@ class PublicarVaga {
       area: dados.area,
       cidade: dados.cidade,
       qualificacao: dados.qualificacao.trim(),
-      situacao: SituacaoVaga.aberta,
+      situacao: dados.cursos.isEmpty
+          ? SituacaoVaga.aberta
+          : SituacaoVaga.aguardandoIngresso,
+      cursos: List.unmodifiable(dados.cursos),
       empresaId: empresa.id,
       posicoes: dados.posicoes!,
     );

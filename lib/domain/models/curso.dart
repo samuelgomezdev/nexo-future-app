@@ -93,6 +93,10 @@ abstract class RepositorioVagas {
 
   Future<List<CursoOficina>> cursosDaOficina(String oficinaId);
 
+  /// Cursos já aprovados por algum recrutador, que podem ser escolhidos como
+  /// preferenciais de outra vaga (RF0015).
+  Future<List<CursoOficina>> cursosAprovados();
+
   /// Cursos em análise propostos para as vagas da empresa.
   Future<List<CursoOficina>> cursosParaAprovar(String empresaId);
 

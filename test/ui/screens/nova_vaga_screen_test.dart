@@ -208,7 +208,7 @@ void main() {
       await tester.tap(find.text('Pintura naval'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.cancel));
+      await tester.tap(find.byTooltip('Tirar curso'));
       await tester.pumpAndSettle();
 
       expect(find.text('0 de 5'), findsOneWidget);

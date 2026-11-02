@@ -151,13 +151,14 @@ service cloud.firestore {
 
     match /vagas/{vagaId} {
       allow read: if true;
-      // RF0004: a vaga nasce aberta, sem cursos, pela empresa dona.
+      // RF0004 e RF0015: a vaga nasce pela empresa dona, sem candidaturas;
+      // aberta, ou já aceitando candidaturas se vier com cursos preferenciais.
       allow create: if contaConfirmada()
         && exists(/databases/$(database)/documents/empresas/$(request.auth.uid))
         && request.resource.data.empresaId == request.auth.uid
         && vagaValida()
-        && request.resource.data.situacao == 'aberta'
-        && request.resource.data.cursos.size() == 0
+        && request.resource.data.situacao
+          == (request.resource.data.cursos.size() > 0 ? 'aguardandoIngresso' : 'aberta')
         && request.resource.data.candidaturas == 0
         && request.resource.data.criadoEm == request.time;
       // A empresa dona edita a vaga, mas a contagem de candidaturas é dos jovens.

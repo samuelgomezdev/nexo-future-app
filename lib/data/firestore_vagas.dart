@@ -61,6 +61,14 @@ class FirestoreVagas implements RepositorioVagas {
   }
 
   @override
+  Future<List<CursoOficina>> cursosAprovados() async {
+    final consulta = await _cursos
+        .where('situacao', isEqualTo: SituacaoCurso.aprovado.name)
+        .get();
+    return [for (final doc in consulta.docs) cursoDoMapa(doc.id, doc.data())];
+  }
+
+  @override
   Future<List<CursoOficina>> cursosParaAprovar(String empresaId) async {
     final consulta = await _cursos
         .where('empresaId', isEqualTo: empresaId)

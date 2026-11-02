@@ -22,9 +22,10 @@ class NovaVagaScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final vagas = context.read<RepositorioVagas>();
     return ChangeNotifierProvider(
       create: (_) =>
-          NovaVagaViewModel(PublicarVaga(context.read<RepositorioVagas>())),
+          NovaVagaViewModel(PublicarVaga(vagas), vagas)..carregarCursos(),
       child: _FormularioVaga(empresa: empresa),
     );
   }
@@ -43,6 +44,7 @@ class _FormularioVagaState extends State<_FormularioVaga> {
   final _titulo = TextEditingController();
   final _posicoes = TextEditingController();
   final _qualificacao = TextEditingController();
+  final _cursos = <Curso>[];
 
   // Menos texto, mais ação (RNF0005): começa com o setor e a cidade da empresa.
   late String? _area = areasVagas.contains(widget.empresa.setor)
@@ -75,9 +77,47 @@ class _FormularioVagaState extends State<_FormularioVaga> {
         posicoes: int.tryParse(_posicoes.text),
         cidade: _cidade ?? '',
         qualificacao: _qualificacao.text,
+        cursos: List.of(_cursos),
       ),
     );
     if (publicou) navegador.pop(true);
+  }
+
+  /// RF0015: escolhe entre os cursos já aprovados da área da vaga.
+  Future<void> _adicionarCurso() async {
+    final viewModel = context.read<NovaVagaViewModel>();
+    final opcoes = viewModel.cursosDaArea(_area, _cursos);
+    final escolhido = await showModalBottomSheet<Curso>(
+      context: context,
+      showDragHandle: true,
+      builder: (folha) => SafeArea(
+        child: opcoes.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: Text(
+                  'Ainda não há cursos aprovados na área ${_area ?? ''}. '
+                  'Publique a vaga e as oficinas enviam cursos para você aprovar.',
+                ),
+              )
+            : ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final curso in opcoes)
+                    ListTile(
+                      leading: const Icon(Icons.school_outlined),
+                      title: Text(curso.nome),
+                      subtitle: Text(
+                        '${curso.oficina} · ${curso.cargaHoraria} h',
+                      ),
+                      onTap: () => Navigator.of(folha).pop(curso),
+                    ),
+                ],
+              ),
+      ),
+    );
+    if (escolhido == null) return;
+    viewModel.limparErro(CampoCadastro.cursos);
+    setState(() => _cursos.add(escolhido));
   }
 
   @override
@@ -181,21 +221,50 @@ class _FormularioVagaState extends State<_FormularioVaga> {
                 child: Text('Cursos preferenciais', style: textos.titleMedium),
               ),
               Text(
-                '0 de $limiteCursosPorVaga',
+                '${_cursos.length} de $limiteCursosPorVaga',
                 style: textos.labelMedium?.copyWith(
                   color: CoresNexo.primaria500,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final curso in _cursos)
+                InputChip(
+                  label: Text(curso.nome),
+                  deleteButtonTooltipMessage: 'Tirar curso',
+                  onDeleted: () => setState(() => _cursos.remove(curso)),
+                ),
+              ActionChip(
+                avatar: const Icon(Icons.add, size: 16),
+                label: const Text('Adicionar'),
+                onPressed: _cursos.length >= limiteCursosPorVaga
+                    ? null
+                    : _adicionarCurso,
+              ),
+            ],
+          ),
+          if (erros[CampoCadastro.cursos] case final erro?) ...[
+            const SizedBox(height: 4),
+            Text(
+              erro,
+              style: textos.bodySmall?.copyWith(color: CoresNexo.erro),
+            ),
+          ],
+          const SizedBox(height: 8),
           Text(
             'Até $limiteCursosPorVaga cursos (RN0006). As oficinas enviam cursos e você aprova.',
             style: textos.bodySmall?.copyWith(color: CoresNexo.neutro700),
           ),
           const SizedBox(height: 20),
-          const AvisoCadastro(
-            texto: 'A vaga aparece na pesquisa ao publicar e passa a receber candidaturas depois que você aprovar um curso.',
+          AvisoCadastro(
+            texto: _cursos.isEmpty
+                ? 'A vaga aparece na pesquisa ao publicar e passa a receber candidaturas depois que você aprovar um curso.'
+                : 'Com um curso escolhido, a vaga já começa aceitando candidaturas.',
             icone: Icons.info_outline,
             fundo: CoresNexo.primaria50,
             cor: CoresNexo.primaria500,

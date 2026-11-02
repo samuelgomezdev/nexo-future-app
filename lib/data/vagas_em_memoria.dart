@@ -37,6 +37,10 @@ class VagasEmMemoria implements RepositorioVagas {
       cursos.values.where((c) => c.oficinaId == oficinaId).toList();
 
   @override
+  Future<List<CursoOficina>> cursosAprovados() async =>
+      cursos.values.where((c) => c.situacao == SituacaoCurso.aprovado).toList();
+
+  @override
   Future<List<CursoOficina>> cursosParaAprovar(String empresaId) async => cursos
       .values
       .where(
