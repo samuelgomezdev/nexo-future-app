@@ -10,8 +10,20 @@ import 'minhas_candidaturas_screen.dart';
 import 'situacao_chip.dart';
 
 /// F1: lista e pesquisa de vagas.
-class ListaVagasScreen extends StatelessWidget {
+class ListaVagasScreen extends StatefulWidget {
   const ListaVagasScreen({super.key});
+
+  @override
+  State<ListaVagasScreen> createState() => _ListaVagasScreenState();
+}
+
+class _ListaVagasScreenState extends State<ListaVagasScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Ao abrir a lista, busca as vagas publicadas pelas empresas.
+    context.read<VagasViewModel>().atualizar();
+  }
 
   String _saudacao(SessaoViewModel sessao) {
     const convite = 'Encontre uma vaga e o curso que leva até ela.';
@@ -98,41 +110,59 @@ class ListaVagasScreen extends StatelessWidget {
               ],
             ),
           ),
+          if (viewModel.erroAtualizacao case final erro?)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+              child: Text(erro, style: Theme.of(context).textTheme.bodySmall),
+            ),
           Expanded(
-            child: vagas.isEmpty
-                ? const Center(child: Text('Nenhuma vaga encontrada.'))
-                : ListView.builder(
-                    itemCount: vagas.length + (viewModel.temMais ? 1 : 0),
-                    itemBuilder: (context, indice) {
-                      if (indice == vagas.length) {
-                        // Chegou ao fim da página: carrega as próximas 15.
-                        WidgetsBinding.instance.addPostFrameCallback(
-                          (_) => viewModel.carregarMais(),
-                        );
-                        return const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-                      final vaga = vagas[indice];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 4,
-                        ),
-                        child: ListTile(
-                          title: Text(vaga.titulo),
-                          subtitle: Text('${vaga.empresa} · ${vaga.cidade}'),
-                          trailing: SituacaoChip(vaga.situacao),
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => DetalheVagaScreen(vaga: vaga),
-                            ),
+            child: RefreshIndicator(
+              onRefresh: viewModel.atualizar,
+              child: vagas.isEmpty
+                  ? ListView(
+                      children: const [
+                        Padding(
+                          padding: EdgeInsets.all(32),
+                          child: Center(
+                            child: Text('Nenhuma vaga encontrada.'),
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ],
+                    )
+                  : ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: vagas.length + (viewModel.temMais ? 1 : 0),
+                      itemBuilder: (context, indice) {
+                        if (indice == vagas.length) {
+                          // Chegou ao fim da página: carrega as próximas 15.
+                          WidgetsBinding.instance.addPostFrameCallback(
+                            (_) => viewModel.carregarMais(),
+                          );
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+                        final vaga = vagas[indice];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          child: ListTile(
+                            title: Text(vaga.titulo),
+                            subtitle: Text('${vaga.empresa} · ${vaga.cidade}'),
+                            trailing: SituacaoChip(vaga.situacao),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => DetalheVagaScreen(vaga: vaga),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
           ),
         ],
       ),

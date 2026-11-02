@@ -16,6 +16,10 @@ class VagasViewModel extends ChangeNotifier {
   String? _areaSelecionada;
   int _pagina = 1;
   bool _temMais = true;
+  bool _descartado = false;
+
+  /// Aviso quando as vagas publicadas não puderam ser buscadas.
+  String? erroAtualizacao;
 
   List<Vaga> get vagas => List.unmodifiable(_vagas);
   String get texto => _texto;
@@ -33,6 +37,25 @@ class VagasViewModel extends ChangeNotifier {
     _areaSelecionada = area;
     _carregarPrimeiraPagina();
     notifyListeners();
+  }
+
+  /// Busca as vagas publicadas (Firestore) e refaz a pesquisa atual.
+  Future<void> atualizar() async {
+    try {
+      await _repositorio.atualizar();
+      erroAtualizacao = null;
+    } on Exception {
+      erroAtualizacao = 'Não foi possível buscar as vagas mais novas. Puxe a lista para tentar de novo.';
+    }
+    if (_descartado) return;
+    _carregarPrimeiraPagina();
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _descartado = true;
+    super.dispose();
   }
 
   void carregarMais() {

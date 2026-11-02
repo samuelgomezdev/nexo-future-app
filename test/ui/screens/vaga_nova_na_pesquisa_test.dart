@@ -117,11 +117,7 @@ void main() {
       expect(find.text('Pintor(a) naval'), findsNothing);
 
       vagas.vagas['nova'] = nova;
-      await tester.fling(
-        find.byType(ListTile).first,
-        const Offset(0, 400),
-        1000,
-      );
+      await tester.drag(find.byType(ListTile).first, const Offset(0, 1200));
       await tester.pumpAndSettle();
 
       expect(primeiraDaLista(tester), 'Pintor(a) naval');
