@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'data/firebase_autenticacao.dart';
+import 'data/firestore_candidaturas.dart';
 import 'data/firestore_perfis.dart';
 import 'data/firestore_vagas.dart';
 import 'firebase_options.dart';
@@ -15,6 +16,7 @@ Future<void> main() async {
       autenticacao: FirebaseAutenticacao(),
       perfis: FirestorePerfis(),
       vagas: FirestoreVagas(),
+      candidaturas: FirestoreCandidaturas(),
     ),
   );
 }
