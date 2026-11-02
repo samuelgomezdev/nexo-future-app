@@ -1,12 +1,27 @@
-import '../domain/models/vaga.dart';
+import '../domain/models/curso.dart';
 
 /// RNF0002: a pesquisa devolve páginas de 15 vagas.
 const tamanhoPagina = 15;
 
 class VagaRepository {
-  VagaRepository(List<Vaga> vagas) : _vagas = List.unmodifiable(vagas);
+  /// [vagas] são as fixas (o seed fictício); com a [fonte], as vagas
+  /// publicadas no Firestore entram na frente delas a cada [atualizar].
+  VagaRepository(List<Vaga> vagas, {this._fonte})
+    : _fixas = List.unmodifiable(vagas),
+      _vagas = List.unmodifiable(vagas);
 
-  final List<Vaga> _vagas;
+  final List<Vaga> _fixas;
+  final RepositorioVagas? _fonte;
+  List<Vaga> _vagas;
+
+  /// Busca de novo as vagas publicadas. Sem internet, a falha sobe e a
+  /// pesquisa continua com as vagas que já tinha.
+  Future<void> atualizar() async {
+    final fonte = _fonte;
+    if (fonte == null) return;
+    final publicadas = await fonte.listarVagas();
+    _vagas = List.unmodifiable([...publicadas, ..._fixas]);
+  }
 
   Vaga? buscarPorId(String id) {
     for (final vaga in _vagas) {
