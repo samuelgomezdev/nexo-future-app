@@ -3,6 +3,8 @@ import 'package:nexo_future_app/data/vaga_repository.dart';
 import 'package:nexo_future_app/domain/models/vaga.dart';
 import 'package:nexo_future_app/ui/viewmodels/vagas_viewmodel.dart';
 
+import '../../apoio/vagas_falsas.dart';
+
 Vaga vaga(int numero, String titulo, String area) => Vaga(
   id: 'vaga-$numero',
   titulo: titulo,
@@ -79,6 +81,47 @@ void main() {
 
     test('oferece as áreas para o filtro', () {
       expect(viewModel.areas, ['Logística', 'Metalurgia', 'Naval']);
+    });
+  });
+
+  group('VagasViewModel com as vagas do Firestore', () {
+    test('atualizar traz as vagas publicadas para o começo da lista', () async {
+      final fonte = VagasFalsas([vaga(99, 'Pintor(a) naval', 'Naval')]);
+      final viewModel = VagasViewModel(
+        VagaRepository([vaga(1, 'Laminador', 'Naval')], fonte: fonte),
+      );
+      expect(viewModel.vagas.map((v) => v.id), ['vaga-1']);
+
+      await viewModel.atualizar();
+
+      expect(viewModel.vagas.map((v) => v.id), ['vaga-99', 'vaga-1']);
+      expect(viewModel.erroAtualizacao, isNull);
+    });
+
+    test('atualizar mantém o texto e a área da pesquisa', () async {
+      final fonte = VagasFalsas([vaga(99, 'Soldador(a)', 'Metalurgia')]);
+      final viewModel = VagasViewModel(
+        VagaRepository([vaga(1, 'Soldador', 'Naval')], fonte: fonte),
+      )..filtrarArea('Metalurgia');
+
+      await viewModel.atualizar();
+
+      expect(viewModel.vagas.map((v) => v.id), ['vaga-99']);
+    });
+
+    test('sem internet, avisa e mantém as vagas', () async {
+      final fonte = VagasFalsas()..falhaInesperada = Exception('sem internet');
+      final viewModel = VagasViewModel(
+        VagaRepository([vaga(1, 'Laminador', 'Naval')], fonte: fonte),
+      );
+
+      await viewModel.atualizar();
+
+      expect(viewModel.vagas, hasLength(1));
+      expect(
+        viewModel.erroAtualizacao,
+        'Não foi possível buscar as vagas mais novas. Puxe a lista para tentar de novo.',
+      );
     });
   });
 }
