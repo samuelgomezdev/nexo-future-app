@@ -7,6 +7,7 @@ import '../../domain/models/empresa.dart';
 import '../../domain/models/oficina.dart';
 import '../../domain/regras/alvara_oficina.dart';
 import '../../domain/regras/aprovacao_curso.dart';
+import '../../domain/regras/cadastro_curso.dart';
 import '../../domain/regras/vinculo_cursos.dart';
 import '../mascara_data.dart';
 import '../tema.dart';
@@ -15,6 +16,7 @@ import '../viewmodels/sessao_viewmodel.dart';
 import 'componentes_cadastro.dart';
 import 'lista_vagas_screen.dart';
 import 'nova_vaga_screen.dart';
+import 'novo_curso_screen.dart';
 import 'situacao_chip.dart';
 
 /// E1 do protótipo: as vagas da empresa e os cursos que aguardam aprovação.
@@ -222,13 +224,32 @@ class _CartaoVaga extends StatelessWidget {
   }
 }
 
-/// O1 do protótipo, primeira versão: mostra se a oficina já publica cursos (RN0003).
+/// O1 do protótipo: os cursos da oficina e se ela já publica (RN0003).
 class InicioOficinaScreen extends StatelessWidget {
   const InicioOficinaScreen({super.key, required this.oficina, this.hoje});
 
   final PerfilOficina oficina;
 
   /// Data usada para conferir a validade do alvará; nos testes, fixa.
+  final DateTime? hoje;
+
+  @override
+  Widget build(BuildContext context) {
+    final vagas = context.read<RepositorioVagas>();
+    return ChangeNotifierProvider(
+      create: (_) => PainelOficinaViewModel(
+        vagas,
+        PublicarCurso(vagas, relogio: hoje == null ? null : () => hoje!),
+      )..carregar(oficina.id),
+      child: _PainelOficina(oficina: oficina, hoje: hoje),
+    );
+  }
+}
+
+class _PainelOficina extends StatelessWidget {
+  const _PainelOficina({required this.oficina, this.hoje});
+
+  final PerfilOficina oficina;
   final DateTime? hoje;
 
   Widget _avisoAlvara() {
@@ -261,18 +282,92 @@ class InicioOficinaScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _novoCurso(BuildContext context) async {
+    final painel = context.read<PainelOficinaViewModel>();
+    final mensageiro = ScaffoldMessenger.of(context);
+    final curso = await Navigator.of(context).push<CursoOficina>(
+      MaterialPageRoute(
+        builder: (_) => NovoCursoScreen(oficina: oficina, hoje: hoje),
+      ),
+    );
+    if (curso == null) return;
+    await painel.carregar(oficina.id);
+    mensageiro.showSnackBar(
+      SnackBar(
+        content: Text(
+          curso.situacao == SituacaoCurso.rascunho
+              ? 'Rascunho salvo.'
+              : 'Curso enviado para aprovação.',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final painel = context.watch<PainelOficinaViewModel>();
+    final podePublicar = podePublicarCurso(
+      oficina.oficina,
+      hoje: hoje ?? DateTime.now(),
+    );
     return _Painel(
       titulo: oficina.nome,
       subtitulo: 'Oficina escola · ${oficina.cidade}',
       children: [
         _avisoAlvara(),
+        if (painel.erroGeral case final erro?) ...[
+          const SizedBox(height: 16),
+          AvisoCadastro(
+            texto: erro,
+            icone: Icons.error_outline,
+            fundo: CoresNexo.erroFundo,
+            cor: CoresNexo.erro,
+          ),
+        ],
         const SizedBox(height: 24),
         _Secao(titulo: 'Seus cursos'),
-        const _Vazio(
-          icone: Icons.school_outlined,
-          texto: 'Você ainda não montou cursos.',
+        if (painel.cursos.isEmpty && !painel.carregando)
+          const _Vazio(
+            icone: Icons.school_outlined,
+            texto: 'Você ainda não montou cursos.',
+          ),
+        for (final curso in painel.cursos)
+          Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: ListTile(
+              contentPadding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+              leading: const Icon(
+                Icons.school_outlined,
+                color: CoresNexo.primaria500,
+              ),
+              title: Text(curso.nome),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${curso.vagaTitulo} · ${curso.empresa}'),
+                  const SizedBox(height: 6),
+                  SituacaoCursoChip(curso.situacao),
+                ],
+              ),
+              trailing: curso.situacao == SituacaoCurso.rascunho && podePublicar
+                  ? TextButton(
+                      onPressed: painel.carregando
+                          ? null
+                          : () => painel.publicarRascunho(
+                              usuario: context.read<SessaoViewModel>().usuario!,
+                              oficina: oficina,
+                              curso: curso,
+                            ),
+                      child: const Text('Publicar'),
+                    )
+                  : null,
+            ),
+          ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () => _novoCurso(context),
+          icon: const Icon(Icons.add),
+          label: const Text('Novo curso'),
         ),
       ],
     );
