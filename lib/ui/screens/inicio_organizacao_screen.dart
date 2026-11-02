@@ -100,6 +100,15 @@ class _PainelEmpresa extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: _Numero(
+                key: const Key('total-candidaturas'),
+                icone: Icons.assignment_turned_in_outlined,
+                valor: painel.totalCandidaturas,
+                rotulo: 'Candidaturas',
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _Numero(
                 key: const Key('total-cursos-para-aprovar'),
                 icone: Icons.school_outlined,
                 valor: paraAprovar,
@@ -208,10 +217,15 @@ class _CartaoVaga extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textos = Theme.of(context).textTheme;
-    final resumo = switch (propostos.length) {
-      0 => '${vaga.cursos.length} de $limiteCursosPorVaga cursos',
-      1 => '1 curso para aprovar',
-      final n => '$n cursos para aprovar',
+    // Como no protótipo E1: o que a empresa precisa saber de cada vaga.
+    final resumo = switch ((propostos.length, vaga.candidaturas)) {
+      _ when vaga.situacao == SituacaoVaga.lotada =>
+        '${vaga.candidaturas} de ${vaga.posicoes} posições',
+      (1, _) => '1 curso para aprovar',
+      (final n, _) when n > 1 => '$n cursos para aprovar',
+      (_, 1) => '1 candidatura',
+      (_, final n) when n > 1 => '$n candidaturas',
+      _ => '${vaga.cursos.length} de $limiteCursosPorVaga cursos',
     };
     return Card(
       margin: const EdgeInsets.only(bottom: 12),

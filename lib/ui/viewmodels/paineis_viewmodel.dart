@@ -22,6 +22,9 @@ class PainelEmpresaViewModel extends PublicacaoViewModel {
   int get vagasAbertas =>
       vagas.where((v) => v.situacao != SituacaoVaga.lotada).length;
 
+  int get totalCandidaturas =>
+      vagas.fold(0, (total, vaga) => total + vaga.candidaturas);
+
   List<CursoOficina> cursosDaVaga(String vagaId) =>
       paraAprovar.where((c) => c.vagaId == vagaId).toList();
 
