@@ -16,6 +16,10 @@ enum CampoCadastro {
   recrutador,
   gestor,
   alvara,
+  titulo,
+  area,
+  posicoes,
+  qualificacao,
 }
 
 /// Lançada quando o cadastro tem campos a corrigir.

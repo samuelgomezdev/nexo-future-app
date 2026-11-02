@@ -1,5 +1,4 @@
 import 'package:nexo_future_app/domain/models/curso.dart';
-import 'package:nexo_future_app/domain/models/vaga.dart';
 
 /// Repositório de vagas e cursos falso: simula o Firestore em memória.
 class VagasFalsas implements RepositorioVagas {
@@ -51,14 +50,13 @@ class VagasFalsas implements RepositorioVagas {
       cursos.values.where((c) => c.oficinaId == oficinaId).toList();
 
   @override
-  Future<List<CursoOficina>> cursosParaAprovar(String empresaId) async =>
-      cursos.values
-          .where(
-            (c) =>
-                c.empresaId == empresaId &&
-                c.situacao == SituacaoCurso.emAnalise,
-          )
-          .toList();
+  Future<List<CursoOficina>> cursosParaAprovar(String empresaId) async => cursos
+      .values
+      .where(
+        (c) =>
+            c.empresaId == empresaId && c.situacao == SituacaoCurso.emAnalise,
+      )
+      .toList();
 
   @override
   Future<void> decidirCurso(CursoOficina curso, {Vaga? vaga}) async {

@@ -106,3 +106,11 @@ class AlvaraVencido implements Exception {
   String toString() =>
       'O alvará de ensino da oficina venceu. Envie o alvará renovado para publicar cursos.';
 }
+
+/// Lançada quando alguém tenta agir pela empresa ou oficina de outra pessoa.
+class AcaoNaoPermitida implements Exception {
+  const AcaoNaoPermitida();
+
+  @override
+  String toString() => 'Você não tem permissão para fazer isso.';
+}

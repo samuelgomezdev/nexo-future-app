@@ -170,11 +170,9 @@ void main() {
           dados: dados(titulo: ''),
         ),
         throwsA(
-          isA<CadastroInvalido>().having(
-            (e) => e.erros.keys,
-            'campos',
-            [CampoCadastro.titulo],
-          ),
+          isA<CadastroInvalido>().having((e) => e.erros.keys, 'campos', [
+            CampoCadastro.titulo,
+          ]),
         ),
       );
       expect(vagas.vagas, isEmpty);
