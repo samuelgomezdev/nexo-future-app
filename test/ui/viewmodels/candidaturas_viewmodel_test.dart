@@ -35,14 +35,14 @@ void main() {
       viewModel.addListener(() => avisos++);
     });
 
-    void candidatarNasCinco() {
+    Future<void> candidatarNasCinco() async {
       for (var i = 0; i < 5; i++) {
-        viewModel.candidatar(vagas[i]);
+        await viewModel.candidatar(vagas[i]);
       }
     }
 
-    test('candidatura numa vaga disponível é enviada', () {
-      final resultado = viewModel.candidatar(vagas[0]);
+    test('candidatura numa vaga disponível é enviada', () async {
+      final resultado = await viewModel.candidatar(vagas[0]);
 
       expect(resultado, ResultadoCandidatura.enviada);
       expect(viewModel.jaCandidatou(vagas[0]), isTrue);
@@ -50,47 +50,53 @@ void main() {
       expect(avisos, 1);
     });
 
-    test('a 6ª candidatura devolve limite atingido (RN0005)', () {
-      candidatarNasCinco();
+    test('a 6ª candidatura devolve limite atingido (RN0005)', () async {
+      await candidatarNasCinco();
 
       expect(
-        viewModel.candidatar(vagas[5]),
+        await viewModel.candidatar(vagas[5]),
         ResultadoCandidatura.limiteAtingido,
       );
       expect(viewModel.limiteAtingido, isTrue);
       expect(viewModel.vagasCandidatadas, hasLength(5));
     });
 
-    test('vaga que não aguarda ingresso devolve vaga indisponível', () {
+    test('vaga que não aguarda ingresso devolve vaga indisponível', () async {
       expect(
-        viewModel.candidatar(vagas[6]),
+        await viewModel.candidatar(vagas[6]),
         ResultadoCandidatura.vagaIndisponivel,
       );
       expect(viewModel.vagasCandidatadas, isEmpty);
     });
 
-    test('candidatar-se de novo na mesma vaga devolve já candidatado', () {
-      viewModel.candidatar(vagas[0]);
+    test(
+      'candidatar-se de novo na mesma vaga devolve já candidatado',
+      () async {
+        await viewModel.candidatar(vagas[0]);
 
-      expect(
-        viewModel.candidatar(vagas[0]),
-        ResultadoCandidatura.jaCandidatado,
-      );
-    });
+        expect(
+          await viewModel.candidatar(vagas[0]),
+          ResultadoCandidatura.jaCandidatado,
+        );
+      },
+    );
 
-    test('desistir libera uma vaga do limite (RF0017)', () {
-      candidatarNasCinco();
+    test('desistir libera uma vaga do limite (RF0017)', () async {
+      await candidatarNasCinco();
 
-      viewModel.desistir(vagas[2]);
+      await viewModel.desistir(vagas[2]);
 
       expect(viewModel.limiteAtingido, isFalse);
       expect(viewModel.vagasCandidatadas, isNot(contains(vagas[2])));
-      expect(viewModel.candidatar(vagas[5]), ResultadoCandidatura.enviada);
+      expect(
+        await viewModel.candidatar(vagas[5]),
+        ResultadoCandidatura.enviada,
+      );
     });
 
-    test('mostra quantas candidaturas ativas o aluno tem', () {
-      viewModel.candidatar(vagas[0]);
-      viewModel.candidatar(vagas[1]);
+    test('mostra quantas candidaturas ativas o aluno tem', () async {
+      await viewModel.candidatar(vagas[0]);
+      await viewModel.candidatar(vagas[1]);
 
       expect(viewModel.totalAtivas, 2);
       expect(viewModel.limite, 5);

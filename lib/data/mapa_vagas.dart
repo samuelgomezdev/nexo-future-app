@@ -18,6 +18,7 @@ Map<String, Object?> vagaParaMapa(Vaga vaga) => {
   'cidade': vaga.cidade,
   'qualificacao': vaga.qualificacao,
   'posicoes': vaga.posicoes,
+  'candidaturas': vaga.candidaturas,
   'situacao': vaga.situacao.name,
   'cursos': [for (final curso in vaga.cursos) _cursoVinculadoParaMapa(curso)],
 };
@@ -31,6 +32,7 @@ Vaga vagaDoMapa(String id, Map<String, Object?> dados) => Vaga(
   cidade: dados['cidade'] as String,
   qualificacao: dados['qualificacao'] as String,
   posicoes: (dados['posicoes'] as num).toInt(),
+  candidaturas: (dados['candidaturas'] as num?)?.toInt() ?? 0,
   situacao: SituacaoVaga.values.byName(dados['situacao'] as String),
   cursos: [
     for (final curso in (dados['cursos'] as List?) ?? const [])

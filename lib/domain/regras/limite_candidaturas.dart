@@ -5,10 +5,15 @@ import '../models/candidatura.dart';
 const limiteCandidaturasAtivas = 5;
 
 class CandidaturasDoAluno {
-  CandidaturasDoAluno({required this.alunoId});
+  /// Começa com as [vagas] em que o aluno já se candidatou.
+  CandidaturasDoAluno({required this.alunoId, List<String> vagas = const []})
+    : _ativas = [
+        for (final vagaId in vagas)
+          Candidatura(alunoId: alunoId, vagaId: vagaId),
+      ];
 
   final String alunoId;
-  final List<Candidatura> _ativas = [];
+  final List<Candidatura> _ativas;
 
   List<Candidatura> get ativas => List.unmodifiable(_ativas);
 

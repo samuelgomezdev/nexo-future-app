@@ -91,13 +91,14 @@ class _BotaoCandidatura extends StatelessWidget {
     );
   }
 
-  void _candidatar(BuildContext context) {
+  Future<void> _candidatar(BuildContext context) async {
     if (!context.read<SessaoViewModel>().podeAgir) {
       _pedirConta(context);
       return;
     }
-    final resultado = candidaturas.candidatar(vaga);
     final mensageiro = ScaffoldMessenger.of(context);
+    final resultado = await candidaturas.candidatar(vaga);
+    if (!context.mounted) return;
     switch (resultado) {
       case ResultadoCandidatura.enviada:
         mensageiro.showSnackBar(

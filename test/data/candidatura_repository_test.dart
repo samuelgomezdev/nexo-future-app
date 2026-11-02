@@ -131,8 +131,9 @@ void main() {
     test(
       'o limite de 5 vale também para o que já estava salvo (RN0005)',
       () async {
+        final carla = repositorioDe('uid-carla');
         for (var i = 1; i <= 5; i++) {
-          await repositorioDe('uid-carla').candidatar(vaga('vaga-$i'));
+          await carla.candidatar(vaga('vaga-$i'));
         }
         final deNovo = repositorioDe('uid-carla');
         await deNovo.entrar('uid-carla');

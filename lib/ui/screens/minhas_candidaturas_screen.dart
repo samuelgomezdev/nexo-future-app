@@ -89,7 +89,7 @@ class MinhasCandidaturasScreen extends StatelessWidget {
       ),
     );
     if (confirmou != true) return;
-    viewModel.desistir(vaga);
+    await viewModel.desistir(vaga);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Você desistiu da vaga ${vaga.titulo}.')),

@@ -31,9 +31,9 @@ class CandidaturasViewModel extends ChangeNotifier {
 
   bool jaCandidatou(Vaga vaga) => _candidaturas.jaCandidatou(vaga.id);
 
-  ResultadoCandidatura candidatar(Vaga vaga) {
+  Future<ResultadoCandidatura> candidatar(Vaga vaga) async {
     try {
-      _candidaturas.candidatar(vaga);
+      await _candidaturas.candidatar(vaga);
     } on CandidaturaDuplicada {
       return ResultadoCandidatura.jaCandidatado;
     } on VagaNaoDisponivel {
@@ -45,8 +45,8 @@ class CandidaturasViewModel extends ChangeNotifier {
     return ResultadoCandidatura.enviada;
   }
 
-  void desistir(Vaga vaga) {
-    _candidaturas.desistir(vaga.id);
+  Future<void> desistir(Vaga vaga) async {
+    await _candidaturas.desistir(vaga.id);
     notifyListeners();
   }
 }
