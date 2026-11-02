@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nexo_future_app/domain/autenticacao.dart';
 import 'package:nexo_future_app/domain/models/empresa.dart';
 import 'package:nexo_future_app/ui/viewmodels/sessao_viewmodel.dart';
 
@@ -44,6 +45,25 @@ void main() {
       expect(sessao.perfil, same(empresa));
       expect(avisos, 1);
     });
+
+    test(
+      'guarda a conta de quem entrou, para conferir o e-mail (RN0001)',
+      () async {
+        const usuario = Usuario(
+          id: 'uid-ana@email.com',
+          email: 'ana@email.com',
+          emailVerificado: true,
+        );
+        final sessao = SessaoViewModel(AutenticacaoFalsa())
+          ..entrou(empresa, usuario: usuario);
+
+        expect(sessao.usuario, same(usuario));
+
+        await sessao.sair();
+
+        expect(sessao.usuario, isNull);
+      },
+    );
 
     test('conta sem perfil salvo também entra', () {
       final sessao = SessaoViewModel(AutenticacaoFalsa())..entrou(null);
