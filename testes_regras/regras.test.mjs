@@ -14,6 +14,7 @@ import {
   setDoc,
   Timestamp,
   updateDoc,
+  writeBatch,
 } from 'firebase/firestore';
 
 let ambiente;
@@ -290,6 +291,7 @@ function vagaDe(pessoa, extras = {}) {
     cidade: 'Itajaí',
     qualificacao: 'Preparo de superfície e pintura de cascos.',
     posicoes: 3,
+    candidaturas: 0,
     situacao: 'aberta',
     cursos: [],
     criadoEm: serverTimestamp(),
@@ -359,8 +361,11 @@ describe('Vagas', () => {
     );
   });
 
-  test('a vaga nasce aberta e sem cursos', async () => {
+  test('a vaga nasce aberta, sem cursos e sem candidaturas', async () => {
     const banco = contaConfirmada(marcos);
+    await assertFails(
+      setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { candidaturas: 1 })),
+    );
     await assertFails(
       setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { situacao: 'aguardandoIngresso' })),
     );
@@ -656,6 +661,179 @@ describe('Cursos', () => {
       updateDoc(doc(contaConfirmada(marcos, false), 'cursos', 'curso-pintura'), {
         situacao: 'aprovado',
       }),
+    );
+  });
+});
+
+// Candidaturas: cada jovem guarda a própria lista (RN0005: no máximo 5) e a
+// vaga publicada conta as candidaturas; ao completar as posições, lota.
+async function prepararVagaAceitando(extras = {}) {
+  await semRegras(async (banco) => {
+    await setDoc(doc(banco, 'vagas', 'vaga-pintor'), {
+      ...vagaDe(marcos),
+      situacao: 'aguardandoIngresso',
+      cursos: [cursoVinculado],
+      posicoes: 2,
+      criadoEm: Timestamp.now(),
+      ...extras,
+    });
+  });
+}
+
+async function prepararLista(pessoa, vagas) {
+  await semRegras(async (banco) => {
+    await setDoc(doc(banco, 'candidaturas', pessoa.uid), {
+      vagas,
+      atualizadoEm: Timestamp.now(),
+    });
+  });
+}
+
+function listaDe(vagas) {
+  return { vagas, atualizadoEm: serverTimestamp() };
+}
+
+// Grava a lista e a contagem da vaga juntas, como o app faz.
+function candidatarEm(banco, pessoa, vagas, mudancaNaVaga) {
+  const lote = writeBatch(banco);
+  lote.set(doc(banco, 'candidaturas', pessoa.uid), listaDe(vagas));
+  lote.update(doc(banco, 'vagas', 'vaga-pintor'), mudancaNaVaga);
+  return lote.commit();
+}
+
+describe('Candidaturas', () => {
+  beforeEach(async () => {
+    await prepararEmpresas();
+    await prepararVagaAceitando();
+  });
+
+  test('o jovem grava e lê a própria lista de candidaturas', async () => {
+    const banco = contaConfirmada(carla);
+    await assertSucceeds(
+      setDoc(doc(banco, 'candidaturas', carla.uid), listaDe(['vaga-01'])),
+    );
+    await assertSucceeds(getDoc(doc(banco, 'candidaturas', carla.uid)));
+  });
+
+  test('a lista tem no máximo 5 vagas, sem repetir (RN0005)', async () => {
+    const banco = contaConfirmada(carla);
+    await assertSucceeds(
+      setDoc(doc(banco, 'candidaturas', carla.uid), listaDe(['a', 'b', 'c', 'd', 'e'])),
+    );
+    await assertFails(
+      setDoc(doc(banco, 'candidaturas', carla.uid), listaDe(['a', 'b', 'c', 'd', 'e', 'f'])),
+    );
+    await assertFails(
+      setDoc(doc(banco, 'candidaturas', carla.uid), listaDe(['a', 'a'])),
+    );
+  });
+
+  test('ninguém lê nem grava a lista de outra pessoa', async () => {
+    await prepararLista(carla, ['vaga-01']);
+    const banco = contaConfirmada(bruno);
+    await assertFails(getDoc(doc(banco, 'candidaturas', carla.uid)));
+    await assertFails(
+      setDoc(doc(banco, 'candidaturas', carla.uid), listaDe([])),
+    );
+  });
+
+  test('só quem tem perfil de jovem e confirmou o e-mail se candidata (RN0001)', async () => {
+    await assertFails(
+      setDoc(
+        doc(contaConfirmada(carla, false), 'candidaturas', carla.uid),
+        listaDe(['vaga-01']),
+      ),
+    );
+    await assertFails(
+      setDoc(doc(contaConfirmada(marcos), 'candidaturas', marcos.uid), listaDe(['vaga-01'])),
+    );
+  });
+
+  test('a lista não aceita campos fora do combinado', async () => {
+    await assertFails(
+      setDoc(doc(contaConfirmada(carla), 'candidaturas', carla.uid), {
+        ...listaDe(['vaga-01']),
+        telefone: '47999999999',
+      }),
+    );
+  });
+
+  test('a candidatura conta na vaga junto com a lista do jovem', async () => {
+    await assertSucceeds(
+      candidatarEm(contaConfirmada(carla), carla, ['vaga-pintor'], { candidaturas: 1 }),
+    );
+  });
+
+  test('a candidatura que completa as posições deixa a vaga lotada', async () => {
+    await prepararVagaAceitando({ posicoes: 1 });
+    const banco = contaConfirmada(carla);
+    await assertFails(
+      candidatarEm(banco, carla, ['vaga-pintor'], { candidaturas: 1 }),
+    );
+    await assertSucceeds(
+      candidatarEm(banco, carla, ['vaga-pintor'], {
+        candidaturas: 1,
+        situacao: 'lotada',
+      }),
+    );
+  });
+
+  test('o jovem não aumenta a contagem sem pôr a vaga na própria lista', async () => {
+    await assertFails(
+      updateDoc(doc(contaConfirmada(carla), 'vagas', 'vaga-pintor'), { candidaturas: 1 }),
+    );
+  });
+
+  test('a contagem sobe de uma em uma', async () => {
+    await assertFails(
+      candidatarEm(contaConfirmada(carla), carla, ['vaga-pintor'], { candidaturas: 2 }),
+    );
+  });
+
+  test('o jovem não muda outros campos da vaga', async () => {
+    await assertFails(
+      candidatarEm(contaConfirmada(carla), carla, ['vaga-pintor'], {
+        candidaturas: 1,
+        titulo: 'Outra coisa',
+      }),
+    );
+  });
+
+  test('vaga sem curso aprovado ou lotada não recebe candidatura (RF0007)', async () => {
+    await prepararVagaAceitando({ situacao: 'aberta', cursos: [] });
+    await assertFails(
+      candidatarEm(contaConfirmada(carla), carla, ['vaga-pintor'], { candidaturas: 1 }),
+    );
+    await prepararVagaAceitando({ situacao: 'lotada', candidaturas: 2 });
+    await assertFails(
+      candidatarEm(contaConfirmada(carla), carla, ['vaga-pintor'], {
+        candidaturas: 3,
+        situacao: 'lotada',
+      }),
+    );
+  });
+
+  test('ao desistir, a contagem desce e a vaga lotada volta a aceitar', async () => {
+    await prepararVagaAceitando({ situacao: 'lotada', candidaturas: 2 });
+    await prepararLista(carla, ['vaga-pintor']);
+    await assertSucceeds(
+      candidatarEm(contaConfirmada(carla), carla, [], {
+        candidaturas: 1,
+        situacao: 'aguardandoIngresso',
+      }),
+    );
+  });
+
+  test('quem não se candidatou não desconta a vaga', async () => {
+    await prepararVagaAceitando({ candidaturas: 1 });
+    await assertFails(
+      candidatarEm(contaConfirmada(carla), carla, [], { candidaturas: 0 }),
+    );
+  });
+
+  test('a empresa não mexe na contagem de candidaturas', async () => {
+    await assertFails(
+      updateDoc(doc(contaConfirmada(marcos), 'vagas', 'vaga-pintor'), { candidaturas: 1 }),
     );
   });
 });
