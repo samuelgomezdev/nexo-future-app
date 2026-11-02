@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final sessao = context.read<SessaoViewModel>();
     final entrou = await viewModel.entrar(_email.text, _senha.text);
     if (entrou) {
-      sessao.entrou(viewModel.perfil);
+      sessao.entrou(viewModel.perfil, usuario: viewModel.usuario);
       // RF0019: empresa e oficina abrem os painéis; o jovem volta para onde
       // estava (as vagas ou a vaga em que tentou se candidatar).
       final painel = switch (viewModel.perfil) {

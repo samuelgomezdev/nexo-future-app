@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../domain/erros.dart';
+import '../../domain/models/curso.dart';
 import '../../domain/models/empresa.dart';
 import '../../domain/models/oficina.dart';
 import '../../domain/regras/alvara_oficina.dart';
+import '../../domain/regras/aprovacao_curso.dart';
+import '../../domain/regras/vinculo_cursos.dart';
 import '../mascara_data.dart';
 import '../tema.dart';
+import '../viewmodels/paineis_viewmodel.dart';
 import '../viewmodels/sessao_viewmodel.dart';
 import 'componentes_cadastro.dart';
 import 'lista_vagas_screen.dart';
+import 'nova_vaga_screen.dart';
+import 'situacao_chip.dart';
 
-/// E1 do protótipo, primeira versão: o painel ganha vagas na Sprint 3.
+/// E1 do protótipo: as vagas da empresa e os cursos que aguardam aprovação.
 class InicioEmpresaScreen extends StatelessWidget {
   const InicioEmpresaScreen({super.key, required this.empresa});
 
@@ -19,16 +25,199 @@ class InicioEmpresaScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final vagas = context.read<RepositorioVagas>();
+    return ChangeNotifierProvider(
+      create: (_) =>
+          PainelEmpresaViewModel(vagas, DecidirCurso(vagas))
+            ..carregar(empresa.id),
+      child: _PainelEmpresa(empresa: empresa),
+    );
+  }
+}
+
+class _PainelEmpresa extends StatelessWidget {
+  const _PainelEmpresa({required this.empresa});
+
+  final PerfilEmpresa empresa;
+
+  Future<void> _novaVaga(BuildContext context) async {
+    final painel = context.read<PainelEmpresaViewModel>();
+    final mensageiro = ScaffoldMessenger.of(context);
+    final publicou = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => NovaVagaScreen(empresa: empresa)),
+    );
+    if (publicou != true) return;
+    await painel.carregar(empresa.id);
+    mensageiro.showSnackBar(const SnackBar(content: Text('Vaga publicada.')));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final painel = context.watch<PainelEmpresaViewModel>();
+    final paraAprovar = painel.paraAprovar.length;
+    final aguardam = paraAprovar == 1
+        ? '1 curso aguarda'
+        : '$paraAprovar cursos aguardam';
     return _Painel(
       titulo: empresa.nome,
       subtitulo: 'Painel do recrutador · ${empresa.setor} · ${empresa.cidade}',
+      botao: FloatingActionButton.extended(
+        onPressed: () => _novaVaga(context),
+        icon: const Icon(Icons.add),
+        label: const Text('Nova vaga'),
+      ),
       children: [
-        _Secao(titulo: 'Suas vagas'),
-        const _Vazio(
-          icone: Icons.work_outline,
-          texto: 'Você ainda não publicou vagas.',
+        Row(
+          children: [
+            Expanded(
+              child: _Numero(
+                key: const Key('total-vagas-abertas'),
+                icone: Icons.work_outline,
+                valor: painel.vagasAbertas,
+                rotulo: 'Vagas abertas',
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _Numero(
+                key: const Key('total-cursos-para-aprovar'),
+                icone: Icons.school_outlined,
+                valor: paraAprovar,
+                rotulo: 'Cursos p/ aprovar',
+                destaque: paraAprovar > 0,
+              ),
+            ),
+          ],
         ),
+        if (paraAprovar > 0) ...[
+          const SizedBox(height: 16),
+          AvisoCadastro(
+            texto:
+                '$aguardam sua aprovação. Sem curso aprovado, a vaga não recebe candidaturas.',
+            icone: Icons.error_outline,
+            fundo: CoresNexo.alertaFundo,
+            cor: CoresNexo.alerta,
+          ),
+        ],
+        if (painel.erroGeral case final erro?) ...[
+          const SizedBox(height: 16),
+          AvisoCadastro(
+            texto: erro,
+            icone: Icons.wifi_off,
+            fundo: CoresNexo.erroFundo,
+            cor: CoresNexo.erro,
+          ),
+        ],
+        const SizedBox(height: 24),
+        _Secao(titulo: 'Suas vagas'),
+        if (painel.vagas.isEmpty && !painel.carregando)
+          const _Vazio(
+            icone: Icons.work_outline,
+            texto: 'Você ainda não publicou vagas.',
+          ),
+        for (final vaga in painel.vagas)
+          _CartaoVaga(vaga: vaga, propostos: painel.cursosDaVaga(vaga.id)),
+        // Espaço para o botão Nova vaga não cobrir a última vaga.
+        const SizedBox(height: 72),
       ],
+    );
+  }
+}
+
+/// Número de destaque do painel, como nos cartões do protótipo.
+class _Numero extends StatelessWidget {
+  const _Numero({
+    super.key,
+    required this.icone,
+    required this.valor,
+    required this.rotulo,
+    this.destaque = false,
+  });
+
+  final IconData icone;
+  final int valor;
+  final String rotulo;
+  final bool destaque;
+
+  @override
+  Widget build(BuildContext context) {
+    final textos = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: destaque ? CoresNexo.ambarFundo : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: CoresNexo.neutro200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icone,
+            size: 20,
+            color: destaque ? CoresNexo.alerta : CoresNexo.primaria500,
+          ),
+          const SizedBox(height: 6),
+          Text('$valor', style: textos.headlineSmall),
+          Text(
+            rotulo,
+            style: textos.bodySmall?.copyWith(color: CoresNexo.neutro700),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Vaga da empresa, com os cursos que as oficinas propuseram para ela.
+class _CartaoVaga extends StatelessWidget {
+  const _CartaoVaga({required this.vaga, required this.propostos});
+
+  final Vaga vaga;
+  final List<CursoOficina> propostos;
+
+  @override
+  Widget build(BuildContext context) {
+    final textos = Theme.of(context).textTheme;
+    final resumo = switch (propostos.length) {
+      0 => '${vaga.cursos.length} de $limiteCursosPorVaga cursos',
+      1 => '1 curso para aprovar',
+      final n => '$n cursos para aprovar',
+    };
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(vaga.titulo, style: textos.titleMedium),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                SituacaoChip(vaga.situacao),
+                const Spacer(),
+                Text(
+                  resumo,
+                  style: textos.bodySmall?.copyWith(color: CoresNexo.neutro700),
+                ),
+              ],
+            ),
+            for (final curso in propostos)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(
+                  Icons.school_outlined,
+                  color: CoresNexo.alerta,
+                ),
+                title: Text(curso.nome),
+                subtitle: Text('${curso.oficina} · ${curso.cargaHoraria} h'),
+                trailing: const Icon(Icons.chevron_right),
+              ),
+            const SizedBox(height: 6),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -96,17 +285,20 @@ class _Painel extends StatelessWidget {
     required this.titulo,
     required this.subtitulo,
     required this.children,
+    this.botao,
   });
 
   final String titulo;
   final String subtitulo;
   final List<Widget> children;
+  final Widget? botao;
 
   @override
   Widget build(BuildContext context) {
     final textos = Theme.of(context).textTheme;
     return Scaffold(
       backgroundColor: CoresNexo.neutro100,
+      floatingActionButton: botao,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,

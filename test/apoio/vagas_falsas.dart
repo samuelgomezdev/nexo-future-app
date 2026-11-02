@@ -1,13 +1,10 @@
+import 'package:nexo_future_app/data/vagas_em_memoria.dart';
 import 'package:nexo_future_app/domain/models/curso.dart';
 
-/// Repositório de vagas e cursos falso: simula o Firestore em memória.
-class VagasFalsas implements RepositorioVagas {
-  VagasFalsas([List<Vaga> iniciais = const []])
-    : vagas = {for (final vaga in iniciais) vaga.id: vaga};
-
-  final Map<String, Vaga> vagas;
-  final cursos = <String, CursoOficina>{};
-  var _contador = 0;
+/// Repositório de vagas e cursos falso: simula o Firestore em memória e,
+/// quando pedido, uma falha de conexão.
+class VagasFalsas extends VagasEmMemoria {
+  VagasFalsas([super.iniciais]);
 
   /// Simula uma falha do banco (sem internet, servidor fora etc.).
   Exception? falhaInesperada;
@@ -18,54 +15,38 @@ class VagasFalsas implements RepositorioVagas {
   }
 
   @override
-  String novoId() => 'id-${++_contador}';
-
-  @override
   Future<List<Vaga>> listarVagas() async {
     _conferirFalha();
-    return vagas.values.toList();
+    return super.listarVagas();
   }
-
-  @override
-  Future<Vaga?> buscarVaga(String id) async => vagas[id];
 
   @override
   Future<List<Vaga>> vagasDaEmpresa(String empresaId) async {
     _conferirFalha();
-    return vagas.values.where((v) => v.empresaId == empresaId).toList();
+    return super.vagasDaEmpresa(empresaId);
   }
 
   @override
   Future<void> salvarVaga(Vaga vaga) async {
     _conferirFalha();
-    vagas[vaga.id] = vaga;
+    await super.salvarVaga(vaga);
   }
 
   @override
   Future<void> salvarCurso(CursoOficina curso) async {
     _conferirFalha();
-    cursos[curso.id] = curso;
+    await super.salvarCurso(curso);
   }
 
   @override
   Future<List<CursoOficina>> cursosDaOficina(String oficinaId) async {
     _conferirFalha();
-    return cursos.values.where((c) => c.oficinaId == oficinaId).toList();
+    return super.cursosDaOficina(oficinaId);
   }
-
-  @override
-  Future<List<CursoOficina>> cursosParaAprovar(String empresaId) async => cursos
-      .values
-      .where(
-        (c) =>
-            c.empresaId == empresaId && c.situacao == SituacaoCurso.emAnalise,
-      )
-      .toList();
 
   @override
   Future<void> decidirCurso(CursoOficina curso, {Vaga? vaga}) async {
     _conferirFalha();
-    cursos[curso.id] = curso;
-    if (vaga != null) vagas[vaga.id] = vaga;
+    await super.decidirCurso(curso, vaga: vaga);
   }
 }

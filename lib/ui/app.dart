@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../data/candidatura_repository.dart';
 import '../data/seed_vagas.dart';
 import '../data/vaga_repository.dart';
+import '../data/vagas_em_memoria.dart';
 import '../domain/autenticacao.dart';
+import '../domain/models/curso.dart';
 import '../domain/models/jovem.dart';
 import '../domain/regras/cadastro_empresa.dart';
 import '../domain/regras/cadastro_jovem.dart';
@@ -24,7 +26,7 @@ const alunoDemoId = 'jovem-demo';
 const alunoDemoNome = 'Jovem Demo';
 
 class NexoFutureApp extends StatelessWidget {
-  const NexoFutureApp({super.key, this.autenticacao, this.perfis});
+  const NexoFutureApp({super.key, this.autenticacao, this.perfis, this.vagas});
 
   /// Com o serviço de autenticação, o visitante vê vagas e cursos e entra para
   /// agir; sem ele, tudo fica liberado, como na demonstração da Etapa 1.
@@ -33,13 +35,19 @@ class NexoFutureApp extends StatelessWidget {
   /// Com os perfis, o login oferece os cadastros de jovem, empresa e oficina.
   final RepositorioPerfis? perfis;
 
+  /// Vagas e cursos publicados (o Firestore no app); sem ele, ficam só no
+  /// aparelho. Na pesquisa, entram na frente das vagas fictícias do seed.
+  final RepositorioVagas? vagas;
+
   @override
   Widget build(BuildContext context) {
-    final vagas = VagaRepository(seedVagas);
+    final publicadas = this.vagas ?? VagasEmMemoria();
+    final vagas = VagaRepository(seedVagas, fonte: publicadas);
     final autenticacao = this.autenticacao;
     final perfis = this.perfis;
     return MultiProvider(
       providers: [
+        Provider<RepositorioVagas>.value(value: publicadas),
         ChangeNotifierProvider(
           create: (_) => SessaoViewModel(autenticacao, perfis != null),
         ),
