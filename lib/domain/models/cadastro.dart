@@ -20,6 +20,10 @@ enum CampoCadastro {
   area,
   posicoes,
   qualificacao,
+  vaga,
+  cargaHoraria,
+  vagasTurma,
+  descricao,
 }
 
 /// Lançada quando o cadastro tem campos a corrigir.
