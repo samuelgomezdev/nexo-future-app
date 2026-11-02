@@ -13,6 +13,7 @@ import '../mascara_data.dart';
 import '../tema.dart';
 import '../viewmodels/paineis_viewmodel.dart';
 import '../viewmodels/sessao_viewmodel.dart';
+import 'aprovar_curso_screen.dart';
 import 'componentes_cadastro.dart';
 import 'lista_vagas_screen.dart';
 import 'nova_vaga_screen.dart';
@@ -51,6 +52,23 @@ class _PainelEmpresa extends StatelessWidget {
     if (publicou != true) return;
     await painel.carregar(empresa.id);
     mensageiro.showSnackBar(const SnackBar(content: Text('Vaga publicada.')));
+  }
+
+  /// E3: a decisão volta como mensagem para o painel.
+  Future<void> _abrirCurso(BuildContext context, CursoOficina curso) async {
+    final painel = context.read<PainelEmpresaViewModel>();
+    final mensageiro = ScaffoldMessenger.of(context);
+    final mensagem = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider.value(
+          value: painel,
+          child: AprovarCursoScreen(empresa: empresa, curso: curso),
+        ),
+      ),
+    );
+    if (mensagem != null) {
+      mensageiro.showSnackBar(SnackBar(content: Text(mensagem)));
+    }
   }
 
   @override
@@ -118,7 +136,11 @@ class _PainelEmpresa extends StatelessWidget {
             texto: 'Você ainda não publicou vagas.',
           ),
         for (final vaga in painel.vagas)
-          _CartaoVaga(vaga: vaga, propostos: painel.cursosDaVaga(vaga.id)),
+          _CartaoVaga(
+            vaga: vaga,
+            propostos: painel.cursosDaVaga(vaga.id),
+            aoAbrir: (curso) => _abrirCurso(context, curso),
+          ),
         // Espaço para o botão Nova vaga não cobrir a última vaga.
         const SizedBox(height: 72),
       ],
@@ -173,10 +195,15 @@ class _Numero extends StatelessWidget {
 
 /// Vaga da empresa, com os cursos que as oficinas propuseram para ela.
 class _CartaoVaga extends StatelessWidget {
-  const _CartaoVaga({required this.vaga, required this.propostos});
+  const _CartaoVaga({
+    required this.vaga,
+    required this.propostos,
+    required this.aoAbrir,
+  });
 
   final Vaga vaga;
   final List<CursoOficina> propostos;
+  final ValueChanged<CursoOficina> aoAbrir;
 
   @override
   Widget build(BuildContext context) {
@@ -215,6 +242,7 @@ class _CartaoVaga extends StatelessWidget {
                 title: Text(curso.nome),
                 subtitle: Text('${curso.oficina} · ${curso.cargaHoraria} h'),
                 trailing: const Icon(Icons.chevron_right),
+                onTap: () => aoAbrir(curso),
               ),
             const SizedBox(height: 6),
           ],
