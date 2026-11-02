@@ -21,6 +21,7 @@ class Vaga {
     this.cursos = const [],
     this.empresaId = '',
     this.posicoes = 1,
+    this.candidaturas = 0,
   });
 
   final String id;
@@ -40,7 +41,14 @@ class Vaga {
   /// Quantas pessoas a vaga contrata.
   final int posicoes;
 
-  Vaga copiar({SituacaoVaga? situacao, List<Curso>? cursos}) => Vaga(
+  /// Candidaturas ativas; quando chegam às posições, a vaga lota.
+  final int candidaturas;
+
+  Vaga copiar({
+    SituacaoVaga? situacao,
+    List<Curso>? cursos,
+    int? candidaturas,
+  }) => Vaga(
     id: id,
     titulo: titulo,
     empresa: empresa,
@@ -51,6 +59,7 @@ class Vaga {
     cursos: cursos ?? this.cursos,
     empresaId: empresaId,
     posicoes: posicoes,
+    candidaturas: candidaturas ?? this.candidaturas,
   );
 }
 
