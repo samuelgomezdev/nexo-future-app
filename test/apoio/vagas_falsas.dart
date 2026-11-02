@@ -30,8 +30,10 @@ class VagasFalsas implements RepositorioVagas {
   Future<Vaga?> buscarVaga(String id) async => vagas[id];
 
   @override
-  Future<List<Vaga>> vagasDaEmpresa(String empresaId) async =>
-      vagas.values.where((v) => v.empresaId == empresaId).toList();
+  Future<List<Vaga>> vagasDaEmpresa(String empresaId) async {
+    _conferirFalha();
+    return vagas.values.where((v) => v.empresaId == empresaId).toList();
+  }
 
   @override
   Future<void> salvarVaga(Vaga vaga) async {
@@ -46,8 +48,10 @@ class VagasFalsas implements RepositorioVagas {
   }
 
   @override
-  Future<List<CursoOficina>> cursosDaOficina(String oficinaId) async =>
-      cursos.values.where((c) => c.oficinaId == oficinaId).toList();
+  Future<List<CursoOficina>> cursosDaOficina(String oficinaId) async {
+    _conferirFalha();
+    return cursos.values.where((c) => c.oficinaId == oficinaId).toList();
+  }
 
   @override
   Future<List<CursoOficina>> cursosParaAprovar(String empresaId) async => cursos

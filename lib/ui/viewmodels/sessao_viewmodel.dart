@@ -16,14 +16,18 @@ class SessaoViewModel extends ChangeNotifier {
   bool logado = false;
   Perfil? perfil;
 
+  /// Conta de quem entrou: as ações conferem o e-mail confirmado (RN0001).
+  Usuario? usuario;
+
   /// Sem login configurado (demonstração da Etapa 1), tudo fica liberado.
   bool get exigeLogin => _auth != null;
 
   bool get podeAgir => !exigeLogin || logado;
 
-  void entrou(Perfil? perfil) {
+  void entrou(Perfil? perfil, {Usuario? usuario}) {
     logado = true;
     this.perfil = perfil;
+    this.usuario = usuario;
     notifyListeners();
   }
 
@@ -31,6 +35,7 @@ class SessaoViewModel extends ChangeNotifier {
     await _auth?.sair();
     logado = false;
     perfil = null;
+    usuario = null;
     notifyListeners();
   }
 }
