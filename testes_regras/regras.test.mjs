@@ -444,6 +444,222 @@ describe('Vagas', () => {
   });
 });
 
+function cursoDe(pessoa, extras = {}) {
+  return {
+    nome: 'Pintura naval',
+    area: 'Naval',
+    cargaHoraria: 32,
+    vagasTurma: 15,
+    descricao: 'Preparo de superfície e acabamento.',
+    vagaId: 'vaga-pintor',
+    vagaTitulo: 'Pintor(a) naval',
+    empresaId: marcos.uid,
+    empresa: 'Estaleiro Foz Azul',
+    oficinaId: pessoa.uid,
+    oficina: 'Oficina Escola Mãos do Porto',
+    situacao: 'emAnalise',
+    criadoEm: serverTimestamp(),
+    ...extras,
+  };
+}
+
+const anteontem = () => Timestamp.fromMillis(Date.now() - 2 * 24 * 60 * 60 * 1000);
+
+async function prepararOficinas() {
+  await semRegras(async (banco) => {
+    // Rita tem alvará em dia; Davi se cadastrou sem alvará.
+    await setDoc(doc(banco, 'oficinas', rita.uid), oficinaDe(rita));
+    const semAlvara = oficinaDe(davi);
+    delete semAlvara.alvaraNumero;
+    delete semAlvara.alvaraValidade;
+    await setDoc(doc(banco, 'oficinas', davi.uid), semAlvara);
+  });
+}
+
+async function prepararCurso(extras = {}) {
+  await semRegras(async (banco) => {
+    await setDoc(doc(banco, 'cursos', 'curso-pintura'), {
+      ...cursoDe(rita),
+      criadoEm: Timestamp.now(),
+      ...extras,
+    });
+  });
+}
+
+describe('Cursos', () => {
+  beforeEach(async () => {
+    await prepararEmpresas();
+    await prepararOficinas();
+    await prepararVaga();
+  });
+
+  test('o visitante lê o curso publicado (RN0007)', async () => {
+    await prepararCurso();
+    const anonimo = ambiente.unauthenticatedContext().firestore();
+    await assertSucceeds(getDoc(doc(anonimo, 'cursos', 'curso-pintura')));
+  });
+
+  test('o rascunho só a oficina dona lê', async () => {
+    await prepararCurso({ situacao: 'rascunho' });
+    const anonimo = ambiente.unauthenticatedContext().firestore();
+    await assertFails(getDoc(doc(anonimo, 'cursos', 'curso-pintura')));
+    await assertSucceeds(getDoc(doc(contaConfirmada(rita), 'cursos', 'curso-pintura')));
+  });
+
+  test('a oficina com alvará em dia publica curso para a vaga (RF0005)', async () => {
+    await assertSucceeds(
+      setDoc(doc(contaConfirmada(rita), 'cursos', 'novo'), cursoDe(rita)),
+    );
+  });
+
+  test('a oficina sem alvará não publica curso (RN0003)', async () => {
+    await assertFails(
+      setDoc(doc(contaConfirmada(davi), 'cursos', 'novo'), cursoDe(davi)),
+    );
+  });
+
+  test('a oficina com alvará vencido não publica curso (RN0003)', async () => {
+    await semRegras(async (banco) => {
+      await setDoc(
+        doc(banco, 'oficinas', rita.uid),
+        oficinaDe(rita, { alvaraValidade: anteontem() }),
+      );
+    });
+    await assertFails(
+      setDoc(doc(contaConfirmada(rita), 'cursos', 'novo'), cursoDe(rita)),
+    );
+  });
+
+  test('sem alvará, a oficina salva o curso como rascunho', async () => {
+    await assertSucceeds(
+      setDoc(
+        doc(contaConfirmada(davi), 'cursos', 'novo'),
+        cursoDe(davi, { situacao: 'rascunho' }),
+      ),
+    );
+  });
+
+  test('com e-mail não confirmado, a oficina não publica (RN0001)', async () => {
+    await assertFails(
+      setDoc(doc(contaConfirmada(rita, false), 'cursos', 'novo'), cursoDe(rita)),
+    );
+  });
+
+  test('ninguém publica curso em nome de outra oficina', async () => {
+    await assertFails(
+      setDoc(doc(contaConfirmada(davi), 'cursos', 'novo'), cursoDe(rita)),
+    );
+  });
+
+  test('o curso não nasce aprovado', async () => {
+    await assertFails(
+      setDoc(
+        doc(contaConfirmada(rita), 'cursos', 'novo'),
+        cursoDe(rita, { situacao: 'aprovado' }),
+      ),
+    );
+  });
+
+  test('o curso aponta para uma vaga que existe, com a empresa certa', async () => {
+    const banco = contaConfirmada(rita);
+    await assertFails(
+      setDoc(doc(banco, 'cursos', 'novo'), cursoDe(rita, { vagaId: 'nao-existe' })),
+    );
+    await assertFails(
+      setDoc(doc(banco, 'cursos', 'novo'), cursoDe(rita, { empresaId: paula.uid })),
+    );
+  });
+
+  test('o curso não aceita campos fora do cadastro', async () => {
+    await assertFails(
+      setDoc(
+        doc(contaConfirmada(rita), 'cursos', 'novo'),
+        cursoDe(rita, { telefoneProfessor: '47999999999' }),
+      ),
+    );
+  });
+
+  test('carga horária e vagas na turma têm limites', async () => {
+    const banco = contaConfirmada(rita);
+    await assertFails(setDoc(doc(banco, 'cursos', 'novo'), cursoDe(rita, { cargaHoraria: 0 })));
+    await assertFails(setDoc(doc(banco, 'cursos', 'novo'), cursoDe(rita, { vagasTurma: 101 })));
+  });
+
+  test('a oficina publica o próprio rascunho quando tem alvará', async () => {
+    await prepararCurso({ situacao: 'rascunho' });
+    await assertSucceeds(
+      setDoc(doc(contaConfirmada(rita), 'cursos', 'curso-pintura'), cursoDe(rita)),
+    );
+  });
+
+  test('a oficina não aprova o próprio curso', async () => {
+    await prepararCurso();
+    await assertFails(
+      updateDoc(doc(contaConfirmada(rita), 'cursos', 'curso-pintura'), {
+        situacao: 'aprovado',
+      }),
+    );
+  });
+
+  test('a empresa dona da vaga aprova ou recusa o curso (RF0007)', async () => {
+    await prepararCurso();
+    await assertSucceeds(
+      updateDoc(doc(contaConfirmada(marcos), 'cursos', 'curso-pintura'), {
+        situacao: 'aprovado',
+      }),
+    );
+    await prepararCurso();
+    await assertSucceeds(
+      updateDoc(doc(contaConfirmada(marcos), 'cursos', 'curso-pintura'), {
+        situacao: 'recusado',
+      }),
+    );
+  });
+
+  test('outra empresa não aprova curso de vaga que não é dela', async () => {
+    await prepararCurso();
+    await assertFails(
+      updateDoc(doc(contaConfirmada(paula), 'cursos', 'curso-pintura'), {
+        situacao: 'aprovado',
+      }),
+    );
+  });
+
+  test('ao aprovar, a empresa muda só a situação do curso', async () => {
+    await prepararCurso();
+    await assertFails(
+      updateDoc(doc(contaConfirmada(marcos), 'cursos', 'curso-pintura'), {
+        situacao: 'aprovado',
+        cargaHoraria: 8,
+      }),
+    );
+  });
+
+  test('a empresa não aprova rascunho nem curso já decidido', async () => {
+    await prepararCurso({ situacao: 'rascunho' });
+    await assertFails(
+      updateDoc(doc(contaConfirmada(marcos), 'cursos', 'curso-pintura'), {
+        situacao: 'aprovado',
+      }),
+    );
+    await prepararCurso({ situacao: 'recusado' });
+    await assertFails(
+      updateDoc(doc(contaConfirmada(marcos), 'cursos', 'curso-pintura'), {
+        situacao: 'aprovado',
+      }),
+    );
+  });
+
+  test('com e-mail não confirmado, a empresa não decide (RN0001)', async () => {
+    await prepararCurso();
+    await assertFails(
+      updateDoc(doc(contaConfirmada(marcos, false), 'cursos', 'curso-pintura'), {
+        situacao: 'aprovado',
+      }),
+    );
+  });
+});
+
 describe('Demais coleções', () => {
   test('coleções que o app não usa ficam fechadas', async () => {
     const banco = bancoDe(carla);
