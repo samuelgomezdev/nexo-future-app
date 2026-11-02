@@ -139,6 +139,75 @@ service cloud.firestore {
       allow delete: if contaConfirmada() && resource.data.empresaId == request.auth.uid;
     }
 
+    function cursoValido() {
+      let dados = request.resource.data;
+      return dados.keys().hasOnly([
+          'nome', 'area', 'cargaHoraria', 'vagasTurma', 'descricao', 'vagaId',
+          'vagaTitulo', 'empresaId', 'empresa', 'oficinaId', 'oficina',
+          'situacao', 'criadoEm'])
+        && dados.keys().hasAll([
+          'nome', 'area', 'cargaHoraria', 'vagasTurma', 'descricao', 'vagaId',
+          'vagaTitulo', 'empresaId', 'empresa', 'oficinaId', 'oficina',
+          'situacao', 'criadoEm'])
+        && textoEntre(dados.nome, 1, 80)
+        && dados.area is string
+        && inteiroEntre(dados.cargaHoraria, 1, 1000)
+        && inteiroEntre(dados.vagasTurma, 1, 100)
+        && textoEntre(dados.descricao, 0, 500)
+        && textoEntre(dados.vagaTitulo, 1, 80)
+        && textoEntre(dados.empresa, 1, 120)
+        && textoEntre(dados.oficina, 1, 120)
+        && dados.criadoEm is timestamp;
+    }
+
+    // RF0015: o curso é proposto para uma vaga que existe, da empresa informada.
+    function cursoLigadoAVaga() {
+      let caminho = /databases/$(database)/documents/vagas/$(request.resource.data.vagaId);
+      return exists(caminho)
+        && get(caminho).data.empresaId == request.resource.data.empresaId;
+    }
+
+    // RN0003: alvará apresentado e dentro da validade (vale até o fim do dia).
+    function alvaraEmDia() {
+      let oficina = get(/databases/$(database)/documents/oficinas/$(request.auth.uid)).data;
+      return 'alvaraValidade' in oficina
+        && oficina.alvaraValidade + duration.value(1, 'd') > request.time;
+    }
+
+    // A oficina grava os próprios cursos: sem alvará em dia, só como rascunho.
+    function oficinaGravaCurso() {
+      let dados = request.resource.data;
+      return contaConfirmada()
+        && exists(/databases/$(database)/documents/oficinas/$(request.auth.uid))
+        && dados.oficinaId == request.auth.uid
+        && cursoValido()
+        && cursoLigadoAVaga()
+        && (dados.situacao == 'rascunho'
+          || (dados.situacao == 'emAnalise' && alvaraEmDia()));
+    }
+
+    // RF0007: só a empresa dona da vaga aprova ou recusa, mudando só a situação.
+    function empresaDecideCurso() {
+      return contaConfirmada()
+        && resource.data.situacao == 'emAnalise'
+        && request.resource.data.situacao in ['aprovado', 'recusado']
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['situacao'])
+        && get(/databases/$(database)/documents/vagas/$(resource.data.vagaId)).data.empresaId
+          == request.auth.uid;
+    }
+
+    match /cursos/{cursoId} {
+      // O curso não guarda dados pessoais; o rascunho só a oficina vê.
+      allow read: if resource.data.situacao != 'rascunho'
+        || (request.auth != null && resource.data.oficinaId == request.auth.uid);
+      allow create: if oficinaGravaCurso();
+      allow update: if (resource.data.oficinaId == request.auth.uid
+          && resource.data.situacao == 'rascunho'
+          && oficinaGravaCurso())
+        || empresaDecideCurso();
+      allow delete: if request.auth != null && resource.data.oficinaId == request.auth.uid;
+    }
+
     // Qualquer outra coleção fica fechada até ter regra própria.
     match /{documento=**} {
       allow read, write: if false;
