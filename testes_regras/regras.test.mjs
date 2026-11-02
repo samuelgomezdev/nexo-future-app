@@ -13,6 +13,7 @@ import {
   serverTimestamp,
   setDoc,
   Timestamp,
+  updateDoc,
 } from 'firebase/firestore';
 
 let ambiente;
@@ -261,6 +262,185 @@ describe('Perfis de oficinas', () => {
     await assertFails(
       setDoc(doc(bancoDe(rita), 'oficinas', rita.uid), oficinaDe(rita, { senha: 'segredo123' })),
     );
+  });
+});
+
+// Vagas e cursos: leitura pública (sem dados pessoais); só quem confirmou o
+// e-mail (RN0001) publica, e cada um mexe só no que é seu.
+const marcos = { uid: 'uid-marcos', email: 'rh@fozazul.example.com' };
+const paula = { uid: 'uid-paula', email: 'rh@transvale.example.com' };
+const rita = { uid: 'uid-rita', email: 'contato@maosdoporto.example.com' };
+const davi = { uid: 'uid-davi', email: 'contato@centrotecnico.example.com' };
+
+function contaConfirmada(pessoa, confirmada = true) {
+  return ambiente
+    .authenticatedContext(pessoa.uid, {
+      email: pessoa.email,
+      email_verified: confirmada,
+    })
+    .firestore();
+}
+
+function vagaDe(pessoa, extras = {}) {
+  return {
+    titulo: 'Pintor(a) naval',
+    empresa: 'Estaleiro Foz Azul',
+    empresaId: pessoa.uid,
+    area: 'Naval',
+    cidade: 'Itajaí',
+    qualificacao: 'Preparo de superfície e pintura de cascos.',
+    posicoes: 3,
+    situacao: 'aberta',
+    cursos: [],
+    criadoEm: serverTimestamp(),
+    ...extras,
+  };
+}
+
+const cursoVinculado = {
+  id: 'curso-pintura',
+  nome: 'Pintura naval',
+  oficina: 'Oficina Escola Mãos do Porto',
+  cargaHoraria: 32,
+};
+
+async function semRegras(acao) {
+  await ambiente.withSecurityRulesDisabled(async (contexto) => {
+    await acao(contexto.firestore());
+  });
+}
+
+async function prepararEmpresas() {
+  await semRegras(async (banco) => {
+    await setDoc(doc(banco, 'empresas', marcos.uid), empresaDe(marcos));
+    await setDoc(doc(banco, 'empresas', paula.uid), empresaDe(paula));
+  });
+}
+
+async function prepararVaga() {
+  await semRegras(async (banco) => {
+    await setDoc(doc(banco, 'vagas', 'vaga-pintor'), {
+      ...vagaDe(marcos),
+      criadoEm: Timestamp.now(),
+    });
+  });
+}
+
+describe('Vagas', () => {
+  beforeEach(prepararEmpresas);
+
+  test('o visitante, sem conta, lê as vagas (RN0007)', async () => {
+    await prepararVaga();
+    const anonimo = ambiente.unauthenticatedContext().firestore();
+    await assertSucceeds(getDoc(doc(anonimo, 'vagas', 'vaga-pintor')));
+  });
+
+  test('a empresa com e-mail confirmado publica vaga aberta e sem cursos', async () => {
+    await assertSucceeds(
+      setDoc(doc(contaConfirmada(marcos), 'vagas', 'nova'), vagaDe(marcos)),
+    );
+  });
+
+  test('com e-mail não confirmado, a empresa não publica (RN0001)', async () => {
+    await assertFails(
+      setDoc(doc(contaConfirmada(marcos, false), 'vagas', 'nova'), vagaDe(marcos)),
+    );
+  });
+
+  test('quem não tem perfil de empresa não publica vaga', async () => {
+    await assertFails(
+      setDoc(doc(contaConfirmada(rita), 'vagas', 'nova'), vagaDe(rita)),
+    );
+  });
+
+  test('ninguém publica vaga em nome de outra empresa', async () => {
+    await assertFails(
+      setDoc(doc(contaConfirmada(paula), 'vagas', 'nova'), vagaDe(marcos)),
+    );
+  });
+
+  test('a vaga nasce aberta e sem cursos', async () => {
+    const banco = contaConfirmada(marcos);
+    await assertFails(
+      setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { situacao: 'aguardandoIngresso' })),
+    );
+    await assertFails(
+      setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { cursos: [cursoVinculado] })),
+    );
+  });
+
+  test('a vaga não aceita campos fora do cadastro', async () => {
+    await assertFails(
+      setDoc(
+        doc(contaConfirmada(marcos), 'vagas', 'nova'),
+        vagaDe(marcos, { emailRecrutador: 'rh@fozazul.example.com' }),
+      ),
+    );
+  });
+
+  test('a vaga precisa de cargo, área, cidade da AMFRI e posições de 1 a 100', async () => {
+    const banco = contaConfirmada(marcos);
+    const semCargo = vagaDe(marcos);
+    delete semCargo.titulo;
+    await assertFails(setDoc(doc(banco, 'vagas', 'nova'), semCargo));
+    await assertFails(setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { titulo: '' })));
+    await assertFails(setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { area: 'Astronomia' })));
+    await assertFails(setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { cidade: 'Curitiba' })));
+    await assertFails(setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { posicoes: 0 })));
+    await assertFails(setDoc(doc(banco, 'vagas', 'nova'), vagaDe(marcos, { posicoes: 101 })));
+  });
+
+  test('a empresa dona vincula até 5 cursos, e a vaga passa a aceitar candidaturas', async () => {
+    await prepararVaga();
+    await assertSucceeds(
+      updateDoc(doc(contaConfirmada(marcos), 'vagas', 'vaga-pintor'), {
+        cursos: [cursoVinculado],
+        situacao: 'aguardandoIngresso',
+      }),
+    );
+  });
+
+  test('o 6º curso não entra na vaga (RN0006)', async () => {
+    await prepararVaga();
+    const seis = [1, 2, 3, 4, 5, 6].map((i) => ({ ...cursoVinculado, id: `curso-${i}` }));
+    await assertFails(
+      updateDoc(doc(contaConfirmada(marcos), 'vagas', 'vaga-pintor'), {
+        cursos: seis,
+        situacao: 'aguardandoIngresso',
+      }),
+    );
+  });
+
+  test('sem curso vinculado, a vaga não passa a aceitar candidaturas (RF0007)', async () => {
+    await prepararVaga();
+    await assertFails(
+      updateDoc(doc(contaConfirmada(marcos), 'vagas', 'vaga-pintor'), {
+        situacao: 'aguardandoIngresso',
+      }),
+    );
+  });
+
+  test('outra empresa não altera nem apaga a vaga', async () => {
+    await prepararVaga();
+    const banco = contaConfirmada(paula);
+    await assertFails(
+      updateDoc(doc(banco, 'vagas', 'vaga-pintor'), { titulo: 'Outra coisa' }),
+    );
+    await assertFails(deleteDoc(doc(banco, 'vagas', 'vaga-pintor')));
+  });
+
+  test('a empresa dona não passa a vaga para outra empresa', async () => {
+    await prepararVaga();
+    await assertFails(
+      updateDoc(doc(contaConfirmada(marcos), 'vagas', 'vaga-pintor'), {
+        empresaId: paula.uid,
+      }),
+    );
+  });
+
+  test('a empresa dona apaga a própria vaga', async () => {
+    await prepararVaga();
+    await assertSucceeds(deleteDoc(doc(contaConfirmada(marcos), 'vagas', 'vaga-pintor')));
   });
 });
 
