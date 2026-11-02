@@ -301,6 +301,18 @@ void main() {
       expect(viewModel.paraAprovar, hasLength(2));
       expect(viewModel.cursosDaVaga('vaga-pintor'), hasLength(2));
       expect(viewModel.vagasAbertas, 1);
+      expect(viewModel.totalCandidaturas, 0);
+    });
+
+    test('soma as candidaturas recebidas nas vagas da empresa', () async {
+      vagas.vagas['vaga-pintor'] = vagaAberta.copiar(
+        situacao: SituacaoVaga.aguardandoIngresso,
+        candidaturas: 2,
+      );
+
+      await viewModel.carregar('uid-marcos');
+
+      expect(viewModel.totalCandidaturas, 2);
     });
 
     test('aprovar vincula o curso e recarrega o painel', () async {

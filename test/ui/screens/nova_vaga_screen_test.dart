@@ -90,6 +90,39 @@ void main() {
       expect(find.text('Você ainda não publicou vagas.'), findsNothing);
     });
 
+    testWidgets('mostra as candidaturas recebidas e as posições preenchidas', (
+      tester,
+    ) async {
+      vagas.vagas['v1'] = vagaDaEmpresa(
+        'v1',
+        'Laminador(a)',
+        situacao: SituacaoVaga.aguardandoIngresso,
+      ).copiar(candidaturas: 2);
+      vagas.vagas['v2'] = vagaDaEmpresa(
+        'v2',
+        'Marceneiro(a) náutico',
+        situacao: SituacaoVaga.lotada,
+      ).copiar(candidaturas: 3);
+      vagas.vagas['v3'] = vagaDaEmpresa(
+        'v3',
+        'Soldador(a)',
+        situacao: SituacaoVaga.aguardandoIngresso,
+      ).copiar(candidaturas: 1);
+
+      await entrarNoApp(tester, perfis: perfis, vagas: vagas);
+
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('total-candidaturas')),
+          matching: find.text('6'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('2 candidaturas'), findsOneWidget);
+      expect(find.text('1 candidatura'), findsOneWidget);
+      expect(find.text('3 de 3 posições'), findsOneWidget);
+    });
+
     testWidgets('sem vagas, convida a publicar a primeira', (tester) async {
       await entrarNoApp(tester, perfis: perfis, vagas: vagas);
 
