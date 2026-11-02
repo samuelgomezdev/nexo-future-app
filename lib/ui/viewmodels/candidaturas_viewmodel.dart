@@ -5,20 +5,55 @@ import '../../data/vaga_repository.dart';
 import '../../domain/erros.dart';
 import '../../domain/models/vaga.dart';
 import '../../domain/regras/limite_candidaturas.dart';
+import 'sessao_viewmodel.dart';
 
 enum ResultadoCandidatura {
   enviada,
   limiteAtingido,
   vagaIndisponivel,
   jaCandidatado,
+
+  /// Sem internet ou servidor fora: nada foi gravado.
+  falhaConexao,
 }
 
 /// F3 e F4: candidatar-se a uma vaga e acompanhar ou desistir das candidaturas.
 class CandidaturasViewModel extends ChangeNotifier {
-  CandidaturasViewModel(this._candidaturas, this._vagas);
+  /// Com a [sessao], as candidaturas acompanham a conta de quem entrou.
+  CandidaturasViewModel(this._candidaturas, this._vagas, {this.sessao}) {
+    sessao?.addListener(_aoMudarSessao);
+    // Pode nascer depois do login: já carrega a conta de quem entrou.
+    _aoMudarSessao();
+  }
 
   final CandidaturaRepository _candidaturas;
   final VagaRepository _vagas;
+  final SessaoViewModel? sessao;
+  String? _contaCarregada;
+  bool _descartado = false;
+
+  Future<void> _aoMudarSessao() async {
+    final conta = sessao?.usuario?.id;
+    if (conta == _contaCarregada) return;
+    _contaCarregada = conta;
+    if (conta == null) {
+      _candidaturas.sair();
+    } else {
+      try {
+        await _candidaturas.entrar(conta);
+      } on Exception {
+        // Sem internet, a lista fica vazia até a próxima entrada.
+      }
+    }
+    if (!_descartado) notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _descartado = true;
+    sessao?.removeListener(_aoMudarSessao);
+    super.dispose();
+  }
 
   int get limite => limiteCandidaturasAtivas;
   int get totalAtivas => _candidaturas.ativas.length;
@@ -40,13 +75,21 @@ class CandidaturasViewModel extends ChangeNotifier {
       return ResultadoCandidatura.vagaIndisponivel;
     } on LimiteCandidaturasAtingido {
       return ResultadoCandidatura.limiteAtingido;
+    } on Exception {
+      return ResultadoCandidatura.falhaConexao;
     }
     notifyListeners();
     return ResultadoCandidatura.enviada;
   }
 
-  Future<void> desistir(Vaga vaga) async {
-    await _candidaturas.desistir(vaga.id);
+  /// Devolve false quando a desistência não pôde ser gravada.
+  Future<bool> desistir(Vaga vaga) async {
+    try {
+      await _candidaturas.desistir(vaga.id);
+    } on Exception {
+      return false;
+    }
     notifyListeners();
+    return true;
   }
 }

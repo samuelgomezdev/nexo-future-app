@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../domain/models/vaga.dart';
 import '../viewmodels/candidaturas_viewmodel.dart';
 import '../viewmodels/sessao_viewmodel.dart';
+import '../viewmodels/vagas_viewmodel.dart';
 import 'escolha_perfil_screen.dart';
 import 'login_screen.dart';
 import 'minhas_candidaturas_screen.dart';
@@ -97,6 +98,7 @@ class _BotaoCandidatura extends StatelessWidget {
       return;
     }
     final mensageiro = ScaffoldMessenger.of(context);
+    final listaDeVagas = context.read<VagasViewModel>();
     final resultado = await candidaturas.candidatar(vaga);
     if (!context.mounted) return;
     switch (resultado) {
@@ -104,6 +106,8 @@ class _BotaoCandidatura extends StatelessWidget {
         mensageiro.showSnackBar(
           SnackBar(content: Text('Você se candidatou à vaga ${vaga.titulo}.')),
         );
+        // A candidatura pode ter lotado a vaga: a lista mostra a situação nova.
+        listaDeVagas.atualizar();
       case ResultadoCandidatura.limiteAtingido:
         _avisarLimite(context);
       case ResultadoCandidatura.vagaIndisponivel:
@@ -115,6 +119,14 @@ class _BotaoCandidatura extends StatelessWidget {
       case ResultadoCandidatura.jaCandidatado:
         mensageiro.showSnackBar(
           const SnackBar(content: Text('Você já se candidatou a esta vaga.')),
+        );
+      case ResultadoCandidatura.falhaConexao:
+        mensageiro.showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Não foi possível enviar a candidatura agora. Confira sua internet e tente de novo.',
+            ),
+          ),
         );
     }
   }

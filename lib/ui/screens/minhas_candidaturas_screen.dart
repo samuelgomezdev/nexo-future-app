@@ -89,10 +89,14 @@ class MinhasCandidaturasScreen extends StatelessWidget {
       ),
     );
     if (confirmou != true) return;
-    await viewModel.desistir(vaga);
+    final desistiu = await viewModel.desistir(vaga);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Você desistiu da vaga ${vaga.titulo}.')),
+      SnackBar(
+        content: Text(
+          desistiu ? 'Você desistiu da vaga ${vaga.titulo}.' : 'Não foi possível desistir agora. Confira sua internet e tente de novo.',
+        ),
+      ),
     );
   }
 }
