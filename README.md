@@ -56,10 +56,11 @@ Já no código, testado no celular com o Firebase:
 | F10 | Cadastro da empresa | Em 2 etapas: razão social, CNPJ (com máscara e conferência dos dígitos), setor e e-mail do recrutador; depois nome do recrutador, cidade, senha e Política de Privacidade. |
 | F11 | Cadastro da oficina | Em 2 etapas: dados da oficina e, na segunda, o alvará de ensino (número e validade). Dá para enviar o alvará depois, mas sem ele a oficina não publica cursos (RN0003). |
 | F12 | Visitante e login por perfil | Sem conta, dá para pesquisar vagas e ver o detalhe com os cursos vinculados. Candidatar-se pede login e, depois de entrar, o app volta para a mesma vaga. Ao entrar, a empresa vai para o painel do recrutador e a oficina vê se já pode publicar cursos (RN0003). |
-| F13 | Cadastro de vaga | No painel, a empresa publica a vaga com cargo, área, posições, cidade da AMFRI e qualificação exigida, com os campos obrigatórios apontados. A vaga nasce "Aguardando cursos" e já aparece na pesquisa, também para o visitante. |
+| F13 | Cadastro de vaga | No painel, a empresa publica a vaga com cargo, área, posições, cidade da AMFRI e qualificação exigida, com os campos obrigatórios apontados. Pode escolher até 5 cursos preferenciais entre os já aprovados da mesma área; sem curso, a vaga nasce "Aguardando cursos". Ela já aparece na pesquisa, também para o visitante. |
 | F14 | Cadastro de curso | A oficina monta o curso para uma vaga (nome, carga horária, vagas na turma e descrição); a área vem da vaga. Sem o alvará em dia, o curso só fica salvo como rascunho (RN0003) e pode ser publicado depois. |
 | F15 | Aprovação do curso | A empresa vê os cursos propostos para cada vaga e aprova ou recusa. Ao aprovar, o curso é vinculado à vaga (no máximo 5, RN0006) e a vaga passa a aceitar candidaturas (RF0007). |
 | F16 | Vagas e cursos no Firestore | Vagas e cursos ficam no Cloud Firestore; a pesquisa continua em páginas de 15, com as vagas novas na frente das fictícias, e a lista atualiza ao puxar para baixo. |
+| F17 | Candidaturas na conta e vaga lotada | As candidaturas do jovem ficam salvas no Cloud Firestore, na conta dele, e cada vaga conta as que recebeu. Quando as candidaturas preenchem as posições, a vaga fica "Lotada" e para de aceitar candidaturas. O painel da empresa mostra as vagas abertas, as candidaturas recebidas e as posições preenchidas. |
 
 O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade do projeto (azul `#004089` e fonte Inter).
 
@@ -69,7 +70,7 @@ O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade 
 - **Menores de idade:** de 12 a 17 anos, o cadastro exige a confirmação de que um responsável autorizou; menores de 12 anos não se cadastram.
 - **Consentimento:** o aceite da Política de Privacidade é obrigatório e fica registrado com data e hora.
 - **Senha:** fica só no Firebase Authentication; o perfil salvo no Firestore não guarda a senha.
-- **Regras do Cloud Firestore:** cada pessoa lê e grava só o próprio perfil (de jovem, empresa ou oficina), o perfil não aceita campos fora do cadastro (como CPF ou senha) e as demais coleções ficam fechadas. Vagas e cursos não guardam dados pessoais e podem ser lidos sem conta; só a empresa dona grava a vaga, só a oficina dona grava o curso (publicado só com alvará em dia), só a empresa dona da vaga aprova o curso e ninguém publica antes de confirmar o e-mail (RN0001). As regras têm 59 testes automáticos que rodam no emulador do Firebase, também no GitHub Actions ([`testes_regras`](testes_regras)).
+- **Regras do Cloud Firestore:** cada pessoa lê e grava só o próprio perfil (de jovem, empresa ou oficina), o perfil não aceita campos fora do cadastro (como CPF ou senha) e as demais coleções ficam fechadas. Vagas e cursos não guardam dados pessoais e podem ser lidos sem conta; só a empresa dona grava a vaga, só a oficina dona grava o curso (publicado só com alvará em dia), só a empresa dona da vaga aprova o curso e ninguém publica antes de confirmar o e-mail (RN0001). As candidaturas ficam na conta de cada jovem, que só lê e grava as próprias, no máximo 5, com a contagem da vaga ajustada junto. As regras têm 75 testes automáticos que rodam no emulador do Firebase, também no GitHub Actions ([`testes_regras`](testes_regras)).
 - **Dados no Brasil:** o banco fica em São Paulo (`southamerica-east1`).
 - **Testes e evidências:** usam apenas contas e dados fictícios.
 
@@ -93,7 +94,19 @@ Acesso de visitante (RN0007) e login por perfil (RF0019), no celular com o Fireb
 
 Vídeos: [visitante e login da empresa](docs/evidencias/sprint2-visitante-e-login-empresa.mp4) · [login da oficina com alvará](docs/evidencias/sprint2-login-oficina-com-alvara.mp4) · [login da oficina sem alvará](docs/evidencias/sprint2-login-oficina-sem-alvara.mp4)
 
-Cadastro de vagas e cursos e aprovação do recrutador (Sprint 3), nos testes de integração rodando no celular, com contas e dados fictícios: [empresa publica a vaga, oficina propõe o curso, recrutador aprova e jovem se candidata](docs/evidencias/sprint3-integracao-vaga-curso-candidatura.mp4) · [cadastro da empresa, confirmação do e-mail e login](docs/evidencias/sprint3-integracao-login-cadastro.mp4)
+Cadastro de vagas e cursos, aprovação do recrutador e candidaturas (Sprint 3), no celular com o Firebase e contas de teste do projeto:
+
+| Painel da empresa (E1) | Nova vaga: campos obrigatórios (E2) | Vaga publicada | Curso sem alvará: rascunho (O2) | Curso com alvará (O2) |
+|---|---|---|---|---|
+| ![Painel da empresa](docs/evidencias/sprint3-e1-painel-empresa.png) | ![Validação da nova vaga](docs/evidencias/sprint3-e2-nova-vaga-validacao.png) | ![Vaga publicada](docs/evidencias/sprint3-e2-vaga-publicada.png) | ![Curso sem alvará](docs/evidencias/sprint3-o2-novo-curso-sem-alvara.png) | ![Curso com alvará](docs/evidencias/sprint3-o2-novo-curso-com-alvara.png) |
+
+| Aprovar curso (E3) | Cursos da oficina (O1) | Vaga com o curso aprovado |
+|---|---|---|
+| ![Aprovar curso](docs/evidencias/sprint3-e3-aprovar-curso.png) | ![Cursos da oficina](docs/evidencias/sprint3-o1-cursos-da-oficina.png) | ![Detalhe da vaga](docs/evidencias/sprint3-detalhe-vaga-curso-aprovado.png) |
+
+Vídeos: [fluxo completo: empresa publica a vaga, oficina propõe o curso, recrutador aprova e jovem entra como visitante e se candidata](docs/evidencias/sprint3-fluxo-real-firebase.mp4) · [oficina sem alvará salva o curso como rascunho](docs/evidencias/sprint3-oficina-rascunho.mp4) · [visitante tenta se candidatar, entra como jovem e a vaga lota](docs/evidencias/sprint3-visitante-e-login-jovem.mp4)
+
+Os mesmos fluxos nos testes de integração rodando no celular, com contas e dados fictícios: [empresa publica a vaga, oficina propõe o curso, recrutador aprova e jovem se candidata](docs/evidencias/sprint3-integracao-vaga-curso-candidatura.mp4) · [cadastro da empresa, confirmação do e-mail e login](docs/evidencias/sprint3-integracao-login-cadastro.mp4)
 
 ## Desenvolvimento orientado a testes (TDD)
 
@@ -119,26 +132,29 @@ Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha
 | RF0005 e RN0003 | A oficina publica curso ligado a uma vaga só com o alvará em dia; sem ele, salva o rascunho (tela O2). |
 | RF0007, RF0015 e RN0006 | Só a empresa dona da vaga aprova o curso; ao aprovar, o curso é vinculado (no máximo 5) e a vaga passa a aceitar candidaturas (tela E3). |
 | RNF0002 | As vagas publicadas no Firestore entram na pesquisa paginada de 15, também para o visitante. |
-| Regras do Firestore | Vagas e cursos com campos fechados, escrita só pela dona e aprovação só pela empresa da vaga. |
+| RF0008 e RF0017 | A vaga fica "Lotada" quando as candidaturas preenchem as posições; as candidaturas ficam salvas na conta do jovem e, ao desistir, a vaga volta a aceitar. |
+| RF0015 | Ao publicar a vaga, a empresa escolhe até 5 cursos preferenciais entre os aprovados da mesma área. |
+| E1 | O painel da empresa mostra as candidaturas recebidas e as posições preenchidas de cada vaga. |
+| Regras do Firestore | Vagas e cursos com campos fechados, escrita só pela dona e aprovação só pela empresa da vaga; candidaturas só do próprio jovem, no máximo 5, com a contagem da vaga ajustada junto. |
 | Celular | Na largura de um celular, os campos de escolha cabem na tela (achado no teste em aparelho real). |
 
 As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e da cobertura) estão em [`docs/evidencias`](docs/evidencias).
 
 ### Testes e cobertura
 
-São **317 testes automatizados**, todos passando, além dos 59 testes das regras do Firestore:
+São **352 testes automatizados**, todos passando, além dos 75 testes das regras do Firestore:
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
-| Unitários de regras de negócio | `test/domain` | 118 |
-| Unitários da camada de dados | `test/data` | 35 |
-| ViewModels | `test/ui/viewmodels` | 71 |
-| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 90 |
+| Unitários de regras de negócio | `test/domain` | 129 |
+| Unitários da camada de dados | `test/data` | 44 |
+| ViewModels | `test/ui/viewmodels` | 79 |
+| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 97 |
 | Integração no dispositivo | `integration_test` | 3 |
 
 Nos testes, o Firebase é substituído por versões falsas em memória (`test/apoio`), para que rodem rápido e sem internet.
 
-Cobertura medida com `flutter test --coverage`: **96,3%** do código, com 93,5% nas regras de negócio (`lib/domain`), 100% na camada de dados e 96,6% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
+Cobertura medida com `flutter test --coverage`: **96,8%** do código, com 95,3% nas regras de negócio (`lib/domain`), 100% na camada de dados e 96,7% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
 
 A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório.
 
@@ -189,7 +205,7 @@ integration_test/   teste de integração no dispositivo
 - Flutter e Dart
 - `flutter_test` e `integration_test` para os testes
 - `provider` para o gerenciamento de estado
-- Firebase Authentication (login e confirmação de e-mail) e Cloud Firestore (perfis, vagas e cursos)
+- Firebase Authentication (login e confirmação de e-mail) e Cloud Firestore (perfis, vagas, cursos e candidaturas)
 - Figma para o protótipo de alta fidelidade
 - Git, GitHub e GitHub Actions para versionamento, integração contínua e geração do APK
 - Trello para o Scrum: [quadro do projeto](https://trello.com/b/442R72Le/how-viii)
