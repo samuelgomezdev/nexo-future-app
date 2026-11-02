@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexo_future_app/data/candidatura_repository.dart';
 import 'package:nexo_future_app/data/vaga_repository.dart';
@@ -187,6 +189,32 @@ void main() {
 
       expect(await viewModel.desistir(vagas[0]), isFalse);
       expect(viewModel.jaCandidatou(vagas[0]), isTrue);
+    });
+
+    test('candidatura feita enquanto as salvas carregam não apaga as '
+        'anteriores', () async {
+      await guardadas.salvar('uid-carla', ['vaga-2']);
+      final lento = guardadas.carregamentoLento = Completer<void>();
+      sessao.entrou(jovem('uid-carla'), usuario: usuario('uid-carla'));
+
+      final resultado = viewModel.candidatar(vagas[0]);
+      lento.complete();
+
+      expect(await resultado, ResultadoCandidatura.enviada);
+      expect(await guardadas.carregar('uid-carla'), ['vaga-2', 'vaga-1']);
+    });
+
+    test('se as salvas não carregaram, não grava por cima delas', () async {
+      await guardadas.salvar('uid-carla', ['vaga-2']);
+      guardadas.falhaAoCarregar = Exception('sem internet');
+      await entrar('uid-carla');
+
+      expect(
+        await viewModel.candidatar(vagas[0]),
+        ResultadoCandidatura.falhaConexao,
+      );
+      guardadas.falhaAoCarregar = null;
+      expect(await guardadas.carregar('uid-carla'), ['vaga-2']);
     });
   });
 }
