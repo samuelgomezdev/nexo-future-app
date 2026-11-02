@@ -2,7 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nexo_future_app/data/candidatura_repository.dart';
 import 'package:nexo_future_app/data/vaga_repository.dart';
 import 'package:nexo_future_app/domain/models/vaga.dart';
+import 'package:nexo_future_app/domain/autenticacao.dart';
+import 'package:nexo_future_app/domain/models/jovem.dart';
 import 'package:nexo_future_app/ui/viewmodels/candidaturas_viewmodel.dart';
+import 'package:nexo_future_app/ui/viewmodels/sessao_viewmodel.dart';
+
+import '../../apoio/autenticacao_falsa.dart';
+import '../../apoio/candidaturas_falsas.dart';
 
 Vaga vaga(
   int numero, {
@@ -100,6 +106,87 @@ void main() {
 
       expect(viewModel.totalAtivas, 2);
       expect(viewModel.limite, 5);
+    });
+  });
+
+  group('CandidaturasViewModel segue a conta de quem entrou', () {
+    final vagas = [for (var i = 1; i <= 3; i++) vaga(i)];
+    late CandidaturasFalsas guardadas;
+    late SessaoViewModel sessao;
+    late CandidaturasViewModel viewModel;
+
+    PerfilJovem jovem(String id) => PerfilJovem(
+      id: id,
+      nome: 'Carla Lima',
+      email: 'carla.lima@example.com',
+      cidade: 'Navegantes',
+      dataNascimento: DateTime(2004, 3, 2),
+      autorizacaoResponsavel: false,
+      aceitePoliticaEm: DateTime(2026, 11, 1),
+    );
+
+    Usuario usuario(String id) =>
+        Usuario(id: id, email: '$id@example.com', emailVerificado: true);
+
+    setUp(() {
+      guardadas = CandidaturasFalsas();
+      sessao = SessaoViewModel(AutenticacaoFalsa());
+      viewModel = CandidaturasViewModel(
+        CandidaturaRepository(alunoId: 'jovem-demo', fonte: guardadas),
+        VagaRepository(vagas),
+        sessao: sessao,
+      );
+    });
+
+    Future<void> entrar(String id) async {
+      sessao.entrou(jovem(id), usuario: usuario(id));
+      await pumpEventQueue();
+    }
+
+    test('ao entrar, carrega as candidaturas salvas do jovem', () async {
+      await guardadas.salvar('uid-carla', ['vaga-2']);
+
+      await entrar('uid-carla');
+
+      expect(viewModel.vagasCandidatadas, [vagas[1]]);
+    });
+
+    test('a candidatura fica salva na conta do jovem', () async {
+      await entrar('uid-carla');
+
+      await viewModel.candidatar(vagas[0]);
+
+      expect(await guardadas.carregar('uid-carla'), ['vaga-1']);
+    });
+
+    test('ao sair, as candidaturas somem do aparelho', () async {
+      await entrar('uid-carla');
+      await viewModel.candidatar(vagas[0]);
+
+      await sessao.sair();
+
+      expect(viewModel.vagasCandidatadas, isEmpty);
+      expect(viewModel.totalAtivas, 0);
+    });
+
+    test('sem internet, avisa e não conta a candidatura', () async {
+      await entrar('uid-carla');
+      guardadas.falhaInesperada = Exception('sem internet');
+
+      expect(
+        await viewModel.candidatar(vagas[0]),
+        ResultadoCandidatura.falhaConexao,
+      );
+      expect(viewModel.jaCandidatou(vagas[0]), isFalse);
+    });
+
+    test('sem internet, a desistência não acontece', () async {
+      await entrar('uid-carla');
+      await viewModel.candidatar(vagas[0]);
+      guardadas.falhaInesperada = Exception('sem internet');
+
+      expect(await viewModel.desistir(vagas[0]), isFalse);
+      expect(viewModel.jaCandidatou(vagas[0]), isTrue);
     });
   });
 }

@@ -5,6 +5,7 @@ import 'package:nexo_future_app/domain/models/oficina.dart';
 import 'package:nexo_future_app/ui/app.dart';
 
 import 'autenticacao_falsa.dart';
+import 'candidaturas_falsas.dart';
 import 'perfis_falsos.dart';
 import 'vagas_falsas.dart';
 
@@ -46,6 +47,7 @@ Future<void> entrarNoApp(
   required PerfisFalsos perfis,
   required VagasFalsas vagas,
   AutenticacaoFalsa? autenticacao,
+  CandidaturasFalsas? candidaturas,
   String email = emailTeste,
 }) async {
   await tester.pumpWidget(
@@ -53,6 +55,7 @@ Future<void> entrarNoApp(
       autenticacao: autenticacao ?? AutenticacaoFalsa(),
       perfis: perfis,
       vagas: vagas,
+      candidaturas: candidaturas,
     ),
   );
   await tester.pumpAndSettle();
