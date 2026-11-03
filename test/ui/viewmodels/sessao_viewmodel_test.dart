@@ -84,4 +84,26 @@ void main() {
       expect(sessao.podeAgir, isFalse);
     });
   });
+
+  group('Reenviar a confirmação do e-mail (RF0016)', () {
+    test(
+      'reenvia o link para a conta que acabou de entrar ou se cadastrar',
+      () async {
+        final auth = AutenticacaoFalsa();
+        final sessao = SessaoViewModel(auth);
+        await auth.entrar('novo@email.com', 'senha-certa');
+
+        expect(await sessao.reenviarConfirmacao(), isTrue);
+        expect(auth.confirmacoesEnviadas, ['novo@email.com']);
+      },
+    );
+
+    test('se o Firebase recusar o envio, avisa sem travar', () async {
+      final auth = AutenticacaoFalsa()
+        ..falhaEnvioConfirmacao = Exception('QUOTA_EXCEEDED');
+      final sessao = SessaoViewModel(auth);
+
+      expect(await sessao.reenviarConfirmacao(), isFalse);
+    });
+  });
 }

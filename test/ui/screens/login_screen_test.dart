@@ -90,5 +90,47 @@ void main() {
 
       expect(find.text('Confirme seu e-mail'), findsOneWidget);
     });
+
+    testWidgets('na tela Confirme seu e-mail, dá para reenviar o link', (
+      tester,
+    ) async {
+      final auth = AutenticacaoFalsa();
+      await tester.pumpWidget(NexoFutureApp(autenticacao: auth));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('botao-entrar')));
+      await tester.pumpAndSettle();
+      await entrar(tester, 'novo@email.com', 'senha-certa');
+
+      await tester.tap(find.text('Reenviar e-mail'));
+      await tester.pumpAndSettle();
+
+      expect(auth.confirmacoesEnviadas, ['novo@email.com']);
+      expect(
+        find.text('Enviamos um novo link para novo@email.com.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('se o reenvio falhar, pede para tentar daqui a pouco', (
+      tester,
+    ) async {
+      final auth = AutenticacaoFalsa()
+        ..falhaEnvioConfirmacao = Exception('QUOTA_EXCEEDED');
+      await tester.pumpWidget(NexoFutureApp(autenticacao: auth));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('botao-entrar')));
+      await tester.pumpAndSettle();
+      await entrar(tester, 'novo@email.com', 'senha-certa');
+
+      await tester.tap(find.text('Reenviar e-mail'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'Não foi possível reenviar agora. Espere alguns minutos e tente de novo.',
+        ),
+        findsOneWidget,
+      );
+    });
   });
 }

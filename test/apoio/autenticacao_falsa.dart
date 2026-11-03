@@ -32,6 +32,7 @@ class AutenticacaoFalsa implements ServicoAutenticacao {
     if (conta == null || conta.senha != senha) {
       throw const CredenciaisInvalidas();
     }
+    _ultimaContaCriada = email;
     return Usuario(
       id: 'uid-$email',
       email: email,
