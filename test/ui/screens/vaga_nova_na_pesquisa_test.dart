@@ -127,26 +127,30 @@ void main() {
       expect(find.text('Pintor(a) naval'), findsNothing);
 
       vagas.vagas['nova'] = nova;
-      await tester.drag(find.byType(ListTile).first, const Offset(0, 1200));
+      await tester.drag(
+        find.text('Nenhuma vaga encontrada.'),
+        const Offset(0, 1200),
+      );
       await tester.pumpAndSettle();
 
       expect(primeiraDaLista(tester), 'Pintor(a) naval');
     });
 
-    testWidgets('sem internet, avisa e continua com as vagas que já tinha', (
-      tester,
-    ) async {
-      vagas.falhaInesperada = Exception('sem internet');
+    testWidgets(
+      'sem internet, avisa e deixa puxar a lista para tentar de novo',
+      (tester) async {
+        vagas.falhaInesperada = Exception('sem internet');
 
-      await abrirApp(tester);
+        await abrirApp(tester);
 
-      expect(
-        find.text(
-          'Não foi possível buscar as vagas mais novas. Puxe a lista para tentar de novo.',
-        ),
-        findsOneWidget,
-      );
-      expect(find.text('Laminador'), findsWidgets);
-    });
+        expect(
+          find.text(
+            'Não foi possível buscar as vagas mais novas. Puxe a lista para tentar de novo.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Nenhuma vaga encontrada.'), findsOneWidget);
+      },
+    );
   });
 }

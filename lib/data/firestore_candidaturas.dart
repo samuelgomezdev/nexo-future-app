@@ -39,7 +39,7 @@ class FirestoreCandidaturas implements RepositorioCandidaturas {
       Vaga? atualizada;
       if (referencia != null) {
         final dados = (await transacao.get(referencia)).data();
-        // As vagas fictícias do seed não estão no Firestore e não contam.
+        // Vaga que não está no Firestore (apagada) não tem contagem.
         if (dados != null) {
           final vaga = vagaDoMapa(referencia.id, dados);
           atualizada = entrou != null

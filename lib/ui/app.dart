@@ -43,8 +43,8 @@ class NexoFutureApp extends StatelessWidget {
   /// Com os perfis, o login oferece os cadastros de jovem, empresa e oficina.
   final RepositorioPerfis? perfis;
 
-  /// Vagas e cursos publicados (o Firestore no app); sem ele, ficam só no
-  /// aparelho. Na pesquisa, entram na frente das vagas fictícias do seed.
+  /// Vagas e cursos publicados (o Firestore no app); a pesquisa mostra só
+  /// eles. Sem ele, ficam só no aparelho, junto das vagas fictícias do seed.
   final RepositorioVagas? vagas;
 
   /// Candidaturas de cada jovem (o Firestore no app); sem ele, ficam só no
@@ -54,7 +54,10 @@ class NexoFutureApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final publicadas = this.vagas ?? VagasEmMemoria();
-    final vagas = VagaRepository(seedVagas, fonte: publicadas);
+    final vagas = VagaRepository(
+      this.vagas == null ? seedVagas : const [],
+      fonte: publicadas,
+    );
     final candidaturas =
         this.candidaturas ??
         CandidaturasEmMemoria(publicadas is VagasEmMemoria ? publicadas : null);
