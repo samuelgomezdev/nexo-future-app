@@ -274,7 +274,7 @@ void main() {
 
       expect(find.text('Informe o cargo da vaga.'), findsOneWidget);
       expect(
-        find.text('Informe quantas pessoas a vaga contrata.'),
+        find.text('Informe as posições.'),
         findsOneWidget,
       );
       expect(find.text('Informe a qualificação exigida.'), findsOneWidget);

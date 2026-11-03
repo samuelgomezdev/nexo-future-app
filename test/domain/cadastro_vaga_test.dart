@@ -48,7 +48,7 @@ void main() {
       expect(validarVaga(vazia), {
         CampoCadastro.titulo: 'Informe o cargo da vaga.',
         CampoCadastro.area: 'Escolha a área da vaga.',
-        CampoCadastro.posicoes: 'Informe quantas pessoas a vaga contrata.',
+        CampoCadastro.posicoes: 'Informe as posições.',
         CampoCadastro.cidade: 'Escolha a cidade da vaga.',
         CampoCadastro.qualificacao: 'Informe a qualificação exigida.',
       });
