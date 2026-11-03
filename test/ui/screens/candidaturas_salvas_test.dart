@@ -91,6 +91,17 @@ void main() {
       );
     });
 
+    testWidgets('o detalhe mostra Lotada logo depois da candidatura', (
+      tester,
+    ) async {
+      await entrar(tester);
+
+      await candidatarAoPintor(tester);
+
+      expect(find.text('Lotada'), findsOneWidget);
+      expect(find.text('Aceitando candidaturas'), findsNothing);
+    });
+
     testWidgets('quem sai e entra de novo encontra as candidaturas', (
       tester,
     ) async {
