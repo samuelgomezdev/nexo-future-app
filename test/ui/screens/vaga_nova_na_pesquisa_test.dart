@@ -57,6 +57,16 @@ void main() {
       expect(find.text('Estaleiro Foz Azul · Itajaí'), findsWidgets);
     });
 
+    testWidgets('com o Firestore, a pesquisa mostra só as vagas publicadas, '
+        'sem as fictícias do seed', (tester) async {
+      vagas.vagas['nova'] = nova;
+
+      await abrirApp(tester);
+
+      expect(find.byType(ListTile), findsOneWidget);
+      expect(find.text('Laminador'), findsNothing);
+    });
+
     testWidgets('a pesquisa por texto encontra a vaga nova', (tester) async {
       vagas.vagas['nova'] = nova;
       await abrirApp(tester);
