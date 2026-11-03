@@ -27,6 +27,9 @@ class VagasViewModel extends ChangeNotifier {
   bool get temMais => _temMais;
   List<String> get areas => _repositorio.areas;
 
+  /// A versão mais recente da vaga, mesmo fora da página carregada.
+  Vaga? buscarPorId(String id) => _repositorio.buscarPorId(id);
+
   void pesquisar(String texto) {
     _texto = texto;
     _carregarPrimeiraPagina();

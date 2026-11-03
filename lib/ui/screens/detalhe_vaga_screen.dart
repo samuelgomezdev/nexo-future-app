@@ -19,6 +19,9 @@ class DetalheVagaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final candidaturas = context.watch<CandidaturasViewModel>();
+    // Depois da candidatura a lista é atualizada; o detalhe acompanha (Lotada).
+    final vaga =
+        context.watch<VagasViewModel>().buscarPorId(this.vaga.id) ?? this.vaga;
     final textos = Theme.of(context).textTheme;
 
     return Scaffold(
