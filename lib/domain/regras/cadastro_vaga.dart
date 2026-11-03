@@ -55,7 +55,7 @@ Map<CampoCadastro, String> validarVaga(DadosVaga dados) {
 
   final posicoes = dados.posicoes;
   if (posicoes == null) {
-    erros[CampoCadastro.posicoes] = 'Informe quantas pessoas a vaga contrata.';
+    erros[CampoCadastro.posicoes] = 'Informe as posições.';
   } else if (posicoes < 1 || posicoes > limitePosicoesVaga) {
     erros[CampoCadastro.posicoes] =
         'As posições vão de 1 a $limitePosicoesVaga.';
