@@ -9,7 +9,12 @@ Projeto do **Hands-On Work VIII** do curso de Análise e Desenvolvimento de Sist
 
 ## Baixar o aplicativo (APK)
 
-A versão atual é a **v0.1.0** (Etapa 1), para Android.
+A versão atual é a **v0.2.0** (Etapa 2), para Android, com login e dados no Firebase.
+
+- **Download direto:** [app-release.apk](https://github.com/samuelgomezdev/nexo-future-app/releases/download/v0.2.0/app-release.apk) (cerca de 52 MB)
+- **Página da versão:** [Releases → v0.2.0](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.0)
+
+A **v0.1.0** continua publicada como a versão da Etapa 1 (sem login, com dados fictícios só no aparelho):
 
 - **Download direto:** [app-release.apk](https://github.com/samuelgomezdev/nexo-future-app/releases/download/v0.1.0/app-release.apk) (cerca de 49 MB)
 - **Página da versão:** [Releases → v0.1.0](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.1.0)
@@ -18,16 +23,18 @@ O APK é gerado automaticamente pelo GitHub Actions a cada nova versão marcada 
 
 ## Instalar no celular Android
 
-1. No celular, abra o link de download acima e baixe o arquivo `app-release.apk`.
-2. Abra o arquivo baixado (pela notificação ou pela pasta Downloads).
-3. Se o Android pedir, permita a instalação de apps desta fonte ("Instalar apps desconhecidos") para o navegador ou o gerenciador de arquivos.
-4. Toque em **Instalar** e depois em **Abrir**.
+1. Se a v0.1.0 (ou outra versão do Nexo Future) estiver instalada, **desinstale antes**. A assinatura do APK é diferente e o Android não instala uma versão por cima da outra. As duas versões também não ficam juntas no mesmo celular.
+2. No celular, abra o link de download da v0.2.0 e baixe o arquivo `app-release.apk`.
+3. Abra o arquivo baixado (pela notificação ou pela pasta Downloads).
+4. Se o Android pedir, permita a instalação de apps desta fonte ("Instalar apps desconhecidos") para o navegador ou o gerenciador de arquivos.
+5. Toque em **Instalar** e depois em **Abrir**.
+6. Sem conta, já dá para pesquisar as vagas. Para se candidatar, toque em **Entrar → Cadastre-se**, escolha o perfil, preencha o cadastro e **confirme o e-mail** pelo link que chega na caixa de entrada (confira também o spam). Depois, entre com o e-mail e a senha.
 
 Como o app ainda não está na Google Play, o Android pode mostrar um aviso de segurança. Basta confirmar a instalação.
 
-A v0.1.0 não tem login: o app abre direto com um perfil de jovem de demonstração e usa vagas e cursos fictícios de empresas e oficinas da região. O login e o cadastro do jovem com o Firebase já estão no código (veja abaixo) e entram no APK da Etapa 2 (v0.2.0); a v0.1.0 continua disponível como a versão da Etapa 1.
+Na v0.2.0, as vagas da pesquisa são publicadas por contas de empresa no Cloud Firestore, com cursos enviados por oficinas e aprovados pelas empresas. As empresas e oficinas são fictícias, criadas para os testes com usuários. O roteiro desses testes está em [`docs/ROTEIRO_TESTES_V0.2.0.md`](docs/ROTEIRO_TESTES_V0.2.0.md).
 
-## Funcionalidades da versão v0.1.0
+## Funcionalidades da v0.1.0 (Etapa 1)
 
 | | Funcionalidade | O que dá para fazer |
 |---|---|---|
@@ -42,9 +49,9 @@ Ao tentar a 6ª candidatura, o app mostra um aviso com atalho para "Minhas candi
 |---|---|---|---|
 | ![Lista de vagas](docs/evidencias/passo6-tela-lista-vagas.jpeg) | ![Detalhe da vaga](docs/evidencias/passo6-tela-detalhe-vaga-candidatura-enviada.jpeg) | ![Aviso de limite](docs/evidencias/passo6-tela-limite-candidaturas.jpeg) | ![Minhas candidaturas](docs/evidencias/passo6-tela-minhas-candidaturas.jpeg) |
 
-## Em desenvolvimento na Etapa 2
+## Novidades da v0.2.0 (Etapa 2)
 
-Já no código, testado no celular com o Firebase:
+Com o Firebase (Authentication e Cloud Firestore), testado no celular:
 
 | | Funcionalidade | O que dá para fazer |
 |---|---|---|
@@ -59,7 +66,7 @@ Já no código, testado no celular com o Firebase:
 | F13 | Cadastro de vaga | No painel, a empresa publica a vaga com cargo, área, posições, cidade da AMFRI e qualificação exigida, com os campos obrigatórios apontados. Pode escolher até 5 cursos preferenciais entre os já aprovados da mesma área; sem curso, a vaga nasce "Aguardando cursos". Ela já aparece na pesquisa, também para o visitante. |
 | F14 | Cadastro de curso | A oficina monta o curso para uma vaga (nome, carga horária, vagas na turma e descrição); a área vem da vaga. Sem o alvará em dia, o curso só fica salvo como rascunho (RN0003) e pode ser publicado depois. |
 | F15 | Aprovação do curso | A empresa vê os cursos propostos para cada vaga e aprova ou recusa. Ao aprovar, o curso é vinculado à vaga (no máximo 5, RN0006) e a vaga passa a aceitar candidaturas (RF0007). |
-| F16 | Vagas e cursos no Firestore | Vagas e cursos ficam no Cloud Firestore; a pesquisa continua em páginas de 15, com as vagas novas na frente das fictícias, e a lista atualiza ao puxar para baixo. |
+| F16 | Vagas e cursos no Firestore | Vagas e cursos ficam no Cloud Firestore; a pesquisa mostra as vagas publicadas pelas empresas em páginas de 15, das mais novas para as mais antigas, e a lista atualiza ao puxar para baixo. |
 | F17 | Candidaturas na conta e vaga lotada | As candidaturas do jovem ficam salvas no Cloud Firestore, na conta dele, e cada vaga conta as que recebeu. Quando as candidaturas preenchem as posições, a vaga fica "Lotada" e para de aceitar candidaturas. O painel da empresa mostra as vagas abertas, as candidaturas recebidas e as posições preenchidas. |
 
 O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade do projeto (azul `#004089` e fonte Inter).
@@ -137,24 +144,27 @@ Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha
 | E1 | O painel da empresa mostra as candidaturas recebidas e as posições preenchidas de cada vaga. |
 | Regras do Firestore | Vagas e cursos com campos fechados, escrita só pela dona e aprovação só pela empresa da vaga; candidaturas só do próprio jovem, no máximo 5, com a contagem da vaga ajustada junto. |
 | Celular | Na largura de um celular, os campos de escolha cabem na tela (achado no teste em aparelho real). |
+| RF0008 | O detalhe da vaga mostra "Lotada" logo depois da candidatura que completa as posições (achado no teste em aparelho real). |
+| RF0004 | A mensagem de erro do campo Posições aparece inteira, também com a fonte grande do celular (achado no teste em aparelho real). |
+| RNF0002 | Com o Firestore, a pesquisa mostra só as vagas publicadas; as fictícias do seed ficam só no modo sem Firebase dos testes. |
 
 As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e da cobertura) estão em [`docs/evidencias`](docs/evidencias).
 
 ### Testes e cobertura
 
-São **352 testes automatizados**, todos passando, além dos 75 testes das regras do Firestore:
+São **354 testes automatizados**, todos passando, além dos 75 testes das regras do Firestore:
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
 | Unitários de regras de negócio | `test/domain` | 129 |
 | Unitários da camada de dados | `test/data` | 44 |
 | ViewModels | `test/ui/viewmodels` | 79 |
-| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 97 |
+| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 99 |
 | Integração no dispositivo | `integration_test` | 3 |
 
 Nos testes, o Firebase é substituído por versões falsas em memória (`test/apoio`), para que rodem rápido e sem internet.
 
-Cobertura medida com `flutter test --coverage`: **96,8%** do código, com 95,3% nas regras de negócio (`lib/domain`), 100% na camada de dados e 96,7% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
+Cobertura medida com `flutter test --coverage`: **96,9%** do código, com 96,1% nas regras de negócio (`lib/domain`), 100% na camada de dados e 96,8% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
 
 A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório.
 
