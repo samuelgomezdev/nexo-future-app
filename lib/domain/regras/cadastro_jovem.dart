@@ -80,7 +80,7 @@ Map<CampoCadastro, String> validarCadastroJovem(
   return erros;
 }
 
-/// RF0003 e RF0016: cria a conta, envia a confirmação e salva o perfil.
+/// RF0003 e RF0016: cria a conta, salva o perfil e envia a confirmação.
 class CadastrarJovem {
   CadastrarJovem(this._auth, this._perfis, {DateTime Function()? relogio})
     : _relogio = relogio ?? DateTime.now;
@@ -96,7 +96,6 @@ class CadastrarJovem {
 
     final email = dados.email.trim().toLowerCase();
     final usuario = await _auth.criarConta(email, dados.senha);
-    await _auth.enviarConfirmacaoEmail();
 
     final perfil = PerfilJovem(
       id: usuario.id,
@@ -108,6 +107,7 @@ class CadastrarJovem {
       aceitePoliticaEm: agora,
     );
     await _perfis.salvarJovem(perfil);
+    await enviarConfirmacaoSemTravar(_auth);
     return perfil;
   }
 }

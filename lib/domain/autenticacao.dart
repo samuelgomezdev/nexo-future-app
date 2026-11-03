@@ -28,6 +28,17 @@ abstract class ServicoAutenticacao {
   Future<void> sair();
 }
 
+/// RF0016: envia o link de confirmação depois que o perfil já foi salvo. Se o
+/// Firebase recusar o envio (cota de e-mails, sem internet), o cadastro não
+/// trava: a tela "Confirme seu e-mail" permite reenviar.
+Future<void> enviarConfirmacaoSemTravar(ServicoAutenticacao auth) async {
+  try {
+    await auth.enviarConfirmacaoEmail();
+  } on Exception {
+    // A conta e o perfil já existem; o reenvio fica com a pessoa.
+  }
+}
+
 /// Login com o bloqueio da RNF0007, contado separadamente para cada e-mail.
 class EntrarNaConta {
   EntrarNaConta(this._servico, {DateTime Function()? relogio})

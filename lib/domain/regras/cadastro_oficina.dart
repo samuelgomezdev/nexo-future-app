@@ -74,7 +74,6 @@ class CadastrarOficina {
 
     final email = dados.email.trim().toLowerCase();
     final usuario = await _auth.criarConta(email, dados.senha);
-    await _auth.enviarConfirmacaoEmail();
 
     final validade = dados.validadeAlvara;
     final perfil = PerfilOficina(
@@ -90,6 +89,7 @@ class CadastrarOficina {
       aceitePoliticaEm: agora,
     );
     await _perfis.salvarOficina(perfil);
+    await enviarConfirmacaoSemTravar(_auth);
     return perfil;
   }
 }

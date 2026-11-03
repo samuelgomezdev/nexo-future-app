@@ -71,7 +71,6 @@ class CadastrarEmpresa {
 
     final email = dados.email.trim().toLowerCase();
     final usuario = await _auth.criarConta(email, dados.senha);
-    await _auth.enviarConfirmacaoEmail();
 
     final perfil = PerfilEmpresa(
       id: usuario.id,
@@ -84,6 +83,7 @@ class CadastrarEmpresa {
       aceitePoliticaEm: _relogio(),
     );
     await _perfis.salvarEmpresa(perfil);
+    await enviarConfirmacaoSemTravar(_auth);
     return perfil;
   }
 }
