@@ -143,6 +143,16 @@ void main() {
       cadastrar = CadastrarOficina(auth, perfis, relogio: () => agora);
     });
 
+    test('se o e-mail de confirmação não sai, o perfil fica salvo mesmo '
+        'assim, para reenviar depois', () async {
+      auth.falhaEnvioConfirmacao = Exception('QUOTA_EXCEEDED');
+
+      final perfil = await cadastrar(dados());
+
+      expect(perfis.oficinas[perfil.id], same(perfil));
+      expect(auth.confirmacoesEnviadas, isEmpty);
+    });
+
     test('cria a conta, envia a confirmação e salva o perfil', () async {
       final perfil = await cadastrar(
         dados(

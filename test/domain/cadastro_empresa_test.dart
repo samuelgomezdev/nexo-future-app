@@ -173,6 +173,16 @@ void main() {
       expect(perfil.aceitePoliticaEm, agora);
     });
 
+    test('se o e-mail de confirmação não sai, o perfil fica salvo mesmo '
+        'assim, para reenviar depois', () async {
+      auth.falhaEnvioConfirmacao = Exception('QUOTA_EXCEEDED');
+
+      final perfil = await cadastrar(dados());
+
+      expect(perfis.empresas[perfil.id], same(perfil));
+      expect(auth.confirmacoesEnviadas, isEmpty);
+    });
+
     test('com dados inválidos, não cria conta nem perfil', () async {
       await expectLater(
         cadastrar(dados(cnpj: '11.222.333/0001-82')),

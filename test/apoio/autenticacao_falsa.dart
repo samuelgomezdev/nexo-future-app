@@ -20,6 +20,9 @@ class AutenticacaoFalsa implements ServicoAutenticacao {
   /// Simula uma falha que não é de senha (sem internet, servidor fora etc.).
   Exception? falhaInesperada;
 
+  /// Simula o Firebase recusando o envio do e-mail (cota excedida etc.).
+  Exception? falhaEnvioConfirmacao;
+
   @override
   Future<Usuario> entrar(String email, String senha) async {
     chamadas++;
@@ -48,6 +51,8 @@ class AutenticacaoFalsa implements ServicoAutenticacao {
 
   @override
   Future<void> enviarConfirmacaoEmail() async {
+    final falha = falhaEnvioConfirmacao;
+    if (falha != null) throw falha;
     final email = _ultimaContaCriada;
     if (email != null) confirmacoesEnviadas.add(email);
   }

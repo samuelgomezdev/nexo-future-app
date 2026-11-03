@@ -47,6 +47,16 @@ void main() {
       expect(perfil.autorizacaoResponsavel, isTrue);
     });
 
+    test('se o e-mail de confirmação não sai, o perfil fica salvo mesmo '
+        'assim, para reenviar depois', () async {
+      auth.falhaEnvioConfirmacao = Exception('QUOTA_EXCEEDED');
+
+      final perfil = await cadastrar(dados());
+
+      expect(perfis.jovens[perfil.id], same(perfil));
+      expect(auth.confirmacoesEnviadas, isEmpty);
+    });
+
     test('guarda quando a Política de Privacidade foi aceita', () async {
       final perfil = await cadastrar(dados());
 
