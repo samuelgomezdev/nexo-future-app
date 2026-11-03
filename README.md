@@ -9,10 +9,12 @@ Projeto do **Hands-On Work VIII** do curso de Análise e Desenvolvimento de Sist
 
 ## Baixar o aplicativo (APK)
 
-A versão atual é a **v0.2.0** (Etapa 2), para Android, com login e dados no Firebase.
+A versão atual é a **v0.2.1** (Etapa 2), para Android, com login e dados no Firebase.
 
-- **Download direto:** [app-release.apk](https://github.com/samuelgomezdev/nexo-future-app/releases/download/v0.2.0/app-release.apk) (cerca de 52 MB)
-- **Página da versão:** [Releases → v0.2.0](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.0)
+- **Download direto:** [app-release.apk](https://github.com/samuelgomezdev/nexo-future-app/releases/download/v0.2.1/app-release.apk) (cerca de 52 MB)
+- **Página da versão:** [Releases → v0.2.1](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.1)
+
+A v0.2.1 corrige o e-mail de confirmação da [v0.2.0](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.0): o cadastro não trava se o e-mail não sair e a tela "Confirme seu e-mail" ganhou o botão **Reenviar e-mail**.
 
 A **v0.1.0** continua publicada como a versão da Etapa 1 (sem login, com dados fictícios só no aparelho):
 
@@ -23,16 +25,16 @@ O APK é gerado automaticamente pelo GitHub Actions a cada nova versão marcada 
 
 ## Instalar no celular Android
 
-1. Se a v0.1.0 (ou outra versão do Nexo Future) estiver instalada, **desinstale antes**. A assinatura do APK é diferente e o Android não instala uma versão por cima da outra. As duas versões também não ficam juntas no mesmo celular.
-2. No celular, abra o link de download da v0.2.0 e baixe o arquivo `app-release.apk`.
+1. Se a v0.1.0, a v0.2.0 ou outra versão do Nexo Future estiver instalada, **desinstale antes**. A assinatura do APK é diferente e o Android não instala uma versão por cima da outra. As duas versões também não ficam juntas no mesmo celular.
+2. No celular, abra o link de download da v0.2.1 e baixe o arquivo `app-release.apk`.
 3. Abra o arquivo baixado (pela notificação ou pela pasta Downloads).
 4. Se o Android pedir, permita a instalação de apps desta fonte ("Instalar apps desconhecidos") para o navegador ou o gerenciador de arquivos.
 5. Toque em **Instalar** e depois em **Abrir**.
-6. Sem conta, já dá para pesquisar as vagas. Para se candidatar, toque em **Entrar → Cadastre-se**, escolha o perfil, preencha o cadastro e **confirme o e-mail** pelo link que chega na caixa de entrada (confira também o spam). Depois, entre com o e-mail e a senha.
+6. Sem conta, já dá para pesquisar as vagas. Para se candidatar, toque em **Entrar → Cadastre-se**, escolha o perfil, preencha o cadastro e **confirme o e-mail** pelo link que chega na caixa de entrada (confira também o spam). Se ele não chegar em alguns minutos, toque em **Reenviar e-mail**. Depois, entre com o e-mail e a senha.
 
 Como o app ainda não está na Google Play, o Android pode mostrar um aviso de segurança. Basta confirmar a instalação.
 
-Na v0.2.0, as vagas da pesquisa são publicadas por contas de empresa no Cloud Firestore, com cursos enviados por oficinas e aprovados pelas empresas. As empresas e oficinas são fictícias, criadas para os testes com usuários. O roteiro desses testes está em [`docs/ROTEIRO_TESTES_V0.2.0.md`](docs/ROTEIRO_TESTES_V0.2.0.md).
+Na v0.2.x, as vagas da pesquisa são publicadas por contas de empresa no Cloud Firestore, com cursos enviados por oficinas e aprovados pelas empresas. As empresas e oficinas são fictícias, criadas para os testes com usuários. O roteiro desses testes está em [`docs/ROTEIRO_TESTES_V0.2.0.md`](docs/ROTEIRO_TESTES_V0.2.0.md).
 
 ## Funcionalidades da v0.1.0 (Etapa 1)
 
@@ -49,7 +51,7 @@ Ao tentar a 6ª candidatura, o app mostra um aviso com atalho para "Minhas candi
 |---|---|---|---|
 | ![Lista de vagas](docs/evidencias/passo6-tela-lista-vagas.jpeg) | ![Detalhe da vaga](docs/evidencias/passo6-tela-detalhe-vaga-candidatura-enviada.jpeg) | ![Aviso de limite](docs/evidencias/passo6-tela-limite-candidaturas.jpeg) | ![Minhas candidaturas](docs/evidencias/passo6-tela-minhas-candidaturas.jpeg) |
 
-## Novidades da v0.2.0 (Etapa 2)
+## Novidades da v0.2.0 e da v0.2.1 (Etapa 2)
 
 Com o Firebase (Authentication e Cloud Firestore), testado no celular:
 
@@ -147,24 +149,25 @@ Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha
 | RF0008 | O detalhe da vaga mostra "Lotada" logo depois da candidatura que completa as posições (achado no teste em aparelho real). |
 | RF0004 | A mensagem de erro do campo Posições aparece inteira, também com a fonte grande do celular (achado no teste em aparelho real). |
 | RNF0002 | Com o Firestore, a pesquisa mostra só as vagas publicadas; as fictícias do seed ficam só no modo sem Firebase dos testes. |
+| RF0016 | O cadastro salva o perfil antes de enviar o e-mail de confirmação e não trava se o Firebase recusar o envio; a tela "Confirme seu e-mail" tem o botão Reenviar e-mail (v0.2.1). |
 
 As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e da cobertura) estão em [`docs/evidencias`](docs/evidencias).
 
 ### Testes e cobertura
 
-São **354 testes automatizados**, todos passando, além dos 75 testes das regras do Firestore:
+São **361 testes automatizados**, todos passando, além dos 75 testes das regras do Firestore:
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
-| Unitários de regras de negócio | `test/domain` | 129 |
+| Unitários de regras de negócio | `test/domain` | 132 |
 | Unitários da camada de dados | `test/data` | 44 |
-| ViewModels | `test/ui/viewmodels` | 79 |
-| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 99 |
+| ViewModels | `test/ui/viewmodels` | 81 |
+| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 101 |
 | Integração no dispositivo | `integration_test` | 3 |
 
 Nos testes, o Firebase é substituído por versões falsas em memória (`test/apoio`), para que rodem rápido e sem internet.
 
-Cobertura medida com `flutter test --coverage`: **96,9%** do código, com 96,1% nas regras de negócio (`lib/domain`), 100% na camada de dados e 96,8% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
+Cobertura medida com `flutter test --coverage`: **97,0%** do código, com 96,1% nas regras de negócio (`lib/domain`), 100% na camada de dados e 96,8% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
 
 A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório.
 

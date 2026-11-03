@@ -1,14 +1,14 @@
-# Roteiro dos testes da v0.2.0 com usuários e aparelhos reais
+# Roteiro dos testes da v0.2.x com usuários e aparelhos reais
 
-Testes da Release [v0.2.0](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.0) (Etapa 2), em aparelhos reais e com o Firebase de produção. Use **uma cópia deste roteiro por aparelho** e anote tudo, inclusive o que funcionou.
+Testes da Release [v0.2.1](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.1) (Etapa 2, com a correção do e-mail de confirmação da v0.2.0), em aparelhos reais e com o Firebase de produção. Use **uma cópia deste roteiro por aparelho** e anote tudo, inclusive o que funcionou.
 
 ## Antes de começar
 
 - [ ] Explicar ao participante o objetivo do teste e pedir autorização para anotar e, se for o caso, gravar a tela (LGPD). Não gravar dados pessoais que apareçam no celular (notificações, contatos, fotos).
-- [ ] Desinstalar a v0.1.0 ou qualquer outra versão do Nexo Future. A assinatura é diferente e o Android não instala uma por cima da outra.
-- [ ] Baixar e instalar a v0.2.0 pelo [link direto](https://github.com/samuelgomezdev/nexo-future-app/releases/download/v0.2.0/app-release.apk), permitindo "Instalar apps desconhecidos" se o Android pedir.
+- [ ] Desinstalar a v0.1.0, a v0.2.0 ou qualquer outra versão do Nexo Future. A assinatura é diferente e o Android não instala uma por cima da outra.
+- [ ] Baixar e instalar a v0.2.1 pelo [link direto](https://github.com/samuelgomezdev/nexo-future-app/releases/download/v0.2.1/app-release.apk), permitindo "Instalar apps desconhecidos" se o Android pedir.
 - [ ] Ter à mão as contas de teste da **empresa** (Estaleiro Foz Azul), da **oficina sem alvará** (Oficina Escola Barra Sul) e da **oficina com alvará** (Oficina Escola Porto Novo). As senhas ficam com o responsável pelo teste e não vão para o repositório.
-- [ ] **Espaçar os cadastros** entre os participantes: o plano gratuito do Firebase limita os e-mails de confirmação enviados em sequência. O app ainda não tem botão de reenviar o e-mail: se ele não chegar em alguns minutos (confira o spam), anotar no fluxo 3 e chamar o responsável pelo teste, sem criar outra conta com o mesmo e-mail.
+- [ ] **Espaçar os cadastros** entre os participantes: o plano gratuito do Firebase limita os e-mails de confirmação enviados em sequência. Se o e-mail não chegar em alguns minutos (confira o spam), tocar em **Reenviar e-mail** na tela "Confirme seu e-mail" e anotar no fluxo 3. Não criar outra conta com o mesmo e-mail.
 
 ## Aparelho
 
@@ -30,7 +30,7 @@ Para cada fluxo, marque o resultado e anote o que o participante disse ou onde h
 |---|---|---|---|---|---|
 | 1 | Visitante pesquisa vaga e vê o detalhe | Sem entrar, digitar "solda" na pesquisa, filtrar por uma área e abrir uma vaga | Lista com as vagas encontradas; o detalhe mostra a empresa, a cidade, a qualificação e os cursos vinculados | ☐ OK ☐ Falhou | |
 | 2 | Visitante tenta se candidatar | No detalhe, tocar em "Candidatar-se" | O app pede para entrar ou criar a conta | ☐ OK ☐ Falhou | |
-| 3 | Cadastro do jovem com confirmação do e-mail | "Criar conta" → Jovem; preencher nome, e-mail, senha, cidade e data de nascimento; aceitar a Política de Privacidade; confirmar o e-mail pelo link; entrar | O e-mail de confirmação chega; antes de confirmar, o app não deixa entrar; depois, entra e volta para a vaga | ☐ OK ☐ Falhou | Tempo até o e-mail chegar: |
+| 3 | Cadastro do jovem com confirmação do e-mail | "Criar conta" → Jovem; preencher nome, e-mail, senha, cidade e data de nascimento; aceitar a Política de Privacidade; confirmar o e-mail pelo link; entrar | O e-mail de confirmação chega (se não chegar, "Reenviar e-mail" manda outro); antes de confirmar, o app não deixa entrar; depois, entra e volta para a vaga | ☐ OK ☐ Falhou | Tempo até o e-mail chegar: |
 | 4 | Candidatura e "Minhas candidaturas" | Na vaga, tocar em "Candidatar-se"; abrir "Minhas candidaturas" | Mensagem de candidatura enviada; o botão vira "Candidatura enviada"; a vaga aparece em "Minhas candidaturas" | ☐ OK ☐ Falhou | |
 | 5 | Vaga lotada | Candidatar-se a uma vaga com 1 posição livre (ex.: Inspetor de Qualidade) | O detalhe e a lista passam a mostrar "Lotada" logo depois | ☐ OK ☐ Falhou | |
 | 6 | Limite de 5 candidaturas | Candidatar-se a 5 vagas e tentar a 6ª | Aviso "Limite de candidaturas" com atalho para "Minhas candidaturas"; desistindo de uma, a 6ª é aceita | ☐ OK ☐ Falhou | |
