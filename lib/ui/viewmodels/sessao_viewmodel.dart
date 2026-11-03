@@ -31,6 +31,17 @@ class SessaoViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// RF0016: reenvia o link para a conta que acabou de entrar ou se cadastrar.
+  /// Devolve false quando o Firebase recusa o envio (cota de e-mails, sem internet).
+  Future<bool> reenviarConfirmacao() async {
+    try {
+      await _auth?.enviarConfirmacaoEmail();
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
   Future<void> sair() async {
     await _auth?.sair();
     logado = false;

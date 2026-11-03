@@ -339,6 +339,19 @@ class ConfirmeEmailScreen extends StatelessWidget {
 
   final String email;
 
+  /// O e-mail pode não ter chegado (spam, cota de envio do Firebase).
+  Future<void> _reenviar(BuildContext context) async {
+    final mensageiro = ScaffoldMessenger.of(context);
+    final enviado = await context.read<SessaoViewModel>().reenviarConfirmacao();
+    mensageiro.showSnackBar(
+      SnackBar(
+        content: Text(
+          enviado ? 'Enviamos um novo link para $email.' : 'Não foi possível reenviar agora. Espere alguns minutos e tente de novo.',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final textos = Theme.of(context).textTheme;
@@ -368,6 +381,11 @@ class ConfirmeEmailScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const Spacer(),
+            OutlinedButton(
+              onPressed: () => _reenviar(context),
+              child: const Text('Reenviar e-mail'),
+            ),
+            const SizedBox(height: 8),
             FilledButton(
               // Volta para as vagas e abre o login para entrar com a conta ativa.
               onPressed: () {
