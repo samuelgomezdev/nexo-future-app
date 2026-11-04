@@ -27,9 +27,9 @@ Legenda: 💬 Diga · ✅ Deu certo se · 👀 Observe · 🆘 Se travar · ⏱�
 💬 **Diga:**
 > "Obrigado por participar. O Nexo Future é um app que liga jovens a cursos e a vagas de emprego da região. Hoje eu quero ver se ele é fácil de usar. **Quem está sendo testado é o app, não você**: não existe resposta errada, e se algo for difícil, a culpa é do app.
 > Vou pedir algumas tarefas. Tente fazer sozinho e, se puder, **fale em voz alta o que está pensando** ("estou procurando...", "achei que aqui ia..."). Eu não vou ajudar logo de cara, porque quero ver onde o app confunde.
-> Vou anotar o que acontecer e, se você deixar, gravar só a tela do celular. Não vou anotar seu nome, só um código. Você pode parar quando quiser. Tudo bem?"
+> Vou só anotar o que acontecer, sem gravar nada. Não vou anotar seu nome, só um código. Você pode parar quando quiser. Tudo bem?"
 
-Anote o código da pessoa (P01, P02...) e se ela autorizou a gravação.
+Anote o código da pessoa (P01, P02...). **Não grave a tela** de quem testa.
 
 ## Parte 3. Tarefas
 
@@ -194,7 +194,6 @@ Depois:
 | Campo | Anotação |
 |---|---|
 | Código da pessoa (P01, P02...) | |
-| Autorizou gravar a tela? | ☐ Sim ☐ Não |
 | Data e hora | |
 | Modelo do aparelho | |
 | Versão do Android | |
@@ -227,13 +226,13 @@ Depois:
 
 ### Problemas encontrados
 
-| # | Tarefa | O que aconteceu | Como repetir | Gravidade (alta, média, baixa) | Print ou vídeo |
-|---|---|---|---|---|---|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| # | Tarefa | O que aconteceu | Como repetir | Gravidade (alta, média, baixa) |
+|---|---|---|---|---|
+| 1 | | | | |
+| 2 | | | | |
+| 3 | | | | |
+| 4 | | | | |
+| 5 | | | | |
 
 ### Comentários da pessoa
 
