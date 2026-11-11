@@ -7,6 +7,9 @@ Aplicativo móvel orientado a testes que conecta jovens adultos a oficinas profi
 
 Projeto do **Hands-On Work VIII** do curso de Análise e Desenvolvimento de Sistemas da Universidade do Vale do Itajaí (Univali), alinhado aos Objetivos de Desenvolvimento Sustentável 4 (educação de qualidade) e 8 (trabalho decente e crescimento econômico).
 
+> [!IMPORTANT]
+> **Para a equipe:** a branch `main` é protegida. Trabalhe numa branch própria e abra um Pull Request. Toda mudança precisa da aprovação do Samuel antes de entrar na `main`. Veja o passo a passo em **[Como contribuir](CONTRIBUTING.md)**.
+
 ## Baixar o aplicativo (APK)
 
 A versão atual é a **v0.2.1** (Etapa 2), para Android, com login e dados no Firebase.
