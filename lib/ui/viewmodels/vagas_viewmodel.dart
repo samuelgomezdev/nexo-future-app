@@ -42,15 +42,33 @@ class VagasViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Busca as vagas publicadas (Firestore) e refaz a pesquisa atual.
+  /// True enquanto as vagas publicadas estão sendo buscadas.
+  bool get carregando => _carregando;
+  bool _carregando = false;
+
+  /// Busca as vagas publicadas (Firestore) e refaz a pesquisa atual. Com a
+  /// internet lenta, mostra antes as vagas guardadas no aparelho.
   Future<void> atualizar() async {
+    _carregando = true;
+    await _mostrarGuardadas();
     try {
       await _repositorio.atualizar();
       erroAtualizacao = null;
     } on Exception {
       erroAtualizacao = 'Não foi possível buscar as vagas mais novas. Puxe a lista para tentar de novo.';
     }
+    _carregando = false;
     if (_descartado) return;
+    _carregarPrimeiraPagina();
+    notifyListeners();
+  }
+
+  Future<void> _mostrarGuardadas() async {
+    try {
+      if (!await _repositorio.carregarGuardadas() || _descartado) return;
+    } on Exception {
+      return;
+    }
     _carregarPrimeiraPagina();
     notifyListeners();
   }

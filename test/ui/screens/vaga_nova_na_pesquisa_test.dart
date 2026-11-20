@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexo_future_app/domain/models/curso.dart';
@@ -152,5 +154,35 @@ void main() {
         expect(find.text('Nenhuma vaga encontrada.'), findsOneWidget);
       },
     );
+  });
+
+  // Achado no teste em aparelho real (19/11): com a internet lenta, a lista
+  // dizia "Nenhuma vaga encontrada." por uns 10 segundos.
+  group('Lista de vagas com a internet lenta', () {
+    setUp(usarTelaAlta);
+    tearDown(restaurarTela);
+
+    testWidgets('mostra que está carregando, e não que não há vagas', (
+      tester,
+    ) async {
+      final vagas = VagasFalsas()..buscaLenta = Completer<void>();
+      await tester.pumpWidget(
+        NexoFutureApp(
+          autenticacao: AutenticacaoFalsa(),
+          perfis: PerfisFalsos(),
+          vagas: vagas,
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Carregando vagas…'), findsOneWidget);
+      expect(find.text('Nenhuma vaga encontrada.'), findsNothing);
+
+      vagas.buscaLenta!.complete();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Carregando vagas…'), findsNothing);
+      expect(find.text('Nenhuma vaga encontrada.'), findsOneWidget);
+    });
   });
 }

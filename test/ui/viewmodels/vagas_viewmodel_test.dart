@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexo_future_app/data/vaga_repository.dart';
 import 'package:nexo_future_app/domain/models/vaga.dart';
@@ -122,6 +124,60 @@ void main() {
         viewModel.erroAtualizacao,
         'Não foi possível buscar as vagas mais novas. Puxe a lista para tentar de novo.',
       );
+    });
+  });
+
+  // Achado no teste em aparelho real (19/11): com a internet lenta, a lista
+  // dizia "Nenhuma vaga encontrada." até o servidor responder.
+  group('VagasViewModel com a internet lenta', () {
+    late VagasFalsas fonte;
+    late VagasViewModel viewModel;
+
+    setUp(() {
+      fonte = VagasFalsas([vaga(99, 'Soldador', 'Metalurgia')])
+        ..buscaLenta = Completer<void>();
+      viewModel = VagasViewModel(VagaRepository(const [], fonte: fonte));
+    });
+
+    test('enquanto busca as vagas, avisa que está carregando', () async {
+      final busca = viewModel.atualizar();
+      await pumpEventQueue();
+
+      expect(viewModel.carregando, isTrue);
+
+      fonte.buscaLenta!.complete();
+      await busca;
+
+      expect(viewModel.carregando, isFalse);
+      expect(viewModel.vagas.map((v) => v.id), ['vaga-99']);
+    });
+
+    test('mostra na hora as vagas guardadas no aparelho e depois as do '
+        'servidor', () async {
+      fonte.guardadas = [vaga(50, 'Laminador', 'Naval')];
+
+      final busca = viewModel.atualizar();
+      await pumpEventQueue();
+
+      expect(viewModel.vagas.map((v) => v.id), ['vaga-50']);
+      expect(viewModel.carregando, isTrue);
+
+      fonte.buscaLenta!.complete();
+      await busca;
+
+      expect(viewModel.vagas.map((v) => v.id), ['vaga-99']);
+    });
+
+    test('sem vagas guardadas e sem internet, para de carregar e avisa o '
+        'erro', () async {
+      fonte.falhaInesperada = Exception('sem internet');
+      fonte.buscaLenta!.complete();
+
+      await viewModel.atualizar();
+
+      expect(viewModel.carregando, isFalse);
+      expect(viewModel.vagas, isEmpty);
+      expect(viewModel.erroAtualizacao, isNotNull);
     });
   });
 }

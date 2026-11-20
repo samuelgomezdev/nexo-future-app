@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:nexo_future_app/data/vagas_em_memoria.dart';
 import 'package:nexo_future_app/domain/models/curso.dart';
 
@@ -14,11 +16,21 @@ class VagasFalsas extends VagasEmMemoria {
     if (falha != null) throw falha;
   }
 
+  /// Segura a busca no servidor até ser completada, como uma internet lenta.
+  Completer<void>? buscaLenta;
+
+  /// Vagas que ficaram guardadas no aparelho (o cache do Firestore).
+  List<Vaga> guardadas = const [];
+
   @override
   Future<List<Vaga>> listarVagas() async {
+    await buscaLenta?.future;
     _conferirFalha();
     return super.listarVagas();
   }
+
+  @override
+  Future<List<Vaga>> vagasGuardadas() async => guardadas;
 
   @override
   Future<List<Vaga>> vagasDaEmpresa(String empresaId) async {
