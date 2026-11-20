@@ -46,6 +46,19 @@ class _FormularioVagaState extends State<_FormularioVaga> {
   final _qualificacao = TextEditingController();
   final _cursos = <Curso>[];
 
+  /// Na ordem da tela: ao publicar com erro, rola até o primeiro deles.
+  final _chaves = {
+    for (final campo in const [
+      CampoCadastro.titulo,
+      CampoCadastro.area,
+      CampoCadastro.posicoes,
+      CampoCadastro.cidade,
+      CampoCadastro.qualificacao,
+      CampoCadastro.cursos,
+    ])
+      campo: GlobalKey(),
+  };
+
   // Menos texto, mais ação (RNF0005): começa com o setor e a cidade da empresa.
   late String? _area = areasVagas.contains(widget.empresa.setor)
       ? widget.empresa.setor
@@ -80,7 +93,25 @@ class _FormularioVagaState extends State<_FormularioVaga> {
         cursos: List.of(_cursos),
       ),
     );
-    if (publicou) navegador.pop(true);
+    if (publicou) {
+      navegador.pop(true);
+    } else {
+      _mostrarPrimeiroErro(viewModel.erros);
+    }
+  }
+
+  /// Com a fonte grande, o botão fica no fim e os erros do alto, fora da tela.
+  void _mostrarPrimeiroErro(Map<CampoCadastro, String> erros) {
+    for (final MapEntry(key: campo, value: chave) in _chaves.entries) {
+      final contexto = chave.currentContext;
+      if (!erros.containsKey(campo) || contexto == null) continue;
+      Scrollable.ensureVisible(
+        contexto,
+        alignment: 0.1,
+        duration: const Duration(milliseconds: 300),
+      );
+      return;
+    }
   }
 
   /// RF0015: escolhe entre os cursos já aprovados da área da vaga.
@@ -129,164 +160,181 @@ class _FormularioVagaState extends State<_FormularioVaga> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(title: const Text('Nova vaga')),
-      body: ListView(
+      // Coluna inteira montada: os campos fora da tela também têm posição.
+      body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-        children: [
-          Text(
-            'Campos com * são obrigatórios.',
-            style: textos.bodySmall?.copyWith(color: CoresNexo.neutro700),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _titulo,
-            onChanged: (_) => _limpar(CampoCadastro.titulo),
-            textCapitalization: TextCapitalization.sentences,
-            maxLength: tamanhoMaximoCargo,
-            decoration: InputDecoration(
-              labelText: 'Cargo *',
-              hintText: 'Ex.: Pintor(a) naval',
-              errorText: erros[CampoCadastro.titulo],
-              counterText: '',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Campos com * são obrigatórios.',
+              style: textos.bodySmall?.copyWith(color: CoresNexo.neutro700),
             ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 3,
-                child: CampoEscolha(
-                  key: const Key('campo-area'),
-                  rotulo: 'Área *',
-                  opcoes: areasVagas,
-                  valor: _area,
-                  erro: erros[CampoCadastro.area],
-                  aoMudar: (area) {
-                    _limpar(CampoCadastro.area);
-                    setState(() => _area = area);
-                  },
-                ),
+            const SizedBox(height: 16),
+            TextField(
+              key: _chaves[CampoCadastro.titulo],
+              controller: _titulo,
+              onChanged: (_) => _limpar(CampoCadastro.titulo),
+              textCapitalization: TextCapitalization.sentences,
+              maxLength: tamanhoMaximoCargo,
+              decoration: InputDecoration(
+                labelText: 'Cargo *',
+                hintText: 'Ex.: Pintor(a) naval',
+                errorText: erros[CampoCadastro.titulo],
+                counterText: '',
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                flex: 2,
-                child: TextField(
-                  controller: _posicoes,
-                  onChanged: (_) => _limpar(CampoCadastro.posicoes),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(3),
-                  ],
-                  decoration: InputDecoration(
-                    labelText: 'Posições *',
-                    errorText: erros[CampoCadastro.posicoes],
-                    errorMaxLines: 3,
+            ),
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: KeyedSubtree(
+                    key: _chaves[CampoCadastro.area],
+                    child: CampoEscolha(
+                      key: const Key('campo-area'),
+                      rotulo: 'Área *',
+                      opcoes: areasVagas,
+                      valor: _area,
+                      erro: erros[CampoCadastro.area],
+                      aoMudar: (area) {
+                        _limpar(CampoCadastro.area);
+                        setState(() => _area = area);
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          CampoEscolha(
-            key: const Key('campo-cidade'),
-            rotulo: 'Cidade *',
-            opcoes: cidadesAmfri,
-            valor: _cidade,
-            erro: erros[CampoCadastro.cidade],
-            aoMudar: (cidade) {
-              _limpar(CampoCadastro.cidade);
-              setState(() => _cidade = cidade);
-            },
-          ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: _qualificacao,
-            onChanged: (_) => _limpar(CampoCadastro.qualificacao),
-            textCapitalization: TextCapitalization.sentences,
-            minLines: 2,
-            maxLines: 4,
-            maxLength: 500,
-            decoration: InputDecoration(
-              labelText: 'Qualificação exigida *',
-              hintText: 'O que a pessoa precisa saber fazer',
-              errorText: erros[CampoCadastro.qualificacao],
-              counterText: '',
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    key: _chaves[CampoCadastro.posicoes],
+                    controller: _posicoes,
+                    onChanged: (_) => _limpar(CampoCadastro.posicoes),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(3),
+                    ],
+                    decoration: InputDecoration(
+                      labelText: 'Posições *',
+                      errorText: erros[CampoCadastro.posicoes],
+                      errorMaxLines: 3,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: Text('Cursos preferenciais', style: textos.titleMedium),
+            const SizedBox(height: 14),
+            KeyedSubtree(
+              key: _chaves[CampoCadastro.cidade],
+              child: CampoEscolha(
+                key: const Key('campo-cidade'),
+                rotulo: 'Cidade *',
+                opcoes: cidadesAmfri,
+                valor: _cidade,
+                erro: erros[CampoCadastro.cidade],
+                aoMudar: (cidade) {
+                  _limpar(CampoCadastro.cidade);
+                  setState(() => _cidade = cidade);
+                },
               ),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              key: _chaves[CampoCadastro.qualificacao],
+              controller: _qualificacao,
+              onChanged: (_) => _limpar(CampoCadastro.qualificacao),
+              textCapitalization: TextCapitalization.sentences,
+              minLines: 2,
+              maxLines: 4,
+              maxLength: 500,
+              decoration: InputDecoration(
+                labelText: 'Qualificação exigida *',
+                hintText: 'O que a pessoa precisa saber fazer',
+                errorText: erros[CampoCadastro.qualificacao],
+                counterText: '',
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              key: _chaves[CampoCadastro.cursos],
+              children: [
+                Expanded(
+                  child: Text(
+                    'Cursos preferenciais',
+                    style: textos.titleMedium,
+                  ),
+                ),
+                Text(
+                  '${_cursos.length} de $limiteCursosPorVaga',
+                  style: textos.labelMedium?.copyWith(
+                    color: CoresNexo.primaria500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final curso in _cursos)
+                  InputChip(
+                    label: Text(curso.nome),
+                    deleteButtonTooltipMessage: 'Tirar curso',
+                    onDeleted: () => setState(() => _cursos.remove(curso)),
+                  ),
+                ActionChip(
+                  avatar: const Icon(Icons.add, size: 16),
+                  label: const Text('Adicionar'),
+                  onPressed: _cursos.length >= limiteCursosPorVaga
+                      ? null
+                      : _adicionarCurso,
+                ),
+              ],
+            ),
+            if (erros[CampoCadastro.cursos] case final erro?) ...[
+              const SizedBox(height: 4),
               Text(
-                '${_cursos.length} de $limiteCursosPorVaga',
-                style: textos.labelMedium?.copyWith(
-                  color: CoresNexo.primaria500,
-                ),
+                erro,
+                style: textos.bodySmall?.copyWith(color: CoresNexo.erro),
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final curso in _cursos)
-                InputChip(
-                  label: Text(curso.nome),
-                  deleteButtonTooltipMessage: 'Tirar curso',
-                  onDeleted: () => setState(() => _cursos.remove(curso)),
-                ),
-              ActionChip(
-                avatar: const Icon(Icons.add, size: 16),
-                label: const Text('Adicionar'),
-                onPressed: _cursos.length >= limiteCursosPorVaga
-                    ? null
-                    : _adicionarCurso,
+            const SizedBox(height: 8),
+            Text(
+              'Até $limiteCursosPorVaga cursos (RN0006). As oficinas enviam cursos e você aprova.',
+              style: textos.bodySmall?.copyWith(color: CoresNexo.neutro700),
+            ),
+            const SizedBox(height: 20),
+            AvisoCadastro(
+              texto: _cursos.isEmpty
+                  ? 'A vaga aparece na pesquisa ao publicar e passa a receber candidaturas depois que você aprovar um curso.'
+                  : 'Com um curso escolhido, a vaga já começa aceitando candidaturas.',
+              icone: Icons.info_outline,
+              fundo: CoresNexo.primaria50,
+              cor: CoresNexo.primaria500,
+            ),
+            if (erros.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              ResumoErros(quantidade: erros.length),
+            ],
+            if (viewModel.erroGeral case final erro?) ...[
+              const SizedBox(height: 16),
+              Text(
+                erro,
+                style: textos.bodyMedium?.copyWith(color: CoresNexo.erro),
               ),
             ],
-          ),
-          if (erros[CampoCadastro.cursos] case final erro?) ...[
-            const SizedBox(height: 4),
-            Text(
-              erro,
-              style: textos.bodySmall?.copyWith(color: CoresNexo.erro),
+            const SizedBox(height: 20),
+            BotaoCadastro(
+              texto: 'Publicar vaga',
+              carregando: viewModel.carregando,
+              aoTocar: _publicar,
             ),
           ],
-          const SizedBox(height: 8),
-          Text(
-            'Até $limiteCursosPorVaga cursos (RN0006). As oficinas enviam cursos e você aprova.',
-            style: textos.bodySmall?.copyWith(color: CoresNexo.neutro700),
-          ),
-          const SizedBox(height: 20),
-          AvisoCadastro(
-            texto: _cursos.isEmpty
-                ? 'A vaga aparece na pesquisa ao publicar e passa a receber candidaturas depois que você aprovar um curso.'
-                : 'Com um curso escolhido, a vaga já começa aceitando candidaturas.',
-            icone: Icons.info_outline,
-            fundo: CoresNexo.primaria50,
-            cor: CoresNexo.primaria500,
-          ),
-          if (erros.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            ResumoErros(quantidade: erros.length),
-          ],
-          if (viewModel.erroGeral case final erro?) ...[
-            const SizedBox(height: 16),
-            Text(
-              erro,
-              style: textos.bodyMedium?.copyWith(color: CoresNexo.erro),
-            ),
-          ],
-          const SizedBox(height: 20),
-          BotaoCadastro(
-            texto: 'Publicar vaga',
-            carregando: viewModel.carregando,
-            aoTocar: _publicar,
-          ),
-        ],
+        ),
       ),
     );
   }
