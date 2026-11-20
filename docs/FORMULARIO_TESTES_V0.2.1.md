@@ -1,8 +1,16 @@
 # Formulário dos testes não moderados da v0.2.1
 
-Perguntas para montar no **Google Forms**, respondidas por quem fez o teste sozinho seguindo o guia do participante (mesmas 10 tarefas do [roteiro presencial](ROTEIRO_TESTES_V0.2.0.md)). Nada é gravado: as respostas são a única evidência do teste.
+Perguntas para montar no **Microsoft Forms** (ou no Google Forms), respondidas por quem fez o teste sozinho seguindo o guia do participante (mesmas 10 tarefas do [roteiro presencial](ROTEIRO_TESTES_V0.2.0.md)). Nada é gravado: as respostas são a única evidência do teste.
 
 Como montar: crie um formulário novo, uma **seção** para cada bloco abaixo, e use o **tipo de pergunta** indicado entre colchetes. Marque como obrigatórias as perguntas com \*.
+
+> [!IMPORTANT]
+> **Revisão de 19/11/2026, antes das respostas de P03 e P04.** As duas primeiras respostas (P01 e P02) mostraram três problemas no formulário montado:
+> - faltava a pergunta "Você conseguiu?" da **Tarefa 3**: confira se o trio existe nas **10** tarefas;
+> - na **Tarefa 2**, "Não consegui" é ambíguo, porque o esperado é justamente o app **não deixar** a candidatura sem conta. Por isso entrou a pergunta extra da Tarefa 2;
+> - as medições vieram com números que não combinam com a nota de velocidade (23 s, 15 s e 24 toques, com velocidade 5). As perguntas 12 a 14 agora dizem o que contar e o que não contar.
+>
+> Também entrou uma pergunta extra na Tarefa 8, para separar "não consegui entrar na conta da empresa" de "não consegui publicar", e duas na Tarefa 1 sobre os cursos da tela da vaga, porque P01 achou "confusa a parte do curso vinculado".
 
 ---
 
@@ -54,11 +62,17 @@ Para **cada uma das 10 tarefas**, repita este trio de perguntas, trocando o nome
 
 Perguntas extras de algumas tarefas (coloque logo depois do trio da tarefa):
 
+- **Tarefa 1: na tela da vaga, para que servem os cursos que aparecem nela?** \* [Múltipla escolha, com as opções em ordem aleatória] São cursos que preparam para essa vaga · São cursos que eu preciso ter feito para poder me candidatar · Não entendi para que servem · Não reparei nos cursos
+- **Tarefa 1: se quiser, explique com as suas palavras o que entendeu dos cursos na tela da vaga.** [Parágrafo]
+  *(o curso que prepara para a vaga é a ideia central do app; P01 achou "confusa a parte do curso vinculado". Estas perguntas mostram se o problema é do termo ou do conceito, antes de mudar a tela)*
+- **Tarefa 2: quando você tocou em "Candidatar-se" sem conta, o app pediu para você entrar ou criar uma conta?** \* [Múltipla escolha] Sim, apareceu o aviso com "Entrar" e "Criar conta" · Não, a candidatura foi enviada sem conta · Não achei o botão "Candidatar-se" · Não fiz
+  *(na Tarefa 2, o certo é o app pedir a conta: quem marcou "Não consegui" no trio pode ter sido barrado, ou seja, ter dado certo)*
 - **Tarefa 3: quanto tempo o e-mail de confirmação levou para chegar?** \* [Múltipla escolha] Menos de 1 minuto · De 1 a 5 minutos · Mais de 5 minutos · Não chegou
 - **Tarefa 3: o e-mail caiu no spam?** \* [Múltipla escolha] Sim · Não · Não sei
 - **Tarefa 3: precisou tocar em "Reenviar e-mail"?** \* [Múltipla escolha] Não · Sim, e chegou · Sim, e não chegou
 - **Tarefa 5: depois da candidatura, a vaga apareceu como "Lotada"?** \* [Múltipla escolha] Sim, logo em seguida · Só depois de voltar para a lista · Não apareceu · Não fiz
 - **Tarefa 6: o aviso de limite apareceu na 6ª candidatura?** \* [Múltipla escolha] Sim · Não · Não fiz
+- **Tarefa 8: você conseguiu entrar com a conta da empresa que está no guia?** \* [Múltipla escolha] Sim · Não, o app recusou o e-mail ou a senha · Não, o app pediu para confirmar o e-mail · Não fiz
 - **Tarefa 8: com os campos vazios, alguma mensagem de erro apareceu cortada (com "...")?** \* [Múltipla escolha] Não, todas inteiras · Sim · Não reparei
 
 ## Seção 5. Medições
@@ -67,9 +81,13 @@ Texto da seção:
 > Use as anotações que você fez durante o teste.
 
 12. **Tarefa 1: segundos do toque no ícone até a lista de vagas aparecer** \* [Resposta curta, com validação: Número] *(meta < 5 s, RNF0001 e RNF0008)*
+    Descrição no Forms: *"Com o app fechado. Pare o cronômetro quando aparecerem os cartões das vagas, não a tela de carregamento."*
 13. **Tarefa 1: segundos do fim da digitação na pesquisa até o resultado aparecer** \* [Resposta curta, Número] *(meta < 5 s)*
+    Descrição no Forms: *"Comece a contar quando terminar de digitar a última letra, não quando tocar na pesquisa. Não conte o tempo digitando."*
 14. **Tarefa 4: quantos toques da lista de vagas até a mensagem de candidatura enviada?** \* [Resposta curta, Número] *(meta ≤ 3, RNF0009)*
-15. **A velocidade do app pareceu:** \* [Escala linear 1 a 5] 1 = muito lenta · 5 = muito rápida
+    Descrição no Forms: *"Comece com a vaga já aparecendo na lista. Conte só os toques em botões e cartões. Não conte as letras digitadas nem as vezes que rolou a tela."*
+15. **Esta foi a primeira vez que você abriu o app depois de instalar?** \* [Múltipla escolha] Sim · Não · Não lembro *(a primeira abertura é mais lenta; ajuda a entender a pergunta 12)*
+16. **A velocidade do app pareceu:** \* [Escala linear 1 a 5] 1 = muito lenta · 5 = muito rápida
 
 ## Seção 6. Sua opinião geral (SUS)
 
@@ -91,13 +109,13 @@ Use **Grade de múltipla escolha**: linhas = frases abaixo; colunas = 1, 2, 3, 4
 
 ## Seção 7. Para terminar
 
-16. **O que foi mais fácil no app?** [Parágrafo]
-17. **O que foi mais difícil ou confuso?** [Parágrafo]
-18. **Você usaria o Nexo Future ou indicaria para alguém?** \* [Múltipla escolha] Sim · Talvez · Não
-19. **O que você mudaria no app?** [Parágrafo]
-20. **Você desistiu de todas as candidaturas e saiu da conta no final?** \* [Múltipla escolha] Sim · Não
-21. **Quer que a sua conta de teste seja apagada?** \* [Múltipla escolha] Sim, podem apagar · Não precisa
-22. **Se quiser que a conta seja apagada, informe o e-mail usado no cadastro** (usado só para apagar a conta) [Resposta curta]
+17. **O que foi mais fácil no app?** [Parágrafo]
+18. **O que foi mais difícil ou confuso?** [Parágrafo]
+19. **Você usaria o Nexo Future ou indicaria para alguém?** \* [Múltipla escolha] Sim · Talvez · Não
+20. **O que você mudaria no app?** [Parágrafo]
+21. **Você desistiu de todas as candidaturas e saiu da conta no final?** \* [Múltipla escolha] Sim · Não
+22. **Quer que a sua conta de teste seja apagada?** \* [Múltipla escolha] Sim, podem apagar · Não precisa
+23. **Se quiser que a conta seja apagada, informe o e-mail usado no cadastro** (usado só para apagar a conta) [Resposta curta]
 
 ---
 
