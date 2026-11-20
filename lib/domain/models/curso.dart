@@ -83,6 +83,10 @@ abstract class RepositorioVagas {
   /// Todas as vagas publicadas, para a pesquisa (aberta a visitantes: RN0007).
   Future<List<Vaga>> listarVagas();
 
+  /// As vagas que ficaram guardadas no aparelho da última busca, sem esperar
+  /// a internet (vazia quando não há nenhuma).
+  Future<List<Vaga>> vagasGuardadas();
+
   Future<Vaga?> buscarVaga(String id);
 
   Future<List<Vaga>> vagasDaEmpresa(String empresaId);

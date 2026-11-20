@@ -19,10 +19,30 @@ class FirestoreVagas implements RepositorioVagas {
   @override
   String novoId() => _vagas.doc().id;
 
+  Query<Map<String, dynamic>> get _maisNovas =>
+      _vagas.orderBy('criadoEm', descending: true);
+
+  /// Sempre do servidor: sem internet, falha em vez de devolver o cache
+  /// (vazio na primeira abertura) como se não houvesse vagas.
   @override
   Future<List<Vaga>> listarVagas() async {
-    final consulta = await _vagas.orderBy('criadoEm', descending: true).get();
+    final consulta = await _maisNovas.get(
+      const GetOptions(source: Source.server),
+    );
     return [for (final doc in consulta.docs) vagaDoMapa(doc.id, doc.data())];
+  }
+
+  /// O cache do aparelho responde na hora, mesmo com a internet lenta.
+  @override
+  Future<List<Vaga>> vagasGuardadas() async {
+    try {
+      final consulta = await _maisNovas.get(
+        const GetOptions(source: Source.cache),
+      );
+      return [for (final doc in consulta.docs) vagaDoMapa(doc.id, doc.data())];
+    } on FirebaseException {
+      return const [];
+    }
   }
 
   @override

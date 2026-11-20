@@ -120,12 +120,21 @@ class _ListaVagasScreenState extends State<ListaVagasScreen> {
               onRefresh: viewModel.atualizar,
               child: vagas.isEmpty
                   ? ListView(
-                      children: const [
+                      children: [
                         Padding(
-                          padding: EdgeInsets.all(32),
-                          child: Center(
-                            child: Text('Nenhuma vaga encontrada.'),
-                          ),
+                          padding: const EdgeInsets.all(32),
+                          // Com a internet lenta, "nenhuma vaga" seria falso.
+                          child: viewModel.carregando
+                              ? const Column(
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 16),
+                                    Text('Carregando vagas…'),
+                                  ],
+                                )
+                              : const Center(
+                                  child: Text('Nenhuma vaga encontrada.'),
+                                ),
                         ),
                       ],
                     )

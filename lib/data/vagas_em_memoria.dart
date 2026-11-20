@@ -18,6 +18,10 @@ class VagasEmMemoria implements RepositorioVagas {
   Future<List<Vaga>> listarVagas() async =>
       vagas.values.toList().reversed.toList();
 
+  /// Em memória não há nada guardado além das próprias vagas.
+  @override
+  Future<List<Vaga>> vagasGuardadas() async => const [];
+
   @override
   Future<Vaga?> buscarVaga(String id) async => vagas[id];
 

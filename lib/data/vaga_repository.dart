@@ -21,6 +21,20 @@ class VagaRepository {
     if (fonte == null) return;
     final publicadas = await fonte.listarVagas();
     _vagas = List.unmodifiable([...publicadas, ..._fixas]);
+    _buscouNoServidor = true;
+  }
+
+  bool _buscouNoServidor = false;
+
+  /// Enquanto a primeira busca não volta, usa as vagas guardadas no aparelho.
+  /// Devolve true quando havia vagas guardadas para mostrar.
+  Future<bool> carregarGuardadas() async {
+    final fonte = _fonte;
+    if (fonte == null || _buscouNoServidor) return false;
+    final guardadas = await fonte.vagasGuardadas();
+    if (guardadas.isEmpty || _buscouNoServidor) return false;
+    _vagas = List.unmodifiable([...guardadas, ..._fixas]);
+    return true;
   }
 
   Vaga? buscarPorId(String id) {
