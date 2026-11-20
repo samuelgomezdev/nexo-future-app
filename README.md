@@ -153,30 +153,49 @@ Cada regra foi desenvolvida no ciclo do TDD: primeiro o teste é escrito e falha
 | RF0004 | A mensagem de erro do campo Posições aparece inteira, também com a fonte grande do celular (achado no teste em aparelho real). |
 | RNF0002 | Com o Firestore, a pesquisa mostra só as vagas publicadas; as fictícias do seed ficam só no modo sem Firebase dos testes. |
 | RF0016 | O cadastro salva o perfil antes de enviar o e-mail de confirmação e não trava se o Firebase recusar o envio; a tela "Confirme seu e-mail" tem o botão Reenviar e-mail (v0.2.1). |
+| RNF0001 e RNF0008 | Com a internet lenta, a lista mostra "Carregando vagas…" e as vagas guardadas no aparelho, em vez de "Nenhuma vaga encontrada."; sem internet, avisa e pede para puxar a lista (achado medindo no celular, 19/11). |
+| RF0004 | Com a fonte grande do celular, ao publicar a vaga com erro, a tela rola até o primeiro campo com erro (Tarefa 8 dos testes com usuários). |
 
 As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e da cobertura) estão em [`docs/evidencias`](docs/evidencias).
 
 ### Testes e cobertura
 
-São **361 testes automatizados**, todos passando, além dos 75 testes das regras do Firestore:
+São **366 testes automatizados**, todos passando, além dos 75 testes das regras do Firestore (medição de 19/11/2026):
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
 | Unitários de regras de negócio | `test/domain` | 132 |
 | Unitários da camada de dados | `test/data` | 44 |
-| ViewModels | `test/ui/viewmodels` | 81 |
-| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 101 |
+| ViewModels | `test/ui/viewmodels` | 84 |
+| Widgets (telas e máscaras de data e CNPJ) | `test/ui` | 103 |
 | Integração no dispositivo | `integration_test` | 3 |
 
 Nos testes, o Firebase é substituído por versões falsas em memória (`test/apoio`), para que rodem rápido e sem internet.
 
-Cobertura medida com `flutter test --coverage`: **97,0%** do código, com 96,1% nas regras de negócio (`lib/domain`), 100% na camada de dados e 96,8% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio.
+Cobertura medida com `flutter test --coverage` e resumida com `dart run tool/cobertura.dart`: **96,8%** do código, com 95,4% nas regras de negócio (`lib/domain`), 100% na camada de dados e 96,8% nas telas. A meta do projeto é pelo menos 80% nas regras de negócio. Os arquivos com menor cobertura são `lib/domain/models/cadastro.dart` (1 de 3 linhas), `lib/domain/erros.dart` (56,3%, as mensagens das exceções) e `lib/ui/viewmodels/novo_curso_viewmodel.dart` (81,8%). Print: [`sprint4-cobertura.png`](docs/evidencias/sprint4-cobertura.png).
 
-A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório.
+> [!NOTE]
+> Meça a cobertura com o paralelismo padrão do `flutter test`. Com `-j 2`, as linhas das mensagens das exceções (`toString`) foram contadas de outro jeito (14 de 32 em vez de 18 de 32) e a cobertura geral caiu para 96,7%, sem nenhuma mudança no código.
+
+A integração contínua (GitHub Actions) roda `flutter analyze` e todos os testes a cada envio para o repositório, com o Flutter fixo na versão **3.47.8**. Sem a versão fixa, o runner passou a usar o Flutter 3.50, em que o `package:flutter/material.dart` é marcado como depreciado, e o CI ficou vermelho de 11/11 a 19/11/2026. Print do Actions verde: [`sprint4-actions-verde.png`](docs/evidencias/sprint4-actions-verde.png).
+
+### Desempenho medido no celular
+
+Medição de 19/11/2026 num Xiaomi 2201116PG (Android 13), com o APK **release**, gravando a tela e contando quadro a quadro, do toque no ícone até os cartões das vagas aparecerem (meta < 5 s, RNF0001 e RNF0008):
+
+| Cenário | v0.2.1 | Com a correção da lista (próxima versão) |
+|---|---|---|
+| Wi-Fi, app só fechado | 1,05 a 1,45 s | 0,80 a 0,90 s |
+| Wi-Fi, primeira abertura | cerca de 1,7 s | 1,95 a 2,35 s, com "Carregando vagas…" |
+| Sem internet, com vagas guardadas | 10,65 s, com "Nenhuma vaga encontrada." na tela | 0,80 s; aviso de erro aos 10,8 s, mantendo as vagas |
+| Sem internet, primeira abertura | "Nenhuma vaga encontrada." sem aviso | "Carregando vagas…" e depois o aviso para tentar de novo |
+| Pesquisa "solda", do texto até a lista filtrar | menos de 33 ms | igual (a pesquisa é feita no aparelho) |
+
+**Dado discrepante:** no teste não moderado da v0.2.1, o participante P02 (Galaxy A54, 4G) anotou 23 s até a lista, 15 s na pesquisa e 24 toques até a candidatura, mas marcou a velocidade como 5 ("muito rápida"). Os 23 s são compatíveis com a espera do Firestore com sinal fraco, que a correção da lista resolve. Os 15 s e os 24 toques não se reproduzem: a pesquisa responde em menos de 33 ms e o caminho até a candidatura tem 2 toques. O mais provável é que o tempo digitando e as teclas tenham entrado na conta. O formulário passou a explicar o que contar ([`docs/FORMULARIO_TESTES_V0.2.1.md`](docs/FORMULARIO_TESTES_V0.2.1.md)).
 
 ## Rodar o projeto e os testes
 
-Pré-requisitos: [Flutter](https://docs.flutter.dev/get-started/install) (canal stable, Dart 3.13 ou superior) e Android Studio com um emulador ou um celular Android com a depuração USB ativada.
+Pré-requisitos: [Flutter](https://docs.flutter.dev/get-started/install) **3.47.8** (canal stable, a mesma versão do CI) e Android Studio com um emulador ou um celular Android com a depuração USB ativada.
 
 ```bash
 git clone https://github.com/samuelgomezdev/nexo-future-app.git
@@ -228,8 +247,9 @@ integration_test/   teste de integração no dispositivo
 
 ## Próximos passos (Etapa 2)
 
-- Nova versão do APK (v0.2.0) com login e cadastros.
-- Validação em dispositivos reais e com usuários da comunidade.
+- **v0.2.2** (ainda não publicada): a lista de vagas com o carregamento e as vagas guardadas na internet lenta, e a Nova vaga rolando até o primeiro erro, para os participantes P03 e P04 testarem a versão corrigida.
+- Testes não moderados com P03 e P04, com o formulário revisado em 19/11 (inclui as perguntas sobre os cursos na tela da vaga).
+- Depois da entrega de 30/11: migrar do `package:flutter/material.dart` para o pacote `material_ui`, exigido a partir do Flutter 3.50.
 
 Na Etapa 1, o app foi gerado e testado apenas no Android; a versão iOS depende de um computador com macOS.
 

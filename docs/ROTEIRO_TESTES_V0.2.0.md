@@ -40,7 +40,7 @@ Antes: **desligue o Wi-Fi** do aparelho (teste em 4G) e deixe o app fechado.
 💬 **Diga:**
 > "Imagine que você procura emprego na área de solda. Abra o app e encontre uma vaga de solda. Depois, me diga em que empresa ela é e qual curso prepara para ela."
 
-⏱️ **Meça (RNF0001 e RNF0008, meta < 5 s):** com o cronômetro do segundo celular, conte do toque no ícone do app até a lista de vagas aparecer. Depois, do fim da digitação na pesquisa até a lista filtrada aparecer.
+⏱️ **Meça (RNF0001 e RNF0008, meta < 5 s):** com o cronômetro do segundo celular, conte do toque no ícone do app até os **cartões das vagas** aparecerem (não pare na tela "Carregando vagas…"). Depois, do fim da digitação na pesquisa até a lista filtrada aparecer: comece a contar na **última letra**, sem o tempo digitando. Anote se foi a primeira abertura depois de instalar.
 
 ✅ **Deu certo se** a pessoa usou a pesquisa ou o filtro de área, abriu uma vaga e leu a empresa e os cursos vinculados.
 
@@ -81,7 +81,7 @@ Antes: volte à **lista de vagas**, já com a conta aberta.
 💬 **Diga:**
 > "Agora se candidate a uma vaga que você gostaria. Depois, me mostre onde você vê as suas candidaturas."
 
-⏱️ **Conte os toques (RNF0009, meta ≤ 3):** da lista de vagas até a mensagem "Você se candidatou à vaga...".
+⏱️ **Conte os toques (RNF0009, meta ≤ 3):** da lista de vagas, com a vaga já aparecendo, até a mensagem "Você se candidatou à vaga...". Conte só os toques em botões e cartões, sem as letras digitadas e as rolagens.
 
 ✅ **Deu certo se** a mensagem apareceu, o botão virou "Candidatura enviada" e a vaga aparece em "Minhas candidaturas" (ícone no alto da lista de vagas).
 
