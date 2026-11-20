@@ -273,13 +273,43 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Informe o cargo da vaga.'), findsOneWidget);
-      expect(
-        find.text('Informe as posições.'),
-        findsOneWidget,
-      );
+      expect(find.text('Informe as posições.'), findsOneWidget);
       expect(find.text('Informe a qualificação exigida.'), findsOneWidget);
       expect(find.text('Corrija 3 campos para continuar.'), findsOneWidget);
       expect(vagas.vagas, isEmpty);
+    });
+
+    // Tarefa 8 dos testes com usuários: com a fonte grande do celular, o
+    // botão Publicar fica no fim da tela e os erros do alto não aparecem.
+    Future<void> publicarComFonteGrande(WidgetTester tester) async {
+      await tester.scrollUntilVisible(
+        find.text('Publicar vaga'),
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await tester.tap(find.text('Publicar vaga'));
+      await tester.pumpAndSettle();
+    }
+
+    void esperarNaTela(WidgetTester tester, String texto) {
+      final area = tester.getRect(find.text(texto));
+      final altura =
+          tester.view.physicalSize.height / tester.view.devicePixelRatio;
+      expect(area.top, greaterThanOrEqualTo(0), reason: '$texto acima da tela');
+      expect(area.bottom, lessThanOrEqualTo(altura), reason: '$texto abaixo');
+    }
+
+    testWidgets('com a fonte grande, rola até o primeiro campo com erro', (
+      tester,
+    ) async {
+      usarTelaDeCelular();
+      tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await abrirNovaVaga(tester);
+
+      await publicarComFonteGrande(tester);
+
+      esperarNaTela(tester, 'Informe o cargo da vaga.');
     });
 
     testWidgets('corrigir um campo tira o erro dele na hora', (tester) async {
