@@ -162,7 +162,7 @@ As evidências de cada ciclo (prints dos testes vermelhos e verdes, do Actions e
 
 ### Testes e cobertura
 
-São **366 testes automatizados**, todos passando, além dos 75 testes das regras do Firestore (medição de 19/11/2026):
+São **366 testes automatizados**, todos passando: **363 rodam no CI** (GitHub Actions) a cada envio, com `flutter test`, e **3 de integração rodam no aparelho**, com `flutter test integration_test`. Além deles, há os 75 testes das regras do Firestore, que rodam no emulador (medição de 19/11/2026):
 
 | Tipo | Arquivos | Testes |
 |---|---|---|
