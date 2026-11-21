@@ -4,6 +4,9 @@ Perguntas para montar no **Microsoft Forms** (ou no Google Forms), respondidas p
 
 Como montar: crie um formulário novo, uma **seção** para cada bloco abaixo, e use o **tipo de pergunta** indicado entre colchetes. Marque como obrigatórias as perguntas com \*.
 
+> [!NOTE]
+> **v0.2.2.** O formulário "Teste do Nexo Future v0.2.1" continua o mesmo e vale também para a v0.2.2. P01, P02 e P03 testaram a v0.2.1; a P04 testa a v0.2.2 ([Release v0.2.2](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.2)).
+
 > [!IMPORTANT]
 > **Revisão de 19/11/2026, antes das respostas de P03 e P04.** As duas primeiras respostas (P01 e P02) mostraram três problemas no formulário montado:
 > - faltava a pergunta "Você conseguiu?" da **Tarefa 3**: confira se o trio existe nas **10** tarefas;

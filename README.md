@@ -12,12 +12,12 @@ Projeto do **Hands-On Work VIII** do curso de Análise e Desenvolvimento de Sist
 
 ## Baixar o aplicativo (APK)
 
-A versão atual é a **v0.2.1** (Etapa 2), para Android, com login e dados no Firebase.
+A versão atual é a **v0.2.2** (Etapa 2), para Android, com login e dados no Firebase.
 
-- **Download direto:** [app-release.apk](https://github.com/samuelgomezdev/nexo-future-app/releases/download/v0.2.1/app-release.apk) (cerca de 52 MB)
-- **Página da versão:** [Releases → v0.2.1](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.1)
+- **Download direto:** [app-release.apk](https://github.com/samuelgomezdev/nexo-future-app/releases/download/v0.2.2/app-release.apk) (cerca de 52 MB)
+- **Página da versão:** [Releases → v0.2.2](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.2)
 
-A v0.2.1 corrige o e-mail de confirmação da [v0.2.0](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.0): o cadastro não trava se o e-mail não sair e a tela "Confirme seu e-mail" ganhou o botão **Reenviar e-mail**.
+A v0.2.2 mostra "Carregando vagas…" e as vagas guardadas no aparelho quando a internet está lenta (sem internet, avisa e pede para puxar a lista) e, na Nova vaga, rola até o primeiro campo com erro ao publicar. Ela mantém a correção do e-mail de confirmação da [v0.2.1](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.1), que chegou depois da [v0.2.0](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.0): o cadastro não trava se o e-mail não sair e a tela "Confirme seu e-mail" tem o botão **Reenviar e-mail**.
 
 A **v0.1.0** continua publicada como a versão da Etapa 1 (sem login, com dados fictícios só no aparelho):
 
@@ -29,7 +29,7 @@ O APK é gerado automaticamente pelo GitHub Actions a cada nova versão marcada 
 ## Instalar no celular Android
 
 1. Se a v0.1.0, a v0.2.0 ou outra versão do Nexo Future estiver instalada, **desinstale antes**. A assinatura do APK é diferente e o Android não instala uma versão por cima da outra. As duas versões também não ficam juntas no mesmo celular.
-2. No celular, abra o link de download da v0.2.1 e baixe o arquivo `app-release.apk`.
+2. No celular, abra o link de download da v0.2.2 e baixe o arquivo `app-release.apk`.
 3. Abra o arquivo baixado (pela notificação ou pela pasta Downloads).
 4. Se o Android pedir, permita a instalação de apps desta fonte ("Instalar apps desconhecidos") para o navegador ou o gerenciador de arquivos.
 5. Toque em **Instalar** e depois em **Abrir**.
@@ -54,7 +54,7 @@ Ao tentar a 6ª candidatura, o app mostra um aviso com atalho para "Minhas candi
 |---|---|---|---|
 | ![Lista de vagas](docs/evidencias/passo6-tela-lista-vagas.jpeg) | ![Detalhe da vaga](docs/evidencias/passo6-tela-detalhe-vaga-candidatura-enviada.jpeg) | ![Aviso de limite](docs/evidencias/passo6-tela-limite-candidaturas.jpeg) | ![Minhas candidaturas](docs/evidencias/passo6-tela-minhas-candidaturas.jpeg) |
 
-## Novidades da v0.2.0 e da v0.2.1 (Etapa 2)
+## Novidades da v0.2.0 à v0.2.2 (Etapa 2)
 
 Com o Firebase (Authentication e Cloud Firestore), testado no celular:
 
@@ -73,6 +73,8 @@ Com o Firebase (Authentication e Cloud Firestore), testado no celular:
 | F15 | Aprovação do curso | A empresa vê os cursos propostos para cada vaga e aprova ou recusa. Ao aprovar, o curso é vinculado à vaga (no máximo 5, RN0006) e a vaga passa a aceitar candidaturas (RF0007). |
 | F16 | Vagas e cursos no Firestore | Vagas e cursos ficam no Cloud Firestore; a pesquisa mostra as vagas publicadas pelas empresas em páginas de 15, das mais novas para as mais antigas, e a lista atualiza ao puxar para baixo. |
 | F17 | Candidaturas na conta e vaga lotada | As candidaturas do jovem ficam salvas no Cloud Firestore, na conta dele, e cada vaga conta as que recebeu. Quando as candidaturas preenchem as posições, a vaga fica "Lotada" e para de aceitar candidaturas. O painel da empresa mostra as vagas abertas, as candidaturas recebidas e as posições preenchidas. |
+
+Na **v0.2.2**, a lista de vagas mostra "Carregando vagas…" e as vagas guardadas no aparelho enquanto a internet está lenta; sem internet, avisa e pede para puxar a lista e tentar de novo. Na Nova vaga, ao publicar com algum campo errado, a tela rola até o primeiro campo com erro.
 
 O visual segue o protótipo de alta fidelidade feito no Figma, com a identidade do projeto (azul `#004089` e fonte Inter).
 
@@ -183,7 +185,7 @@ A integração contínua (GitHub Actions) roda `flutter analyze` e todos os test
 
 Medição de 19/11/2026 num Xiaomi 2201116PG (Android 13), com o APK **release**, gravando a tela e contando quadro a quadro, do toque no ícone até os cartões das vagas aparecerem (meta < 5 s, RNF0001 e RNF0008):
 
-| Cenário | v0.2.1 | Com a correção da lista (próxima versão) |
+| Cenário | v0.2.1 | v0.2.2 |
 |---|---|---|
 | Wi-Fi, app só fechado | 1,05 a 1,45 s | 0,80 a 0,90 s |
 | Wi-Fi, primeira abertura | cerca de 1,7 s | 1,95 a 2,35 s, com "Carregando vagas…" |
@@ -247,7 +249,7 @@ integration_test/   teste de integração no dispositivo
 
 ## Próximos passos (Etapa 2)
 
-- **v0.2.2** (ainda não publicada): a lista de vagas com o carregamento e as vagas guardadas na internet lenta, e a Nova vaga rolando até o primeiro erro, para os participantes P03 e P04 testarem a versão corrigida.
+- **v0.2.2**: a lista de vagas com o carregamento e as vagas guardadas na internet lenta, e a Nova vaga rolando até o primeiro erro, para a participante P04 testar a versão corrigida (P01, P02 e P03 testaram a v0.2.1).
 - Testes não moderados com P03 e P04, com o formulário revisado em 19/11 (inclui as perguntas sobre os cursos na tela da vaga).
 - Depois da entrega de 30/11: migrar do `package:flutter/material.dart` para o pacote `material_ui`, exigido a partir do Flutter 3.50.
 

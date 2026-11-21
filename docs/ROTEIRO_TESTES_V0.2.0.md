@@ -2,6 +2,9 @@
 
 Guia para conduzir, passo a passo, a sessão de teste da Release [v0.2.1](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.1) (Etapa 2) com uma pessoa, em um aparelho real e com o Firebase de produção.
 
+> [!NOTE]
+> **v0.2.2.** O formulário "Teste do Nexo Future v0.2.1" continua o mesmo e vale também para a v0.2.2. P01, P02 e P03 testaram a v0.2.1; a P04 testa a v0.2.2 ([Release v0.2.2](https://github.com/samuelgomezdev/nexo-future-app/releases/tag/v0.2.2)).
+
 ## Como usar este roteiro
 
 - Leia em voz alta só o que está em **💬 Diga**. Fale com as suas palavras se ficar mais natural.
